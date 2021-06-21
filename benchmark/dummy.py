@@ -6,6 +6,7 @@ from sklearn.dummy import DummyRegressor as dreg
 from sklearn.metrics import accuracy_score, f1_score, recall_score, precision_score, mean_absolute_error
 import time
 
+
 class DummyClassifier:
     def __init__(self, settings: dict, preset: dict):
         self.X_train = []
@@ -76,4 +77,8 @@ class DummyRegressor:
         }
         time.sleep(0.1)
         return results_dict
+
+if __name__ == "__main__":
+    clf = DummyClassifier()
+    print(clf.dummyClf())
 

@@ -25,12 +25,11 @@ class DummyBenchmark(BenchmarkWrapper):
         super().__init__(gpuUsage)
 
     def getSettings(self):
-        with open("../config/dummy_config.json") as f:
+        with open("config/dummy_config.json") as f:
             settings = json.load(f)
         return settings
 
     def getPresets(self):
-        with open("../config/dummy_preset.json") as f:
+        with open("config/dummy_preset.json") as f:
             presets = json.load(f)
         return presets
-
