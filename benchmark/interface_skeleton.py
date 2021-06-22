@@ -1,31 +1,29 @@
 from typing import Optional
-from dummy import DummyClassifier, DummyRegressor
-from benchmarkwrapper import DummyBenchmark
+from benchmark_suite import startBenchmark,getBenchmarkConfig 
 import typer
 
 class InterfaceSkeleton:
     def __init__(self):
-        self.settings = {}
-        self.preset = {}
+        pass
 
     def loadConfig(self):
-        dummy = DummyBenchmark(None)
-        self.settings["Dummy"] = dummy.getSettings()
-        self.preset["Dummy"] = dummy.getPresets()
+        pass
 
     def startBenchmark(self):
-        dumClf = DummyClassifier(self.settings["Dummy"], self.preset["Dummy"])
-        dumReg = DummyRegressor()
-        result = {"classifier":dumClf.dummyClf(),
-                  "regressor":dumReg.dummyReg()}
-        return result
+        pass
 
+    def stopBenchmark(self):
+        pass
 
-class displayGUI:
+class displayGUI(InterfaceSkeleton):
     def __init__(self):
         pass
 
 
-class displayCLI:
+class displayCLI(InterfaceSkeleton):
+    def __init__(self):
+        pass
+
+class daemon(InterfaceSkeleton):
     def __init__(self):
         pass

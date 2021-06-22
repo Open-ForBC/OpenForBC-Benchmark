@@ -9,10 +9,6 @@ from celery import uuid
 app = typer.Typer()
 benchmark_ran:bool = 0
 
-
-
-
-
 def runInShell(command: str, loc: str):
     if loc == " ":
         process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
@@ -44,7 +40,7 @@ def benchmarkRunner():
 def showMenu():
     userChoice = 0
     while(userChoice!='q'):
-        typer.secho(f"-------[ OPENFORBC-BENCHMARK ]----------", fg=typer.colors.GREEN)
+        typer.secho(f"-----------------[ OPENFORBC-BENCHMARK ]-----------------", fg=typer.colors.GREEN)
         typer.echo("1.Start Benchmark")
         typer.echo("2.Stop Benchmark")
         typer.echo("3.Show Status")
@@ -57,18 +53,10 @@ def showMenu():
             stopBenchmark()
 
 
-# @app.command()
-# def startBenchmark():
-#     typer.echo("Benchmark Started")
-#     typer.echo("Fetching configuration files...")
-#     getConfig()
-
-
-# @app.command()
 def stopBenchmark():
     stop = typer.confirm("Are you sure you want to stop it?")
     if stop:
-        typer.echo("Stopped program from running")
+        raise typer.Exit()
     else:
         typer.echo("Not stopped")
 
