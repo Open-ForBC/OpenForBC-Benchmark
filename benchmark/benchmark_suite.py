@@ -1,7 +1,5 @@
 from benchmark_wrapper import BenchmarkWrapper
-from benchmark_wrapper import DummyBenchmark
-from dummy import DummyClassifier, DummyRegressor
-
+import json
 
 class BenchmarkSuite:
     benchmarkArray:BenchmarkWrapper
@@ -9,13 +7,10 @@ class BenchmarkSuite:
     def __init__(self):
         self.settings = {}
         self.preset = {}
+        self.benchmarkArray = []
 
     def startBenchmark(self):
-        dumClf = DummyClassifier(self.settings["Dummy"], self.preset["Dummy"])
-        dumReg = DummyRegressor()
-        result = {"classifier":dumClf.dummyClf(),
-                  "regressor":dumReg.dummyReg()}
-        return result
+        pass
 
     def benchmarkStatus():
         pass
@@ -24,7 +19,9 @@ class BenchmarkSuite:
         pass
 
     def getBenchmarkConfig(self):
-        dummy = DummyBenchmark(None)
-        self.settings["Dummy"] = dummy.getSettings()
-        self.preset["Dummy"] = dummy.getPresets()
+        with open('../config/benchmarkconfig.json') as f:
+            bench_config = json.load(f)
+        self.benchmarkArray.gpuUsage = bench_config['gpuUsage']
+        #TODO: Proper assignment of which benchmark to run
+
 

@@ -36,27 +36,3 @@ class BenchmarkWrapper(ABC):
         """ Accepts presets if any, otherwise sends a null object."""
         pass
 
-
-class DummyBenchmark(BenchmarkWrapper):
-    def __init__(self, gpuUsage: Any):
-        super().__init__(gpuUsage)
-        self.dir = os.path.dirname(__file__)
-
-    def getSettings(self):
-        with open(os.path.join(self.dir,"../config/dummy_config.json"))as f:
-            settings = json.load(f)
-        return settings
-
-    def getPresets(self):
-        with open(os.path.join(self.dir,"../config/dummy_preset.json")) as f:
-            presets = json.load(f)
-        return presets
-
-    def startBenchmark():
-        pass
-
-    def benchmarkStatus():
-        pass
-
-    def stopBenchmark():
-        pass

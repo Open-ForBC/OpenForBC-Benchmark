@@ -1,16 +1,16 @@
 from typing import Optional
-from benchmark_suite import startBenchmark,getBenchmarkConfig 
+from benchmark_suite import BenchmarkSuite
 import typer
 
 class InterfaceSkeleton:
     def __init__(self):
-        pass
+        self.BenchSuite = BenchmarkSuite()
 
     def loadConfig(self):
-        pass
+        return self.BenchSuite.getBenchmarkConfig()
 
     def startBenchmark(self):
-        pass
+        return self.BenchSuite.startBenchmark()
 
     def stopBenchmark(self):
         pass
