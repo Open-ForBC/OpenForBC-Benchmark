@@ -8,9 +8,10 @@ from benchmark_wrapper import BenchmarkWrapper
 
 
 class DummyClassifier(BenchmarkWrapper):
-
     def __init__(self, gpuUsage):
-        super().__init__(gpuUsage)
+        self.benchmarkName = "DummyClassifier"
+        self.gpuUsage = gpuUsage
+        super().__init__(self.benchmarkName, self.gpuUsage)
         self.dir = os.path.dirname(__file__)
         self.X_train = []
         self.X_test = []
@@ -18,29 +19,29 @@ class DummyClassifier(BenchmarkWrapper):
         self.y_test = []
 
     def getSettings(self):
-        with open(os.path.join(self.dir,"../config/dummy_config.json"))as f:
+        with open(os.path.join(self.dir, "../config/dummy_config.json")) as f:
             self.settings = json.load(f)
-        self.dataset = self.settings['dataset']
-        self.metrics = self.settings['metrics']
+        self.celery_log.info("Settings loaded")
+        self.dataset = self.settings["dataset"]
+        self.metrics = self.settings["metrics"]
 
     def getPresets(self):
-        with open(os.path.join(self.dir,"../config/dummy_preset.json")) as f:
+        with open(os.path.join(self.dir, "../config/dummy_preset.json")) as f:
             self.presets = json.load(f)
+        self.celery_log.info("Presets loaded")
         self.test_split = self.presets["test_split"]
-
 
     def startBenchmark(self):
         self.getSettings()
         self.getPresets()
         print(self.dummyClf())
-        
 
     def benchmarkStatus():
-        #TODO: Communication with celery workers to see if the task is completed.
+        # TODO: Communication with celery workers to see if the task is completed.
         pass
 
     def stopBenchmark():
-        #Todo:Figure out stopping the benchmark
+        # Todo:Figure out stopping the benchmark
         pass
 
     def extractDataset(self):
@@ -54,7 +55,7 @@ class DummyClassifier(BenchmarkWrapper):
             shuffle=True,
             random_state=42,
         )
-
+        self.celery_log.info("Dataset extracted")
 
     def dummyClf(self) -> dict:
         dummy_clf = dclf(strategy="stratified", random_state=42)
@@ -71,11 +72,6 @@ class DummyClassifier(BenchmarkWrapper):
         for k, v in results_dict.items():
             if k in self.metrics:
                 new_results_dict[k] = v
-        return new_results_dict
-
-
-
-if __name__ == "__main__":
-    clf = DummyClassifier(None)
-    clf.startBenchmark()
+                self.celery_log.info(f'{k}: {v}')
+        self.celery_log.info('Training task completed')
 

@@ -3,27 +3,31 @@ from sys import path
 from typing import Any
 import json
 import os
+from celery.utils.log import get_task_logger
 
 
 class BenchmarkWrapper(ABC):
-    def __init__(self, gpuUsage: Any):
+    def __init__(self, benchmarkName, gpuUsage: Any):
+        self.celery_log = get_task_logger(__name__)
+        self.benchmarkName = benchmarkName
         self.gpuUsage = gpuUsage
         self.settings: dict = {}
         self.presets: dict = {}
+        
 
     @abstractmethod
     def startBenchmark():
-        """ Starts the benchmark """
+        """Starts the benchmark"""
         pass
 
     @abstractmethod
     def benchmarkStatus():
-        """ Fetches the status of the current benchmark """
+        """Fetches the status of the current benchmark"""
         pass
 
     @abstractmethod
     def stopBenchmark():
-        """ Stops the benchmark """
+        """Stops the benchmark"""
         pass
 
     @abstractmethod
@@ -33,6 +37,5 @@ class BenchmarkWrapper(ABC):
 
     @abstractmethod
     def getPresets():
-        """ Accepts presets if any, otherwise sends a null object."""
+        """Accepts presets if any, otherwise sends a null object."""
         pass
-
