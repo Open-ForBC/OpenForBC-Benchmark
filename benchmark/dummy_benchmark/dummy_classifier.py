@@ -4,29 +4,27 @@ from sklearn.dummy import DummyClassifier as dclf
 from sklearn.metrics import accuracy_score, f1_score, recall_score, precision_score
 import os
 import json
-from benchmark_wrapper import BenchmarkWrapper
+from ..benchmark_wrapper import BenchmarkWrapper
 
 
 class DummyClassifier(BenchmarkWrapper):
-    def __init__(self, gpuUsage):
+    def __init__(self):
         self.benchmarkName = "DummyClassifier"
-        self.gpuUsage = gpuUsage
-        super().__init__(self.benchmarkName, self.gpuUsage)
-        self.dir = os.path.dirname(__file__)
+        super().__init__(self.benchmarkName)
         self.X_train = []
         self.X_test = []
         self.y_train = []
         self.y_test = []
 
     def getSettings(self):
-        with open(os.path.join(self.dir, "../config/dummy_config.json")) as f:
+        with open(os.path.join(self.home_dir, "../config/dummy_config.json")) as f:
             self.settings = json.load(f)
         self.celery_log.info("Settings loaded")
         self.dataset = self.settings["dataset"]
         self.metrics = self.settings["metrics"]
 
     def getPresets(self):
-        with open(os.path.join(self.dir, "../config/dummy_preset.json")) as f:
+        with open(os.path.join(self.home_dir, "../config/dummy_preset.json")) as f:
             self.presets = json.load(f)
         self.celery_log.info("Presets loaded")
         self.test_split = self.presets["test_split"]
@@ -72,6 +70,9 @@ class DummyClassifier(BenchmarkWrapper):
         for k, v in results_dict.items():
             if k in self.metrics:
                 new_results_dict[k] = v
-                self.celery_log.info(f'{k}: {v}')
-        self.celery_log.info('Training task completed')
+        self.celery_log.info(f"{results_dict}")
+        self.celery_log.info("Training task completed")
 
+
+def run():
+    DummyClassifier().startBenchmark()

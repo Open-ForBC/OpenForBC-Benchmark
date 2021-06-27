@@ -7,13 +7,12 @@ from celery.utils.log import get_task_logger
 
 
 class BenchmarkWrapper(ABC):
-    def __init__(self, benchmarkName, gpuUsage: Any):
+    def __init__(self, benchmarkName):
         self.celery_log = get_task_logger(__name__)
         self.benchmarkName = benchmarkName
-        self.gpuUsage = gpuUsage
+        self.home_dir = os.path.dirname(os.path.abspath(__file__))
         self.settings: dict = {}
         self.presets: dict = {}
-        
 
     @abstractmethod
     def startBenchmark():

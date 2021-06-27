@@ -1,3 +1,4 @@
+import benchmark
 from typing import Optional
 from benchmark_suite import BenchmarkSuite
 import typer
@@ -30,3 +31,6 @@ class displayCLI(InterfaceSkeleton):
 class daemon(InterfaceSkeleton):
     def __init__(self):
         pass
+
+
+##############################################

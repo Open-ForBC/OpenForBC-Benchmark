@@ -10,7 +10,7 @@ class DummyRegressor(BenchmarkWrapper):
     def __init__(self, gpuUsage):
         self.gpuUsage = gpuUsage
         self.benchmarkName = "DummyRegressor"
-        super().__init__(self.benchmarkName,self.gpuUsage)
+        super().__init__(self.benchmarkName, self.gpuUsage)
         self.X_train = []
         self.X_test = []
         self.y_train = []
