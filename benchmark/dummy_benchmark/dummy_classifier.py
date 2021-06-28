@@ -16,7 +16,7 @@ class DummyClassifier(BenchmarkWrapper):
         self.y_train = []
         self.y_test = []
 
-    def getSettings(self):
+    def getSettings(self):                                                          #TODO:takes argument for the path + change to set settings
         with open(os.path.join(self.home_dir, "../config/dummy_config.json")) as f:
             self.settings = json.load(f)
         self.celery_log.info("Settings loaded")

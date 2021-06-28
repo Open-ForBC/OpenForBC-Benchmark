@@ -5,8 +5,8 @@ import functools
 def try_import(bench="classifier"):
     try:
         return importlib.import_module(f".dummy_{bench}", __name__)
-    except ImportError:
-        return "not correct"
+    except ImportError as e:
+        return e
 
 
 def get_callable(bench):
