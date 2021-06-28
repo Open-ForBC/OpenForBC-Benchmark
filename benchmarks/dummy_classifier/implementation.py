@@ -4,7 +4,7 @@ from sklearn.dummy import DummyClassifier as dclf
 from sklearn.metrics import accuracy_score, f1_score, recall_score, precision_score
 import os
 import json
-from ..benchmark_wrapper import BenchmarkWrapper
+from common.benchmark_wrapper import BenchmarkWrapper
 
 
 class DummyClassifier(BenchmarkWrapper):
@@ -39,7 +39,7 @@ class DummyClassifier(BenchmarkWrapper):
         pass
 
     def stopBenchmark():
-        # Todo:Figure out stopping the benchmark
+        # TODO : Figure out stopping the benchmark
         pass
 
     def extractDataset(self):
@@ -72,7 +72,7 @@ class DummyClassifier(BenchmarkWrapper):
                 new_results_dict[k] = v
         self.celery_log.info(f"{results_dict}")
         self.celery_log.info("Training task completed")
-
+        return new_results_dict
 
 def run():
     DummyClassifier().startBenchmark()

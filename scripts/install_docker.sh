@@ -1,1 +1,0 @@
-$SHELL <(curl https://get.docker.com/) 

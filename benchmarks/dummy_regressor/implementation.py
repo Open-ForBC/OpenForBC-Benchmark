@@ -3,7 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.dummy import DummyRegressor as dreg
 from sklearn.metrics import mean_absolute_error
 import time
-from benchmark_wrapper import BenchmarkWrapper
+from common.benchmark_wrapper import BenchmarkWrapper
 
 
 class DummyRegressor(BenchmarkWrapper):
@@ -36,11 +36,11 @@ class DummyRegressor(BenchmarkWrapper):
         print(self.dummyReg())
 
     def benchmarkStatus():
-        # TODO: Communication with celery workers to see if the task is completed.
+        # TODO : Communication with celery workers to see if the task is completed.
         pass
 
     def stopBenchmark():
-        # Todo:Figure out stopping the benchmark
+        # TODO : Figure out stopping the benchmark
         pass
 
     def extractDataset(self):
@@ -62,7 +62,6 @@ class DummyRegressor(BenchmarkWrapper):
             "score": dummy_reg.score(self.y_test, y_pred),
             "Mean absolute error": mean_absolute_error(self.y_test, y_pred),
         }
-        time.sleep(0.1)
         return results_dict
 
 
