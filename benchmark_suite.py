@@ -4,6 +4,7 @@ from utils import get_benchmark_module
 from celery import Celery
 from celery.utils.log import get_task_logger
 from celery import Celery
+from benchmark.dummy_benchmark import dummy_classifier
 
 
 app = Celery("tasks", backend="rpc://", broker="amqp://localhost")
@@ -14,18 +15,15 @@ class BenchmarkSuite:
     def __init__(self):
         self.settings = {}
         self.preset = {}
-        self.benchmarkArray: BenchmarkWrapper = []
+        self.benchmarkArray = []
         self.bench_config = {}
+        self.benchmarkArray.append(dummy_classifier.DummyClassifier())
+        # self.benchmarkArray.append(dummy_regressor.DummyRegressor())
+        
 
-    def startBenchmark(self, benchmark):
-        try:
-            bm_module, _ = get_benchmark_module(benchmark)
-        except ImportError as e:
-            raise e
-        run = bm_module.get_callable("classifier")
-        res = run()
-
-        return res
+    def startBenchmark(self):
+        for b in self.benchmarkArray:
+            b.startBenchmark()
 
     def benchmarkStatus():
         pass
@@ -33,13 +31,13 @@ class BenchmarkSuite:
     def stopBenchmark():
         pass
 
-    def getBenchmarkConfig(self):
+    def getBenchmarkConfig(self):                                           
         with open("config/benchmarkconfig.json") as f:
             self.bench_config = json.load(f)
 
 
 @app.task(max_retries=3, soft_time_limit=5)
 def task():
-    print(BenchmarkSuite().startBenchmark("benchmark/dummy_benchmark"))
+    BenchmarkSuite().startBenchmark()
     celery_log.info("Task was completed")
     return "OK"
