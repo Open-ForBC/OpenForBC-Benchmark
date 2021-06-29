@@ -1,1 +1,0 @@
-{"task":"classification","dataset":"iris","metrics":["accuracy","recall","precision","f1_score"]}

@@ -4,7 +4,7 @@ from sklearn.dummy import DummyClassifier as dclf
 from sklearn.metrics import accuracy_score, f1_score, recall_score, precision_score
 import os
 import json
-from common.benchmark_wrapper import BenchmarkWrapper
+from benchmarks.common.benchmark_wrapper import BenchmarkWrapper
 
 
 class DummyClassifier(BenchmarkWrapper):
@@ -16,7 +16,7 @@ class DummyClassifier(BenchmarkWrapper):
         self.y_train = []
         self.y_test = []
 
-    def getSettings(self):                                                          #TODO:takes argument for the path + change to set settings
+    def setSettings(self):                                                          #TODO:takes argument for the path + change to set settings
         with open(os.path.join(self.home_dir, "../config/dummy_config.json")) as f:
             self.settings = json.load(f)
         self.celery_log.info("Settings loaded")
@@ -30,7 +30,7 @@ class DummyClassifier(BenchmarkWrapper):
         self.test_split = self.presets["test_split"]
 
     def startBenchmark(self):
-        self.getSettings()
+        self.SetSettings()
         self.getPresets()
         print(self.dummyClf())
 

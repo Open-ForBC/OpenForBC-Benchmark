@@ -2,15 +2,14 @@ from sklearn.datasets import load_boston
 from sklearn.model_selection import train_test_split
 from sklearn.dummy import DummyRegressor as dreg
 from sklearn.metrics import mean_absolute_error
-import time
-from common.benchmark_wrapper import BenchmarkWrapper
+from benchmarks.common.benchmark_wrapper import BenchmarkWrapper
+
 
 
 class DummyRegressor(BenchmarkWrapper):
-    def __init__(self, gpuUsage):
-        self.gpuUsage = gpuUsage
+    def __init__(self):
         self.benchmarkName = "DummyRegressor"
-        super().__init__(self.benchmarkName, self.gpuUsage)
+        super().__init__(self.benchmarkName)
         self.X_train = []
         self.X_test = []
         self.y_train = []
@@ -26,7 +25,7 @@ class DummyRegressor(BenchmarkWrapper):
             random_state=42,
         )
 
-    def getSettings(self):
+    def setSettings(self):
         pass
 
     def getPresets(self):
@@ -66,5 +65,5 @@ class DummyRegressor(BenchmarkWrapper):
 
 
 if __name__ == "__main__":
-    clf = DummyRegressor(None)
+    clf = DummyRegressor()
     clf.startBenchmark()

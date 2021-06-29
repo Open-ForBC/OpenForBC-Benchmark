@@ -32,8 +32,8 @@ class BenchmarkSuite:
         pass
 
     def getBenchmarkConfig(self):                                           
-        with open("config/benchmarkconfig.json") as f:
-            self.bench_config = json.load(f)
+        with json.load(open("benchmark_info.json")) as f:
+            pass   #TODO: read info from benchmark_info and make use.
 
 
 # @app.task(max_retries=3, soft_time_limit=5)

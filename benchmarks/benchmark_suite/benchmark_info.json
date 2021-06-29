@@ -1,4 +1,1 @@
-{
-    "name": "Benchmark suite",
-    "description": "An empty benchmark suite"
-}
+{"dummy_regressor": 1.0, "dummy_classifier": 1.0}
