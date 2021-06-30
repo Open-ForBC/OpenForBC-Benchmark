@@ -1,10 +1,9 @@
-from common.benchmark_wrapper import BenchmarkWrapper
 import json
-from utils import get_benchmark_module
-from celery import Celery
-from celery.utils.log import get_task_logger
-from celery import Celery
-from ..dummy_classifier import implementation
+import os
+
+# from celery.utils.log import get_task_logger
+# from celery import Celery
+from benchmarks.common.benchmark_factory import BenchmarkFactory
 
 
 # app = Celery("tasks", backend="rpc://", broker="amqp://localhost")
@@ -17,13 +16,19 @@ class BenchmarkSuite:
         self.preset = {}
         self.benchmarkArray = []
         self.bench_config = {}
-        self.benchmarkArray.append(implementation.DummyClassifier())
-        # self.benchmarkArray.append(dummy_regressor.DummyRegressor())
-        
 
     def startBenchmark(self):
-        for b in self.benchmarkArray:
-            b.startBenchmark()
+        self.getBenchmarkConfig()
+        for key in self.bench_config.keys():
+            self.benchmarkArray.append(
+                BenchmarkFactory().getBenchmarkModule(
+                    file_path=os.path.join("benchmarks", key)
+                )
+            )
+        for benchmark in self.benchmarkArray:
+            run = benchmark.getCallable()
+            run()
+        # return self.benchmarkArray
 
     def benchmarkStatus():
         pass
@@ -31,10 +36,15 @@ class BenchmarkSuite:
     def stopBenchmark():
         pass
 
-    def getBenchmarkConfig(self):                                           
-        with json.load(open("benchmark_info.json")) as f:
-            pass   #TODO: read info from benchmark_info and make use.
+    def getBenchmarkConfig(self):
+        with open(
+            "/home/deathstar/Documents/OpenForBC-Benchmark/benchmarks/benchmark_suite/suite_info.json"
+        ) as config:
+            self.bench_config = json.load(config)
 
+
+# if __name__ == "main":
+#     BenchmarkSuite().startBenchmark()
 
 # @app.task(max_retries=3, soft_time_limit=5)
 # def task():

@@ -5,7 +5,6 @@ from sklearn.metrics import mean_absolute_error
 from benchmarks.common.benchmark_wrapper import BenchmarkWrapper
 
 
-
 class DummyRegressor(BenchmarkWrapper):
     def __init__(self):
         self.benchmarkName = "DummyRegressor"
@@ -14,21 +13,13 @@ class DummyRegressor(BenchmarkWrapper):
         self.X_test = []
         self.y_train = []
         self.y_test = []
-
-    def extractDataset(self):
-        data, target = load_boston(return_X_y=True)
-        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
-            data,
-            target,
-            test_size=0.20,
-            shuffle=True,
-            random_state=42,
-        )
+        self.preset_loc = self.home_dir.joinpath('benchmarks','dummy_regressor','presets')
 
     def setSettings(self):
         pass
 
     def getPresets(self):
+        
         pass
 
     def startBenchmark(self):
@@ -62,8 +53,3 @@ class DummyRegressor(BenchmarkWrapper):
             "Mean absolute error": mean_absolute_error(self.y_test, y_pred),
         }
         return results_dict
-
-
-if __name__ == "__main__":
-    clf = DummyRegressor()
-    clf.startBenchmark()

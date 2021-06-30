@@ -1,16 +1,13 @@
 from abc import ABC, abstractmethod
-from sys import path
-from typing import Any
-import json
-import os
 from celery.utils.log import get_task_logger
+import pathlib
 
 
 class BenchmarkWrapper(ABC):
     def __init__(self, benchmarkName):
         self.celery_log = get_task_logger(__name__)
         self.benchmarkName = benchmarkName
-        self.home_dir = os.path.dirname(os.path.abspath(__file__))
+        self.home_dir = pathlib.Path.cwd()
         self.settings: dict = {}
         self.presets: dict = {}
 

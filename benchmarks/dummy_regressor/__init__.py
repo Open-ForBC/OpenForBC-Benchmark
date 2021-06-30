@@ -11,7 +11,7 @@ def tryImport():
 
 def getCallable():
     backend_module = tryImport()
-    cls = getattr(backend_module, "DummyClassifier")  # class-name
+    cls = getattr(backend_module, "DummyRegressor")  # class name
     obj = cls()
     try:
         return functools.partial(obj.startBenchmark)

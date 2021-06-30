@@ -4,7 +4,7 @@ from sklearn.dummy import DummyClassifier as dclf
 from sklearn.metrics import accuracy_score, f1_score, recall_score, precision_score
 import os
 import json
-from benchmarks.common.benchmark_wrapper import BenchmarkWrapper
+from ..common.benchmark_wrapper import BenchmarkWrapper
 
 
 class DummyClassifier(BenchmarkWrapper):
@@ -15,22 +15,22 @@ class DummyClassifier(BenchmarkWrapper):
         self.X_test = []
         self.y_train = []
         self.y_test = []
+        self.preset_loc = self.home_dir.joinpath(
+            "benchmarks", "dummy_classifier", "presets"
+        )
 
-    def setSettings(self):                                                          #TODO:takes argument for the path + change to set settings
-        with open(os.path.join(self.home_dir, "../config/dummy_config.json")) as f:
-            self.settings = json.load(f)
-        self.celery_log.info("Settings loaded")
-        self.dataset = self.settings["dataset"]
-        self.metrics = self.settings["metrics"]
+    def setSettings(self):
+        pass
 
     def getPresets(self):
-        with open(os.path.join(self.home_dir, "../config/dummy_preset.json")) as f:
-            self.presets = json.load(f)
-        self.celery_log.info("Presets loaded")
-        self.test_split = self.presets["test_split"]
+        with open(os.path.join(self.preset_loc, "preset1.json")) as f:
+            presetFile = json.load(f)
+            self.dataset = presetFile["dataset"]
+            self.metrics = presetFile["metrics"]
+            self.test_split = presetFile["test_split"]
+            self.celery_log.info("Presets loaded")
 
     def startBenchmark(self):
-        self.SetSettings()
         self.getPresets()
         print(self.dummyClf())
 
@@ -73,6 +73,3 @@ class DummyClassifier(BenchmarkWrapper):
         self.celery_log.info(f"{results_dict}")
         self.celery_log.info("Training task completed")
         return new_results_dict
-
-def run():
-    DummyClassifier().startBenchmark()
