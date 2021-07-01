@@ -1,14 +1,12 @@
 from __future__ import print_function, unicode_literals
-from math import fabs
-from operator import truediv
 from PyInquirer import prompt
 import json
 import os
-from utils import isBenchmark
+from user_interfaces.utils import isBenchmark
 import pathlib
 # import typer
 import sys
-from benchmarks.benchmark_suite.implementation import BenchmarkSuite
+from .interface_skeleton import InterfaceSkeleton
 
 
 class UserMenu:
@@ -32,6 +30,7 @@ class UserMenu:
                 "type": "checkbox",
                 "message": "Select Benchmark",
                 "name": "benchmark",
+                'qmark': '💻',
                 "choices": runnables,
                 "validate": lambda answer: ValueError("no input")
                 if len(answer) == 0
@@ -44,6 +43,7 @@ class UserMenu:
                 {
                     "type": "input",
                     "name": "gpuUsage",
+                    "qmark":'➡️',
                     "message": f"Assigned GPU usage for {bmark}?(0-1)",
                     "validate": lambda val: float(val) > 0.0 and float(val) <= 1.0,
                     "filter": lambda val: float(val),
@@ -56,11 +56,12 @@ class UserMenu:
             "w",
         ) as configFile:
             json.dump(self.runnerDict, configFile)
+        InterfaceSkeleton().startBenchmark()
 
 
-if __name__ == "__main__":
-    UserMenu().runner()
-    BenchmarkSuite().startBenchmark()
+# if __name__ == "__main__":
+#     UserMenu().runner()
+#     BenchmarkSuite().startBenchmark()
 
 
 

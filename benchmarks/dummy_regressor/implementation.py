@@ -2,7 +2,7 @@ from sklearn.datasets import load_boston
 from sklearn.model_selection import train_test_split
 from sklearn.dummy import DummyRegressor as dreg
 from sklearn.metrics import mean_absolute_error
-from benchmarks.common.benchmark_wrapper import BenchmarkWrapper
+from ..common.benchmark_wrapper import BenchmarkWrapper
 
 
 class DummyRegressor(BenchmarkWrapper):

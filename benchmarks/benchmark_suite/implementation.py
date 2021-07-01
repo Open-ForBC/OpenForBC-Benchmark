@@ -3,8 +3,8 @@ import os
 
 # from celery.utils.log import get_task_logger
 # from celery import Celery
-from benchmarks.common.benchmark_factory import BenchmarkFactory
-
+from ..common.benchmark_factory import BenchmarkFactory
+import pathlib
 
 # app = Celery("tasks", backend="rpc://", broker="amqp://localhost")
 # celery_log = get_task_logger(__name__)
@@ -16,6 +16,8 @@ class BenchmarkSuite:
         self.preset = {}
         self.benchmarkArray = []
         self.bench_config = {}
+        self.home_dir = pathlib.Path.cwd()
+
 
     def startBenchmark(self):
         self.getBenchmarkConfig()
@@ -28,7 +30,6 @@ class BenchmarkSuite:
         for benchmark in self.benchmarkArray:
             run = benchmark.getCallable()
             run()
-        # return self.benchmarkArray
 
     def benchmarkStatus():
         pass
@@ -37,9 +38,7 @@ class BenchmarkSuite:
         pass
 
     def getBenchmarkConfig(self):
-        with open(
-            "/home/deathstar/Documents/OpenForBC-Benchmark/benchmarks/benchmark_suite/suite_info.json"
-        ) as config:
+        with open(pathlib.Path.cwd().joinpath('benchmarks','benchmark_suite','suite_info.json')) as config:
             self.bench_config = json.load(config)
 
 

@@ -11,7 +11,10 @@ def tryImport():
 
 def getCallable():
     backend_module = tryImport()
-    cls = getattr(backend_module, "DummyClassifier")  # class-name
+    try:
+        cls = getattr(backend_module, "DummyClassifier")  # class-name
+    except (ImportError, AttributeError):
+        raise ValueError(f"Unknown format {format!r}") from None
     obj = cls()
     try:
         return functools.partial(obj.startBenchmark)
