@@ -6,10 +6,10 @@ from user_interfaces.utils import isBenchmark
 import pathlib
 import typer
 from .interface_skeleton import InterfaceSkeleton
-from .utils import EmptyBenchmarkList, Timer
-import logging
+from .utils import EmptyBenchmarkList
 
 app = typer.Typer()
+
 
 class UserMenu:
     def __init__(self):
@@ -18,27 +18,17 @@ class UserMenu:
         self.home_dir = pathlib.Path.cwd()
         self.runnerDict: dict = {}
         self.benchmarks = [
-                    {
-                        "type": "checkbox",
-                        "message": "Select Benchmark",
-                        "name": "benchmark",
-                        "qmark": "💻",
-                        "choices": self.getBenchmarksToRun(),
-                        "validate": lambda answer: ValueError("no input")
-                        if len(answer) == 0
-                        else True,
-                    }
-                ]
-        self.gpuUsage = [
-                {
-                    "type": "input",
-                    "name": "gpuUsage",
-                    "qmark": "➡️",
-                    "message": f"Assigned GPU usage for {bmark}?(0-1)",
-                    "validate": lambda val: float(val) > 0.0 and float(val) <= 1.0,
-                    "filter": lambda val: float(val),
-                }
-            ]
+            {
+                "type": "checkbox",
+                "message": "Select Benchmark",
+                "name": "benchmark",
+                "qmark": "💻",
+                "choices": self.getBenchmarksToRun(),
+                "validate": lambda answer: ValueError("no input")
+                if len(answer) == 0
+                else True,
+            }
+        ]
 
     def getBenchmarksToRun(self):
         return [
@@ -48,10 +38,18 @@ class UserMenu:
         ]
 
     def runner(self):
-        self.selectBenchmark = prompt(self.benchmarks)
-        if not self.selectBenchmark["benchmark"]:
-            raise EmptyBenchmarkList
+        self.benchmarkBanner()
         for bmark in self.selectBenchmark["benchmark"]:
+            self.gpuUsage = [
+                {
+                    "type": "input",
+                    "name": "gpuUsage",
+                    "qmark": "➡️",
+                    "message": f"Assigned GPU usage for {bmark}?(0-1)",
+                    "validate": lambda val: float(val) > 0.0 and float(val) <= 1.0,
+                    "filter": lambda val: float(val),
+                }
+            ]
             gpuUsage = prompt(self.gpuUsage)
             self.runnerDict[bmark] = gpuUsage["gpuUsage"]
         with open(
@@ -59,13 +57,19 @@ class UserMenu:
             "w",
         ) as configFile:
             json.dump(self.runnerDict, configFile)
+        InterfaceSkeleton().startBenchmark()
 
-
-
-
-
-        
-
+    def benchmarkBanner(self):
+        print("   ___                   _____          ____   ____ ")
+        print("  / _ \ _ __   ___ _ __ |  ___|__  _ __| __ ) / ___|")
+        print(" | | | | '_ \ / _ \ '_ \| |_ / _ \| '__|  _ \| |    ")
+        print(" | |_| | |_) |  __/ | | |  _| (_) | |  | |_) | |___ ")
+        print("  \___/| .__/ \___|_| |_|_|  \___/|_|  |____/ \____|")
+        print("       |_|                                          ")
+        print(" ====Welcome to the OpenForBC Benchmarking Tool====")
+        self.selectBenchmark = prompt(self.benchmarks)
+        if not self.selectBenchmark["benchmark"]:
+            raise EmptyBenchmarkList
 
 
 # if __name__ == "__main__":

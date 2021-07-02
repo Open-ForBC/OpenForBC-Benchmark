@@ -7,6 +7,7 @@ import json
 from ..common.benchmark_wrapper import BenchmarkWrapper
 from time import sleep
 
+
 class DummyClassifier(BenchmarkWrapper):
     def __init__(self):
         self.benchmarkName = "DummyClassifier"
@@ -25,9 +26,9 @@ class DummyClassifier(BenchmarkWrapper):
     def setSettings(self):
         with open(f"{self.settings_loc}/settings1.json") as f:
             _file = json.load(f)
-            self.burnin:int = _file["burnin"]
-            self.repetitions:int = _file["repetitions"]
-            return self.burnin,self.repetitions
+            self.burnin: int = _file["burnin"]
+            self.repetitions: int = _file["repetitions"]
+            return self.burnin, self.repetitions
 
     def getPresets(self):
         with open(os.path.join(self.preset_loc, "preset1.json")) as f:
@@ -52,7 +53,7 @@ class DummyClassifier(BenchmarkWrapper):
     def extractDataset(self):
         if self.dataset == "iris":
             data, target = load_iris(return_X_y=True)
-        sleep(0.05)                        ##Used to debug the logs
+        sleep(0.05)  ##Used to debug the logs
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
             data,
             target,
@@ -82,4 +83,4 @@ class DummyClassifier(BenchmarkWrapper):
                 new_results_dict[k] = v
         self.celery_log.info(f"{results_dict}")
         self.celery_log.info("Training task completed")
-        return new_results_dict,"{:.4f}".format(t.elapsed)
+        return new_results_dict, "{:.4f}".format(t.elapsed)

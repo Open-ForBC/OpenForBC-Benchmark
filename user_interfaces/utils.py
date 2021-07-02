@@ -11,6 +11,7 @@ def isBenchmark(path):
     return False
 
 
+
 class EmptyBenchmarkList(BaseException):
     def __str__(self):
         return "Please select benchmark(s) to run by pressing spacebar to select."

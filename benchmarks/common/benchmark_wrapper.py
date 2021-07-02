@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 from celery.utils.log import get_task_logger
 import pathlib
-import time 
+import time
+
 
 class BenchmarkWrapper(ABC):
     def __init__(self, benchmarkName):
@@ -36,10 +37,9 @@ class BenchmarkWrapper(ABC):
         """Accepts presets if any, otherwise sends a null object."""
         pass
 
-
     class Timer:
         def __init__(self):
-            self.elapsed = float('nan')
+            self.elapsed = float("nan")
 
         def __enter__(self):
             self._start = time.perf_counter()
@@ -48,4 +48,3 @@ class BenchmarkWrapper(ABC):
         def __exit__(self, type, value, traceback):
             if value is None:
                 self.elapsed = time.perf_counter() - self._start
-
