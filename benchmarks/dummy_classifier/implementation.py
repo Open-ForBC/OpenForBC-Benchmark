@@ -5,7 +5,7 @@ from sklearn.metrics import accuracy_score, f1_score, recall_score, precision_sc
 import os
 import json
 from ..common.benchmark_wrapper import BenchmarkWrapper
-
+from time import sleep
 
 class DummyClassifier(BenchmarkWrapper):
     def __init__(self):
@@ -18,9 +18,16 @@ class DummyClassifier(BenchmarkWrapper):
         self.preset_loc = self.home_dir.joinpath(
             "benchmarks", "dummy_classifier", "presets"
         )
+        self.settings_loc = self.home_dir.joinpath(
+            "benchmarks", "dummy_classifier", "settings"
+        )
 
     def setSettings(self):
-        pass
+        with open(f"{self.settings_loc}/settings1.json") as f:
+            _file = json.load(f)
+            self.burnin:int = _file["burnin"]
+            self.repetitions:int = _file["repetitions"]
+            return self.burnin,self.repetitions
 
     def getPresets(self):
         with open(os.path.join(self.preset_loc, "preset1.json")) as f:
@@ -45,6 +52,7 @@ class DummyClassifier(BenchmarkWrapper):
     def extractDataset(self):
         if self.dataset == "iris":
             data, target = load_iris(return_X_y=True)
+        sleep(0.05)                        ##Used to debug the logs
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
             data,
             target,
@@ -56,10 +64,12 @@ class DummyClassifier(BenchmarkWrapper):
         self.celery_log.info("Dataset extracted")
 
     def dummyClf(self) -> dict:
-        dummy_clf = dclf(strategy="stratified", random_state=42)
-        self.extractDataset()
-        dummy_clf.fit(self.X_train, self.y_train)
-        y_pred = dummy_clf.predict(self.X_test)
+        with BenchmarkWrapper.Timer() as t:
+            dummy_clf = dclf(strategy="stratified", random_state=42)
+            sleep(0.01)
+            self.extractDataset()
+            dummy_clf.fit(self.X_train, self.y_train)
+            y_pred = dummy_clf.predict(self.X_test)
         new_results_dict = {}
         results_dict = {
             "accuracy": accuracy_score(self.y_test, y_pred),
@@ -72,4 +82,4 @@ class DummyClassifier(BenchmarkWrapper):
                 new_results_dict[k] = v
         self.celery_log.info(f"{results_dict}")
         self.celery_log.info("Training task completed")
-        return new_results_dict
+        return new_results_dict,"{:.4f}".format(t.elapsed)

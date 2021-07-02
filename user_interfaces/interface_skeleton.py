@@ -9,7 +9,7 @@ class InterfaceSkeleton:
         pass
 
     def startBenchmark(self):
-        BenchmarkSuite.startBenchmark()
+        BenchmarkSuite().startBenchmark()
 
     def stopBenchmark():
         pass
