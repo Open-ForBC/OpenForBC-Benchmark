@@ -8,13 +8,13 @@ import typer
 from .interface_skeleton import InterfaceSkeleton
 from .utils import EmptyBenchmarkList
 
+
 app = typer.Typer()
 
 
 class UserMenu:
     def __init__(self):
         self.selectBenchmark: dict = {}
-        self.gpuUsage: float
         self.home_dir = pathlib.Path.cwd()
         self.runnerDict: dict = {}
         self.benchmarks = [
@@ -34,10 +34,12 @@ class UserMenu:
         return [
             {"name": x}
             for x in os.listdir(os.path.join(self.home_dir, "benchmarks"))
-            if isBenchmark(os.path.join(self.home_dir, "benchmarks", x)) == True
+            if isBenchmark(os.path.join(self.home_dir, "benchmarks", x))
         ]
 
     def runner(self):
+        _bmark = []
+        _gpuUtil = []
         self.benchmarkBanner()
         for bmark in self.selectBenchmark["benchmark"]:
             self.gpuUsage = [
@@ -51,7 +53,10 @@ class UserMenu:
                 }
             ]
             gpuUsage = prompt(self.gpuUsage)
-            self.runnerDict[bmark] = gpuUsage["gpuUsage"]
+            _bmark.append(bmark)
+            _gpuUtil.append(gpuUsage["gpuUsage"])
+        self.runnerDict["benchmarks"] = _bmark
+        self.runnerDict["gpuUsage"] = _gpuUtil
         with open(
             self.home_dir.joinpath("benchmarks", "benchmark_suite", "suite_info.json"),
             "w",

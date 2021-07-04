@@ -1,9 +1,7 @@
 import json
-
 # from ..common.benchmark_factory import BenchmarkFactory
 import pathlib
 from ..dummy_benchmark_suite.dummy_suite import DummyBenchmarkSuite
-
 
 class BenchmarkSuite:
     def __init__(self):
@@ -15,6 +13,7 @@ class BenchmarkSuite:
 
     def startBenchmark(self):
         self.getBenchmarkConfig()
+        print(self.bench_config)
         # IF STAND-ALONE BENCHMARK =====>
 
         # for key in self.bench_config.keys():
@@ -31,9 +30,9 @@ class BenchmarkSuite:
 
         _runSettings = DummyBenchmarkSuite().prepBenchmark()
         for (run, rep, burnin) in _runSettings:
-            # print(run,rep,burnin)
             for i in range(rep + burnin):
-                run()
+                results, timeElapsed = run()
+                print(f"Results:{results} \nTime Elapsed:{timeElapsed}")
 
     def benchmarkStatus():
         pass
@@ -47,4 +46,4 @@ class BenchmarkSuite:
                 "benchmarks", "benchmark_suite", "suite_info.json"
             )
         ) as config:
-            self.bench_config = json.load(config)
+            self.bench_config = json.load(config)["benchmarks"]   #ideally if the process is using GPU, you'd be sending in GPU-usage percentage

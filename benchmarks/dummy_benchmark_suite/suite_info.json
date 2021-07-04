@@ -1,6 +1,4 @@
 {
     "name": "Dummy Machine learning benchmark suite",
-    "description": "A preconfigured collection of Dummy ML benchmarks",
-    "repetitions":10,
-    "burnin":2
+    "description": "A preconfigured collection of Dummy ML benchmarks"
 }

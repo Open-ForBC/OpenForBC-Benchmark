@@ -25,9 +25,18 @@ class DummyClassifier(BenchmarkWrapper):
 
     def setSettings(self):
         with open(f"{self.settings_loc}/settings1.json") as f:
-            _file = json.load(f)
-            self.burnin: int = _file["burnin"]
-            self.repetitions: int = _file["repetitions"]
+            try:
+                _file = json.load(f)
+                try:
+                    self.burnin: int = _file["burnin"]
+                except:
+                    self.burnin = None
+                try:
+                    self.repetitions: int = _file["repetitions"]
+                except:
+                    self.repetitions = None
+            except:
+                return 'file not found'
             return self.burnin, self.repetitions
 
     def getPresets(self):
@@ -40,7 +49,7 @@ class DummyClassifier(BenchmarkWrapper):
 
     def startBenchmark(self):
         self.getPresets()
-        print(self.dummyClf())
+        return self.dummyClf()
 
     def benchmarkStatus():
         # TODO: Communication with celery workers to see if the task is completed.

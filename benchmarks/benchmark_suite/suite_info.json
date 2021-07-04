@@ -1,1 +1,1 @@
-{"dummy_regressor": 1.0, "dummy_classifier": 1.0}
+{"benchmarks": ["dummy_regressor", "dummy_classifier"], "gpuUsage": [1.0, 1.0]}
