@@ -28,8 +28,14 @@ class BenchmarkWrapper(ABC):
         pass
 
     @abstractmethod
-    def setSettings():
+    def getSettings():
         """Gets the benchmark settings according to the users choice"""
+        pass
+
+
+    @abstractmethod
+    def setSettings():
+        """Sets the benchmark settings according to the users choice"""
         pass
 
     @abstractmethod

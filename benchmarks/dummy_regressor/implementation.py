@@ -22,22 +22,24 @@ class DummyRegressor(BenchmarkWrapper):
         self.settings_loc = self.home_dir.joinpath(
             "benchmarks", "dummy_regressor", "settings"
         )
+    def __str__(self):
+        return "Dummy Regressor"
+
+    def getSettings(self):
+        with open(f"{self.settings_loc}/settings1.json") as f:
+            _file = json.load(f)
+        try:
+            self.burnin: int = _file["burnin"]
+        except:
+            self.burnin = None
+        try:
+            self.repetitions: int = _file["repetitions"]
+        except:
+            self.repetitions = None
+        return self.burnin, self.repetitions
 
     def setSettings(self):
-        with open(f"{self.settings_loc}/settings1.json") as f:
-            try:
-                _file = json.load(f)
-                try:
-                    self.burnin: int = _file["burnin"]
-                except:
-                    self.burnin = None
-                try:
-                    self.repetitions: int = _file["repetitions"]
-                except:
-                    self.repetitions = None
-            except:
-                return 'file not found'
-            return self.burnin, self.repetitions
+        pass
 
     def getPresets(self):
         pass

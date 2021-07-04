@@ -1,10 +1,21 @@
+# from benchmarks.dummy_classifier import getCallable
 import json
-# from ..common.benchmark_factory import BenchmarkFactory
+import os
+from ..common.benchmark_factory import BenchmarkFactory
 import pathlib
 from ..dummy_benchmark_suite.dummy_suite import DummyBenchmarkSuite
+import logging
+
+logger = logging.getLogger(__name__)
+
+logger.setLevel(logging.WARNING)
+
 
 class BenchmarkSuite:
     def __init__(self):
+        # self.file_handler = logging.FileHandler('logfile.log')
+        # self.formatter = logging.Formatter(format='%(asctime)s-%(process)d-%(levelname)s-%(message)s')
+        # self.file_handler.setFormatter(self.formatter)
         self.settings = {}
         self.preset = {}
         self.benchmarkArray = []
@@ -13,26 +24,29 @@ class BenchmarkSuite:
 
     def startBenchmark(self):
         self.getBenchmarkConfig()
-        print(self.bench_config)
-        # IF STAND-ALONE BENCHMARK =====>
-
-        # for key in self.bench_config.keys():
-        #     self.benchmarkArray.append(
-        #         BenchmarkFactory().getBenchmarkModule(
-        #             file_path=os.path.join("benchmarks", key)
-        #         )
-        #     )
-        # for benchmark in self.benchmarkArray:
-        #     run = benchmark.getCallable()
-        #     run()
-
-        # ELSE IF BENCHMARK UNDER A SUB-BENCHMARKSUITE ====>
-
-        _runSettings = DummyBenchmarkSuite().prepBenchmark()
-        for (run, rep, burnin) in _runSettings:
-            for i in range(rep + burnin):
-                results, timeElapsed = run()
-                print(f"Results:{results} \nTime Elapsed:{timeElapsed}")
+        for key in self.bench_config:
+            _bmarkObj = BenchmarkFactory().getBenchmarkModule(
+                    file_path=os.path.join("benchmarks", key))
+            _ans,_parent = _bmarkObj.isStandAlone()
+            # IF STAND-ALONE BENCHMARK =====>
+            if _ans == "True":
+                run,rep = _bmarkObj.getCallable()
+                burnin = _bmarkObj.hasBurnin()
+                _arrObj = run,rep,burnin
+            # ELSE GROUPED BENCHMARK ======>
+            else:
+                print(_parent)
+                _bmObj = BenchmarkFactory().getBenchmarkModule(
+                    file_path=os.path.join("benchmarks", _parent))
+                _obj = _bmObj.getCallable()
+                _arrObj = _obj.prepBenchmark()
+        self.benchmarkArray.append(_arrObj)
+        print(self.benchmarkArray)
+        for elements in self.benchmarkArray:
+            for run,rep,burnin in elements:
+                for _ in range(rep + burnin):
+                    results, timeElapsed = run()
+                    print(f"Results:{results} \nTime Elapsed:{timeElapsed}")
 
     def benchmarkStatus():
         pass

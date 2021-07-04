@@ -5,6 +5,10 @@ import os
 import sys
 from pathlib import Path
 import functools
+import logging
+
+logging.basicConfig(level=logging.INFO,filename='logs/bench.log', filemode='w',format='%(asctime)s-%(process)d-%(levelname)s-%(message)s')
+
 
 class DummyBenchmarkSuite:
     def __init__(self) -> None:
@@ -16,7 +20,7 @@ class DummyBenchmarkSuite:
 
     def prepBenchmark(self):
         for benchs in self.benchs:
-            burnin,repetitions = benchs.setSettings()
+            burnin,repetitions = benchs.getSettings()
             run = functools.partial(benchs.startBenchmark)
             if repetitions is None:
                 fileName = str(Path(sys.modules[benchs.__module__].__file__).parent).split('/')[-1]
@@ -25,7 +29,6 @@ class DummyBenchmarkSuite:
                     _callable = self.getModule(newFile)
                 except:
                     print("can't get callable function")
-                run = _callable.getCallable()
-                repetitions = estimate_repetitions(run)
+                run,repetitions = _callable.getCallable()
             self._runSettings.append((run,repetitions,burnin))
         return self._runSettings

@@ -1,2 +1,4 @@
 {
-    "burnin":4}
+    "burnin":4,
+    "stand-alone":"False",
+    "parent":"dummy_benchmark_suite"}

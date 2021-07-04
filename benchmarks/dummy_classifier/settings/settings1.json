@@ -1,2 +1,5 @@
 {"repetitions":10,
-"burnin":2}
+"burnin":2,
+"stand-alone":"False",
+"parent":"dummy_benchmark_suite"
+}
