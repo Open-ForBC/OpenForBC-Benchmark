@@ -13,6 +13,32 @@ app = typer.Typer()
 
 
 class UserMenu:
+    def __init__(self) -> None:
+        pass
+
+    def isInteractive(
+        interactive:bool = typer.Option(False,help="Raise this flag to start interactive interface.")
+    ):
+        if interactive:
+            InteractiveMenu().runner()
+        else:
+            pass
+    
+
+    def benchmarkBanner(self):
+        print("   ___                   _____          ____   ____ ")
+        print("  / _ \ _ __   ___ _ __ |  ___|__  _ __| __ ) / ___|")
+        print(" | | | | '_ \ / _ \ '_ \| |_ / _ \| '__|  _ \| |    ")
+        print(" | |_| | |_) |  __/ | | |  _| (_) | |  | |_) | |___ ")
+        print("  \___/| .__/ \___|_| |_|_|  \___/|_|  |____/ \____|")
+        print("       |_|                                          ")
+        print(" ====Welcome to the OpenForBC Benchmarking Tool====")
+        self.selectBenchmark = prompt(self.benchmarks)
+        if not self.selectBenchmark["benchmark"]:
+            raise EmptyBenchmarkList
+
+
+class InteractiveMenu():
     def __init__(self):
         self.selectBenchmark: dict = {}
         self.home_dir = pathlib.Path.cwd()
@@ -62,21 +88,10 @@ class UserMenu:
             "w",
         ) as configFile:
             json.dump(self.runnerDict, configFile)
-        InterfaceSkeleton().startBenchmark()
 
-    def benchmarkBanner(self):
-        print("   ___                   _____          ____   ____ ")
-        print("  / _ \ _ __   ___ _ __ |  ___|__  _ __| __ ) / ___|")
-        print(" | | | | '_ \ / _ \ '_ \| |_ / _ \| '__|  _ \| |    ")
-        print(" | |_| | |_) |  __/ | | |  _| (_) | |  | |_) | |___ ")
-        print("  \___/| .__/ \___|_| |_|_|  \___/|_|  |____/ \____|")
-        print("       |_|                                          ")
-        print(" ====Welcome to the OpenForBC Benchmarking Tool====")
-        self.selectBenchmark = prompt(self.benchmarks)
-        if not self.selectBenchmark["benchmark"]:
-            raise EmptyBenchmarkList
 
 
 # if __name__ == "__main__":
 #     UserMenu().runner()
 #     BenchmarkSuite().startBenchmark()
+

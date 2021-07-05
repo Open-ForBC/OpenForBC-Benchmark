@@ -1,6 +1,4 @@
 import importlib
-import functools
-import json
 from ..common.benchmark_factory import estimate_repetitions
 
 
@@ -11,33 +9,11 @@ def tryImport():
         return None
 
 
-def getCallable():
+def getClass():
     backend_module = tryImport()
     try:
         cls = getattr(backend_module, "DummyRegressor")  # class-name
-
     except (ImportError, AttributeError):
         raise ValueError(f"Unknown format {format!r}") from None
     obj = cls()
-    try:
-        _runner = functools.partial(obj.startBenchmark)
-        return _runner, estimate_repetitions(_runner)
-    except TypeError:
-        pass
-
-
-def isStandAlone() -> list:
-    with open("benchmarks/dummy_regressor/settings/settings1.json") as f:
-        _ans = json.load(f)
-        if _ans["stand-alone"] == "True":
-            return [True, None]
-        else:
-            return [False, _ans["parent"]]
-
-
-def hasBurnin():  # TODO: reduce number of times file is opened
-    with open("benchmarks/dummy_regressor/settings/settings1.json") as f:
-        try:
-            return json.load(f)["burnin"]
-        except:
-            return 0
+    return obj

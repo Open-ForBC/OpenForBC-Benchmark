@@ -1,1 +1,12 @@
-{"benchmarks": ["dummy_regressor", "dummy_classifier"], "gpuUsage": [1.0, 1.0]}
+{
+    "benchmarks": [
+                    {
+                        "name":"dummy_regressor",
+                        "settings":"settings1"
+                    },
+                    {
+                        "name":"dummy_classifier",
+                        "settings":"settings1"
+                    }
+                ]
+}

@@ -10,6 +10,11 @@ import json
 
 
 class DummyRegressor(BenchmarkWrapper):
+
+    """
+    This is a dummy benchmark class to demonstrate how to construct code for benchmark implementation.
+    """
+
     def __init__(self):
         self.benchmarkName = "DummyRegressor"
         super().__init__(self.benchmarkName)
@@ -17,9 +22,6 @@ class DummyRegressor(BenchmarkWrapper):
         self.X_test = []
         self.y_train = []
         self.y_test = []
-        self.preset_loc = self.home_dir.joinpath(
-            "benchmarks", "dummy_regressor", "presets"
-        )
         self.settings_loc = self.home_dir.joinpath(
             "benchmarks", "dummy_regressor", "settings"
         )
@@ -28,27 +30,16 @@ class DummyRegressor(BenchmarkWrapper):
         return "Dummy Regressor"
 
     def getSettings(self):
-        with open(f"{self.settings_loc}/settings1.json") as f:
-            _file = json.load(f)
-        try:
-            self.burnin: int = _file["burnin"]
-        except KeyError:
-            self.burnin = None
-        try:
-            self.repetitions: int = _file["repetitions"]
-        except KeyError:
-            self.repetitions = None
-        return self.burnin, self.repetitions
-
-    def setSettings(self):
         pass
 
-    def getPresets(self):
-        with open(os.path.join(self.preset_loc, "presets1.json")) as f:
-            presetFile = json.load(f)
-        self.randomstate = presetFile["random_state"]
-        self.test_split = presetFile["test_size"]
-        self.celery_log.info("Presets loaded")
+    def setSettings(self):
+        with open(f"{self.settings_loc}/settings1.json") as f:
+            self._settings = json.load(f)
+        self.burnin = self.checkSettings("burnin")
+        self.random_state = self.checkSettings("random_state")
+        self.test_split = self.checkSettings("test_size")
+        self.repetitions = self.checkSettings("repetitions")
+        # return self.burnin, self.repetitions
 
     def startBenchmark(self):
         return self.dummyReg()
@@ -62,7 +53,7 @@ class DummyRegressor(BenchmarkWrapper):
         pass
 
     def extractDataset(self):
-        self.getPresets()
+        self.setSettings()
         data, target = load_boston(return_X_y=True)
         sleep(0.05)  ##Used to debug the logs
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
@@ -70,7 +61,7 @@ class DummyRegressor(BenchmarkWrapper):
             target,
             test_size=self.test_split,
             shuffle=True,
-            random_state=self.randomstate,
+            random_state=self.random_state,
         )
 
     def dummyReg(self) -> Tuple[dict, float]:
@@ -84,3 +75,9 @@ class DummyRegressor(BenchmarkWrapper):
             "Mean absolute error": mean_absolute_error(self.y_test, y_pred),
         }
         return results_dict, "{:.4f}".format(t.elapsed)
+
+    def checkSettings(self, key):
+        try:
+            return self._settings[key]
+        except KeyError:
+            return None

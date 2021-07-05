@@ -15,9 +15,9 @@ class BenchmarkFactory:
         import_path = ".".join(os.path.split(module_path))
         try:
             self.backend_module = importlib.import_module(import_path)
-            return self.backend_module
         except ImportError as e:
             return f"{e}:Benchmark doesn't exist."
+        return self.backend_module.getClass
 
 
 def estimate_repetitions(func, args=(), target_time=10, powers_of=10):

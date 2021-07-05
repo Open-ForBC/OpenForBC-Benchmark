@@ -6,11 +6,9 @@ import time
 
 class BenchmarkWrapper(ABC):
     def __init__(self, benchmarkName):
-        self.celery_log = get_task_logger(__name__)
         self.benchmarkName = benchmarkName
         self.home_dir = pathlib.Path.cwd()
-        self.settings: dict = {}
-        self.presets: dict = {}
+        self._settings = {}
 
     @abstractmethod
     def startBenchmark():
@@ -35,11 +33,6 @@ class BenchmarkWrapper(ABC):
     @abstractmethod
     def setSettings():
         """Sets the benchmark settings according to the users choice"""
-        pass
-
-    @abstractmethod
-    def getPresets():
-        """Accepts presets if any, otherwise sends a null object."""
         pass
 
     class Timer:
