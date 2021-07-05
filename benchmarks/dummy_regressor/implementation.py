@@ -5,6 +5,7 @@ from sklearn.dummy import DummyRegressor as dreg
 from sklearn.metrics import mean_absolute_error
 from ..common.benchmark_wrapper import BenchmarkWrapper
 from time import sleep
+import os
 import json
 
 
@@ -22,6 +23,7 @@ class DummyRegressor(BenchmarkWrapper):
         self.settings_loc = self.home_dir.joinpath(
             "benchmarks", "dummy_regressor", "settings"
         )
+
     def __str__(self):
         return "Dummy Regressor"
 
@@ -30,11 +32,11 @@ class DummyRegressor(BenchmarkWrapper):
             _file = json.load(f)
         try:
             self.burnin: int = _file["burnin"]
-        except:
+        except KeyError:
             self.burnin = None
         try:
             self.repetitions: int = _file["repetitions"]
-        except:
+        except KeyError:
             self.repetitions = None
         return self.burnin, self.repetitions
 
@@ -42,7 +44,11 @@ class DummyRegressor(BenchmarkWrapper):
         pass
 
     def getPresets(self):
-        pass
+        with open(os.path.join(self.preset_loc, "presets1.json")) as f:
+            presetFile = json.load(f)
+        self.randomstate = presetFile["random_state"]
+        self.test_split = presetFile["test_size"]
+        self.celery_log.info("Presets loaded")
 
     def startBenchmark(self):
         return self.dummyReg()
@@ -56,14 +62,15 @@ class DummyRegressor(BenchmarkWrapper):
         pass
 
     def extractDataset(self):
+        self.getPresets()
         data, target = load_boston(return_X_y=True)
         sleep(0.05)  ##Used to debug the logs
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
             data,
             target,
-            test_size=0.2,
+            test_size=self.test_split,
             shuffle=True,
-            random_state=42,
+            random_state=self.randomstate,
         )
 
     def dummyReg(self) -> Tuple[dict, float]:

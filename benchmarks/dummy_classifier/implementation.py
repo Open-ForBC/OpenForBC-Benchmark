@@ -22,16 +22,17 @@ class DummyClassifier(BenchmarkWrapper):
         self.settings_loc = self.home_dir.joinpath(
             "benchmarks", "dummy_classifier", "settings"
         )
-    def __str__(self):
+
+    def __str__(self) -> str:
         return "Dummy Classifier"
-    
+
     def getSettings(self):
         with open(f"{self.settings_loc}/settings1.json") as f:
             try:
                 self._settings = json.load(f)
-            except:
+            except TypeError:
                 self._settings = None
-        return self._settings["burnin"],self._settings["repetitions"]
+        return self._settings["burnin"], self._settings["repetitions"]
 
     def setSettings(self):
         pass

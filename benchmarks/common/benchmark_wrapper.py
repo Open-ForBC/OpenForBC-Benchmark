@@ -32,7 +32,6 @@ class BenchmarkWrapper(ABC):
         """Gets the benchmark settings according to the users choice"""
         pass
 
-
     @abstractmethod
     def setSettings():
         """Sets the benchmark settings according to the users choice"""

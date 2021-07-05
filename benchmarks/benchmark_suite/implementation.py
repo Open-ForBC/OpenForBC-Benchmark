@@ -3,7 +3,8 @@ import json
 import os
 from ..common.benchmark_factory import BenchmarkFactory
 import pathlib
-from ..dummy_benchmark_suite.dummy_suite import DummyBenchmarkSuite
+
+# from ..dummy_benchmark_suite.dummy_suite import DummyBenchmarkSuite
 import logging
 
 logger = logging.getLogger(__name__)
@@ -26,24 +27,24 @@ class BenchmarkSuite:
         self.getBenchmarkConfig()
         for key in self.bench_config:
             _bmarkObj = BenchmarkFactory().getBenchmarkModule(
-                    file_path=os.path.join("benchmarks", key))
-            _ans,_parent = _bmarkObj.isStandAlone()
+                file_path=os.path.join("benchmarks", key)
+            )
+            _ans, _parent = _bmarkObj.isStandAlone()
             # IF STAND-ALONE BENCHMARK =====>
             if _ans == "True":
-                run,rep = _bmarkObj.getCallable()
+                run, rep = _bmarkObj.getCallable()
                 burnin = _bmarkObj.hasBurnin()
-                _arrObj = run,rep,burnin
+                _arrObj = run, rep, burnin
             # ELSE GROUPED BENCHMARK ======>
             else:
-                print(_parent)
                 _bmObj = BenchmarkFactory().getBenchmarkModule(
-                    file_path=os.path.join("benchmarks", _parent))
+                    file_path=os.path.join("benchmarks", _parent)
+                )
                 _obj = _bmObj.getCallable()
                 _arrObj = _obj.prepBenchmark()
         self.benchmarkArray.append(_arrObj)
-        print(self.benchmarkArray)
         for elements in self.benchmarkArray:
-            for run,rep,burnin in elements:
+            for run, rep, burnin in elements:
                 for _ in range(rep + burnin):
                     results, timeElapsed = run()
                     print(f"Results:{results} \nTime Elapsed:{timeElapsed}")
@@ -60,4 +61,6 @@ class BenchmarkSuite:
                 "benchmarks", "benchmark_suite", "suite_info.json"
             )
         ) as config:
-            self.bench_config = json.load(config)["benchmarks"]   #ideally if the process is using GPU, you'd be sending in GPU-usage percentage
+            self.bench_config = json.load(config)[
+                "benchmarks"
+            ]  # ideally if the process is using GPU, you'd be sending in GPU-usage percentage

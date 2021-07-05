@@ -19,22 +19,23 @@ def getCallable():
         raise ValueError(f"Unknown format {format!r}") from None
     obj = cls()
     try:
-        _runner =  functools.partial(obj.startBenchmark)
+        _runner = functools.partial(obj.startBenchmark)
         return _runner, estimate_repetitions(_runner)
     except TypeError:
         pass
 
 
-def isStandAlone()->list:
-    with open('benchmarks/dummy_classifier/settings/settings1.json') as f:
-        _ans =  json.load(f)
+def isStandAlone():
+    with open("benchmarks/dummy_classifier/settings/settings1.json") as f:
+        _ans = json.load(f)
         if _ans["stand-alone"] == "True":
-            return [True,None]
+            return [True, None]
         else:
-            return [False,_ans["parent"]]
+            return [False, _ans["parent"]]
 
-def hasBurnin():                                         #TODO: reduce number of times file is opened 
-    with open('benchmarks/dummy_classifier/settings/settings1.json') as f:
+
+def hasBurnin():  # TODO: reduce number of times file is opened
+    with open("benchmarks/dummy_classifier/settings/settings1.json") as f:
         try:
             return json.load(f)["burnin"]
         except:
