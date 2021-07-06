@@ -5,7 +5,7 @@ from sklearn.dummy import DummyRegressor as dreg
 from sklearn.metrics import mean_absolute_error
 from ..common.benchmark_wrapper import BenchmarkWrapper
 from time import sleep
-import os
+from ..common.benchmark_factory import estimate_repetitions
 import json
 
 
@@ -30,7 +30,10 @@ class DummyRegressor(BenchmarkWrapper):
         return "Dummy Regressor"
 
     def getSettings(self):
-        pass
+        self.setSettings()
+        if self.repetitions == None:
+            self.repetitions = estimate_repetitions(self.startBenchmark)
+        return [self.burnin, self.repetitions]
 
     def setSettings(self):
         with open(f"{self.settings_loc}/settings1.json") as f:
@@ -39,7 +42,6 @@ class DummyRegressor(BenchmarkWrapper):
         self.random_state = self.checkSettings("random_state")
         self.test_split = self.checkSettings("test_size")
         self.repetitions = self.checkSettings("repetitions")
-        # return self.burnin, self.repetitions
 
     def startBenchmark(self):
         return self.dummyReg()
@@ -53,7 +55,6 @@ class DummyRegressor(BenchmarkWrapper):
         pass
 
     def extractDataset(self):
-        self.setSettings()
         data, target = load_boston(return_X_y=True)
         sleep(0.05)  ##Used to debug the logs
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
@@ -74,7 +75,7 @@ class DummyRegressor(BenchmarkWrapper):
             "score": dummy_reg.score(self.y_test, y_pred),
             "Mean absolute error": mean_absolute_error(self.y_test, y_pred),
         }
-        return results_dict, "{:.4f}".format(t.elapsed)
+        return {"results": results_dict, "Time Elapsed": "{:.4f}".format(t.elapsed)}
 
     def checkSettings(self, key):
         try:

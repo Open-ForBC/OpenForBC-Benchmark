@@ -8,6 +8,7 @@ class BenchmarkWrapper(ABC):
     def __init__(self, benchmarkName):
         self.benchmarkName = benchmarkName
         self.home_dir = pathlib.Path.cwd()
+        self.benchmarkArray = []
         self._settings = {}
 
     @abstractmethod

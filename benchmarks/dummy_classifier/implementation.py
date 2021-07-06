@@ -2,17 +2,17 @@ from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.dummy import DummyClassifier as dclf
 from sklearn.metrics import accuracy_score, f1_score, recall_score, precision_score
-import os
 import json
 from ..common.benchmark_wrapper import BenchmarkWrapper
+from ..common.benchmark_factory import estimate_repetitions
 from time import sleep
 
 
 class DummyClassifier(BenchmarkWrapper):
 
-    '''
+    """
     This is a dummy benchmark class to demonstrate how to construct code for benchmark implementation.
-    '''
+    """
 
     def __init__(self):
         self.benchmarkName = "DummyClassifier"
@@ -31,7 +31,7 @@ class DummyClassifier(BenchmarkWrapper):
             try:
                 self._settings = json.load(f)
             except ValueError:
-                raise 'There was a value error in importing the settings json'
+                raise "There was a value error in importing the settings json"
             self.dataset = self.checkSettings("dataset")
             self.metrics = self.checkSettings("metrics")
             self.test_split = self.checkSettings("test_split")
@@ -50,7 +50,10 @@ class DummyClassifier(BenchmarkWrapper):
         return "Dummy Classifier"
 
     def getSettings(self):
-        pass
+        self.setSettings()
+        if self.repetitions == None:
+            self.repetitions = estimate_repetitions(self.startBenchmark)
+        return [self.burnin, self.repetitions]
 
     def stopBenchmark():
         # TODO : Figure out stopping the benchmark
@@ -86,10 +89,9 @@ class DummyClassifier(BenchmarkWrapper):
         for k, v in results_dict.items():
             if k in self.metrics:
                 new_results_dict[k] = v
-        return new_results_dict, "{:.4f}".format(t.elapsed)
+        return {"results": new_results_dict, "Time Elapsed": "{:.4f}".format(t.elapsed)}
 
-
-    def checkSettings(self,key):
+    def checkSettings(self, key):
         try:
             return self._settings[key]
         except KeyError:
