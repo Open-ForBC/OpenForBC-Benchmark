@@ -2,54 +2,12 @@ from __future__ import print_function, unicode_literals
 from PyInquirer import prompt,Separator
 import os
 from pathlib import Path
-from utils import getBenchmarksToRun, getSettings, setSettings, getSuitesToRun, EmptyBenchmarkList
-import typer
-from typing import Optional
-from typing import Tuple
+from .utils import getBenchmarksToRun, getSettings, setSettings, getSuitesToRun, EmptyBenchmarkList
 from examples import custom_style_2
-
-# app = typer.Typer()
-
-
-def interactive(
-    interactive:bool = typer.Option(default = False,help="interactive interface (T/F).")
-):
-    if interactive:
-        InteractiveMenu().runner()
-    else:
-        pass
-
-
-# def getBenchmarks(
-#     benchs: str = typer.Option(
-#         default=None, help="Enter the benchmarks with a space distance"
-#     )
-# ):
-#     typer.echo(f"{benchs.split(' ')}")
-#     # benchNames = benchs.split(" ")
-#     # print(benchNames)
-
-
-# def runPreference(
-#     pref: str = typer.Option(
-#         default=None, help="Would you like to run benchmark as suite or seperately."
-#     )
-# ):
-#     if pref == "suite":
-#         pass  # Todo:print suites
-#     elif pref == "individual":
-#         pass  # Print individual benchmarks
-#     else:
-#         typer.echo("invalid input")
-
-
-# @app.command()
-# def getSettings(
-#     settings: Optional[Path] = typer.Option(default = 'settings1',help="Which settings to use.")
-# ):
-#     settings_path = Path.cwd().joinpath('benchmarks','dummy_regressor','settings')
-#     return os.listdir(settings_path)
-
+# import argparse
+import typer
+from .interface_skeleton import InterfaceSkeleton
+from typing import List
 
 class InteractiveMenu:
     def __init__(self):
@@ -77,6 +35,7 @@ class InteractiveMenu:
         ]
 
     def runner(self):
+        self.benchmarkBanner()
         self.selectRunChoice = prompt(self.runChoice,style=custom_style_2)
         if self.selectRunChoice['runchoice'] == 'Make your own suite':
             raise ValueError('This function hasn\'t been implemented yet')
@@ -124,27 +83,78 @@ class InteractiveMenu:
                 )
                 self.runnerDict = {"benchmarks": _setter}
                 setSettings(self.runnerDict)
-        
+                InterfaceSkeleton().startBenchmark()
             elif self.type == 'Suite':
                 pass
                 #TODO: Fingure out suites settings
-                # _setter.append(
-                #     dict({"name": bmark, "settings": self.selectSettings["settings"]})
-                # )
-                # self.runnerDict = {"benchmarks": _setter}
-                # setSettings(self.runnerDict)
+
+
+    def benchmarkBanner(self):
+        print("   ___                   _____          ____   ____ ")
+        print("  / _ \ _ __   ___ _ __ |  ___|__  _ __| __ ) / ___|")
+        print(" | | | | '_ \ / _ \ '_ \| |_ / _ \| '__|  _ \| |    ")
+        print(" | |_| | |_) |  __/ | | |  _| (_) | |  | |_) | |___ ")
+        print("  \___/| .__/ \___|_| |_|_|  \___/|_|  |____/ \____|")
+        print("       |_|                                          ")
+        print(" ====Welcome to the OpenForBC Benchmarking Tool====")
 
 
 
-def benchmarkBanner():
-    print("   ___                   _____          ____   ____ ")
-    print("  / _ \ _ __   ___ _ __ |  ___|__  _ __| __ ) / ___|")
-    print(" | | | | '_ \ / _ \ '_ \| |_ / _ \| '__|  _ \| |    ")
-    print(" | |_| | |_) |  __/ | | |  _| (_) | |  | |_) | |___ ")
-    print("  \___/| .__/ \___|_| |_|_|  \___/|_|  |____/ \____|")
-    print("       |_|                                          ")
-    print(" ====Welcome to the OpenForBC Benchmarking Tool====")
 
+app = typer.Typer()
+
+@app.command()
+def interactive(
+    interactive:bool = typer.Option(False,prompt ="Run program in interactive mode?")
+    ):
+    if interactive:
+        InteractiveMenu().runner()
+    else:
+        raise typer.Exit()
+    
+
+@app.command()
+def run_benchmark(
+    input:List[str]
+    ):
+    _setter = []
+    _availableBench = [x["name"] for x in getBenchmarksToRun()]
+    for benchmark in input:
+        if benchmark not in _availableBench:
+            typer.echo(f'{benchmark} implementation doesn\'t exist. Please check available benchmarks using list-benchmarks command')
+            continue
+        benchSet = typer.prompt(f"What settings would you like for {benchmark} <space> for default")
+        if benchSet == ' ' or benchSet not in getSettings(benchmark,'Benchmark'):
+            benchSet = 'settings1.json'
+        else:
+            benchSet+='.json'
+        _setter.append(dict({"name": benchmark, "settings": benchSet}))
+    _runnerDict = {"benchmarks": _setter}
+    setSettings(_runnerDict)
+    InterfaceSkeleton().startBenchmark()
+
+
+# @app.command()
+# def run_suite(
+#     input:List[str]
+#     ):
+
+
+@app.command()
+def list_suites():
+    for suites in getSuitesToRun():
+        print(suites['name'])
+
+@app.command()
+def list_benchmarks():
+    for bmark in getBenchmarksToRun():
+        print(bmark['name'])
+
+
+
+def main():
+    app()
 
 if __name__ == "__main__":
-    typer.run(interactive)
+    main()
+
