@@ -14,8 +14,8 @@ class DummyBenchmarkSuite(BenchmarkWrapper):
 
     def startBenchmark(self):
         for benchmark in self.benchmarkArray:
-            burnin, rep = self.getSettings(benchmark)
-            for _ in range(burnin + rep):
+            burnin, repetitions = self.getSettings(benchmark)
+            for _ in range(burnin + repetitions):
                 print(benchmark.startBenchmark())
 
     def benchmarkStatus(self):

@@ -1,5 +1,5 @@
-from ...common.benchmark_wrapper import BenchmarkWrapper
-from ...common.benchmark_factory import BenchmarkFactory
+from ..common.benchmark_wrapper import BenchmarkWrapper
+from ..common.benchmark_factory import BenchmarkFactory
 import pathlib
 import json
 import os
@@ -12,7 +12,7 @@ class BenchmarkSuite(BenchmarkWrapper):
         self.benchmarkArray = []
         self.home_dir = pathlib.Path.cwd()
         self.settings_loc = self.home_dir.joinpath(
-            "benchmarks", "benchmark_suite", "suite_info.json"
+            "benchmarks", "benchmark_suite", "settings", "settings1.json"
         )
 
     def startBenchmark(self):
