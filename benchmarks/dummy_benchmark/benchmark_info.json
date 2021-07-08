@@ -1,0 +1,8 @@
+{
+    "name" : "Dummy Benchmark",
+    "description": "Prints something to the output",
+    "implementation_file": "implementation.py",
+    "class_name": "DummyBenchmark"
+}
+
+

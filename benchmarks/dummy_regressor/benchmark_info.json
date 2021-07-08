@@ -1,4 +1,0 @@
-{
-    "name" : "Dummy Regressor",
-    "Description": "Performs dummy regression on Boston House dataset"
-}

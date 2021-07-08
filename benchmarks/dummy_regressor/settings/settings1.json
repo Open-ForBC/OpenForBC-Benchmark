@@ -1,5 +1,0 @@
-{
-    "burnin":4,
-    "random_state":42,
-    "test_size":0.20    
-}
