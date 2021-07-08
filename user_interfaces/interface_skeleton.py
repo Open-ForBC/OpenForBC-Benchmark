@@ -1,4 +1,5 @@
-from benchmarks.benchmark_suite.implementation import BenchmarkSuite
+from benchmarks.benchmark_suite.benchmark_suite import BenchmarkSuite
+import os
 
 
 class InterfaceSkeleton:

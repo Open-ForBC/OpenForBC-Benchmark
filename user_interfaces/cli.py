@@ -1,68 +1,93 @@
 from __future__ import print_function, unicode_literals
-from PyInquirer import prompt
-import json
+from PyInquirer import prompt,Separator
 import os
-from user_interfaces.utils import isBenchmark
-import pathlib
+from pathlib import Path
+from .utils import getBenchmarksToRun, getSettings, setSettings, getSuitesToRun, EmptyBenchmarkList
+from examples import custom_style_2
+# import argparse
 import typer
 from .interface_skeleton import InterfaceSkeleton
-from .utils import EmptyBenchmarkList
+from typing import List
 
-
-app = typer.Typer()
-
-
-class UserMenu:
+class InteractiveMenu:
     def __init__(self):
         self.selectBenchmark: dict = {}
-        self.home_dir = pathlib.Path.cwd()
+        self.selectSettings: dict = {}
+        self.home_dir = Path.cwd()
         self.runnerDict: dict = {}
+        self.type = None
+        self.runChoice = [
+            {
+                'type':'list',
+                'name': 'runchoice',
+                'message': 'Collective benchmark suite or individual run?',
+                'choices':[
+                    'Benchmark Suite',
+                    'Stand Alone Benchmark',
+                   Separator(),
+                    'Make your own suite',
+                    {
+                        'name': 'Suite builder',
+                        'disabled': 'function under construction'
+                    }
+                ] 
+            }
+        ]
+
+    def runner(self):
+        self.benchmarkBanner()
+        self.selectRunChoice = prompt(self.runChoice,style=custom_style_2)
+        if self.selectRunChoice['runchoice'] == 'Make your own suite':
+            raise ValueError('This function hasn\'t been implemented yet')
+        if self.selectRunChoice['runchoice'] == 'Benchmark Suite':
+            self.type = 'Suite'
+        else:
+            self.type = 'Benchmark'
         self.benchmarks = [
             {
                 "type": "checkbox",
                 "message": "Select Benchmark",
                 "name": "benchmark",
                 "qmark": "💻",
-                "choices": self.getBenchmarksToRun(),
+                "choices": getSuitesToRun() if self.type =='Suite' else getBenchmarksToRun(),
                 "validate": lambda answer: ValueError("no input")
                 if len(answer) == 0
                 else True,
             }
         ]
 
-    def getBenchmarksToRun(self):
-        return [
-            {"name": x}
-            for x in os.listdir(os.path.join(self.home_dir, "benchmarks"))
-            if isBenchmark(os.path.join(self.home_dir, "benchmarks", x))
-        ]
+        ## TODO: Print the benchmarks in a suite in an informative way.
 
-    def runner(self):
-        _bmark = []
-        _gpuUtil = []
-        self.benchmarkBanner()
+
+        self.selectBenchmark = prompt(self.benchmarks, style=custom_style_2)
+        if not self.selectBenchmark["benchmark"]:
+            raise EmptyBenchmarkList
+        _setter = []
         for bmark in self.selectBenchmark["benchmark"]:
-            self.gpuUsage = [
+            self.pick_settings = [
                 {
-                    "type": "input",
-                    "name": "gpuUsage",
-                    "qmark": "➡️",
-                    "message": f"Assigned GPU usage for {bmark}?(0-1)",
-                    "validate": lambda val: float(val) > 0.0 and float(val) <= 1.0,
-                    "filter": lambda val: float(val),
+                    "type": "list",
+                    "message": f"Select Settings to use for {bmark}",
+                    "name": "settings",
+                    "qmark": "->",
+                    "choices": getSettings(bmark,self.type),
+                    "validate": lambda x: os.path.isfile(x),
                 }
             ]
-            gpuUsage = prompt(self.gpuUsage)
-            _bmark.append(bmark)
-            _gpuUtil.append(gpuUsage["gpuUsage"])
-        self.runnerDict["benchmarks"] = _bmark
-        self.runnerDict["gpuUsage"] = _gpuUtil
-        with open(
-            self.home_dir.joinpath("benchmarks", "benchmark_suite", "suite_info.json"),
-            "w",
-        ) as configFile:
-            json.dump(self.runnerDict, configFile)
-        InterfaceSkeleton().startBenchmark()
+            self.selectSettings = prompt(self.pick_settings)
+            print(f"send command to run {bmark} with { self.selectSettings['settings'] } settings.")
+        
+            if self.type == 'Benchmark':
+                _setter.append(
+                    dict({"name": bmark, "settings": self.selectSettings["settings"]})
+                )
+                self.runnerDict = {"benchmarks": _setter}
+                setSettings(self.runnerDict)
+                InterfaceSkeleton().startBenchmark()
+            elif self.type == 'Suite':
+                pass
+                #TODO: Fingure out suites settings
+
 
     def benchmarkBanner(self):
         print("   ___                   _____          ____   ____ ")
@@ -72,11 +97,64 @@ class UserMenu:
         print("  \___/| .__/ \___|_| |_|_|  \___/|_|  |____/ \____|")
         print("       |_|                                          ")
         print(" ====Welcome to the OpenForBC Benchmarking Tool====")
-        self.selectBenchmark = prompt(self.benchmarks)
-        if not self.selectBenchmark["benchmark"]:
-            raise EmptyBenchmarkList
 
 
-# if __name__ == "__main__":
-#     UserMenu().runner()
-#     BenchmarkSuite().startBenchmark()
+
+
+app = typer.Typer()
+
+@app.command()
+def interactive(
+    interactive:bool = typer.Option(False,prompt ="Run program in interactive mode?")
+    ):
+    if interactive:
+        InteractiveMenu().runner()
+    else:
+        raise typer.Exit()
+    
+
+@app.command()
+def run_benchmark(
+    input:List[str]
+    ):
+    _setter = []
+    _availableBench = [x["name"] for x in getBenchmarksToRun()]
+    for benchmark in input:
+        if benchmark not in _availableBench:
+            typer.echo(f'{benchmark} implementation doesn\'t exist. Please check available benchmarks using list-benchmarks command')
+            continue
+        benchSet = typer.prompt(f"What settings would you like for {benchmark} <space> for default")
+        if benchSet == ' ' or benchSet not in getSettings(benchmark,'Benchmark'):
+            benchSet = 'settings1.json'
+        else:
+            benchSet+='.json'
+        _setter.append(dict({"name": benchmark, "settings": benchSet}))
+    _runnerDict = {"benchmarks": _setter}
+    setSettings(_runnerDict)
+    InterfaceSkeleton().startBenchmark()
+
+
+# @app.command()
+# def run_suite(
+#     input:List[str]
+#     ):
+
+
+@app.command()
+def list_suites():
+    for suites in getSuitesToRun():
+        print(suites['name'])
+
+@app.command()
+def list_benchmarks():
+    for bmark in getBenchmarksToRun():
+        print(bmark['name'])
+
+
+
+def main():
+    app()
+
+if __name__ == "__main__":
+    main()
+

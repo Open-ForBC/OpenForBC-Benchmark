@@ -1,5 +1,7 @@
-{"repetitions":10,
-"burnin":2,
-"stand-alone":"False",
-"parent":"dummy_benchmark_suite"
+{
+    "dataset":"iris",
+    "metrics":["accuracy","recall","precision","f1_score"],
+    "test_split":0.2,
+    "repetitions":10,
+    "burnin":2
 }

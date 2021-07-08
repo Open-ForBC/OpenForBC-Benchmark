@@ -1,1 +1,0 @@
-{"dataset":"iris","metrics":["accuracy","recall","precision","f1_score"],"test_split":0.2}
