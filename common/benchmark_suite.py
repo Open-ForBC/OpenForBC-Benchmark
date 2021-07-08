@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.dirname(__file__))
+
 from benchmark_wrapper import BenchmarkWrapper
 from benchmark_factory import BenchmarkFactory
 import pathlib
@@ -32,6 +36,3 @@ class BenchmarkSuite(BenchmarkWrapper):
 
     def setSettings(self):
         pass
-
-if __name__=="__main__":
-    BenchmarkSuite("/Users/gabrielegaetanofronze/gitstuff/OpenForBC-Benchmark/common/suite_info.json").startBenchmark()
