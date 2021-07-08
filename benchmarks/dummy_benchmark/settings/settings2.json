@@ -1,0 +1,5 @@
+{
+    "to_print":"I'm the second settings file!",
+    "repetitions":10,
+    "burnin":2
+}
