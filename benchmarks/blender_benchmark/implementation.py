@@ -4,6 +4,7 @@ import subprocess
 import os
 
 
+
 class BlenderBenchmark(BenchmarkWrapper):
 
     """
@@ -125,6 +126,55 @@ class BlenderBenchmark(BenchmarkWrapper):
     def stopBenchmark():
         pass
 
+    def getSettings(self, args):
+        print(args)
+        commands = {
+            "blender_download": [
+                os.path.join(self.filePath, self.baseCommand),
+                "blender",
+                "download",
+                str(self._settings["blender_version"]),
+            ],
+            "blender_list": [
+                os.path.join(self.filePath, self.baseCommand),
+                "blender",
+                "list",
+            ],
+            "compatible_devices": [
+                os.path.join(self.filePath, self.baseCommand),
+                "devices",
+                "-b",
+                str(self._settings["blender_version"]),
+            ],
+            "help": [os.path.join(self.filePath, self.baseCommand), "--help"],
+            "scenes_download": [
+                os.path.join(self.filePath, self.baseCommand),
+                "scenes",
+                "download",
+                "-b",
+                str(self._settings["blender_version"]),
+            ]
+            + (self._settings["scenes"]),
+            "scene_list": [
+                os.path.join(self.filePath, self.baseCommand),
+                "scenes",
+                "list",
+                "-b",
+                str(self._settings["blender_version"]),
+            ],
+            "clear_cache": [
+                os.path.join(self.filePath, self.baseCommand),
+                "clear_cache",
+            ],
+        }
+        try:
+            process = subprocess.run(
+                commands.get(args, "nothing"), check=True, universal_newlines=True
+            )
+        except subprocess.CalledProcessError as e:
+            print(e.output)
+        if process.returncode != 0:
+            raise process.stderr
 
 """
 TODO:[Logger Output after parsing]

@@ -1,9 +1,13 @@
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
     "to_print":"I'm the second settings file!"
 =======
     "to_print":"I'm the second settings file!",
     "repetitions":10,
     "burnin":2
 >>>>>>> c0b38b3... Cleaning up...
+=======
+    "to_print":"I'm the second settings file!"
+>>>>>>> 0597cdb... Removing unised settings
 }
