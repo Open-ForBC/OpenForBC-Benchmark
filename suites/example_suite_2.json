@@ -4,11 +4,11 @@
     "benchmarks": [
         {
             "name": "dummy_benchmark",
-            "settings": "settings2.json"
+            "settings": "settings1.json"
         },
         {
             "name": "dummy_benchmark",
-            "settings": "settings2.json"
+            "settings": "settings1.json"
         },
         {
             "name": "dummy_benchmark",
