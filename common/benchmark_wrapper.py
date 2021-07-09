@@ -1,6 +1,4 @@
 from abc import ABC, abstractmethod
-import pathlib
-import time
 
 
 class BenchmarkWrapper(ABC):

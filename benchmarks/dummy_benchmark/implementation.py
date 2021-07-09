@@ -1,4 +1,4 @@
-from benchmark_wrapper import BenchmarkWrapper
+from common.benchmark_wrapper import BenchmarkWrapper
 import json
 
 class DummyBenchmark(BenchmarkWrapper):
