@@ -1,0 +1,6 @@
+{
+    "blender_version":2.92,
+    "device_name": "something",
+    "device_type": "something",
+    "scenes": ["something","something_else"]
+}
