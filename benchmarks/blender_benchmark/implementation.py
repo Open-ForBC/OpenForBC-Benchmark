@@ -7,65 +7,111 @@ import platform
 import os
 import zipfile
 
+
 class BlenderBenchmark(BenchmarkWrapper):
 
     """
-    This is a dummy benchmark class to demonstrate how to construct code for benchmark implementation.
+    This is a Blender benchmark implementation.
     """
 
     def __init__(self):
         self._settings = {}
-        self._conversions = {
-            'windows':'zip','linux':'tar.gz','macos':'zip'
-        }
-        self.baseCommand = './benchmark-launcher-cli'
+        self.filePath = os.path.dirname(__file__)
+        self.baseCommand = "benchmark-launcher-cli"
         self.system = platform.system().lower()
-        self.url = f'https://download.blender.org/release/BlenderBenchmark2.0/launcher/benchmark-launcher-cli-2.0.4-{self.system}.{self._conversions[self.system]}'
-        if not os.path.isfile('benchmark-launcher-cli'):
+        if self.system == "linux":
+            self.url = "https://download.blender.org/release/BlenderBenchmark2.0/launcher/benchmark-launcher-cli-2.0.5-linux.tar.gz"
+        else:
+            self.url = f"https://download.blender.org/release/BlenderBenchmark2.0/launcher/benchmark-launcher-cli-2.0.4-{self.system}.zip"
+        if not os.path.isfile(os.path.join(self.filePath, "benchmark-launcher-cli")):
             filehandle, _ = urllib.urlretrieve(self.url)
-            if self.system == 'linux':
+            if self.system == "linux":
                 with tarfile.open(filehandle) as h:
-                    h.extractall(os.path.dirname(__file__))
+                    h.extractall(self.filePath)
             else:
                 with zipfile.ZipFile(filehandle, "r") as h:
-                    h.extractall(os.path.dirname(__file__))
+                    h.extractall(self.filePath)
 
     def setSettings(self, settings_file):
-        self._settings = json.load(open(settings_file, 'r'))
+        self._settings = json.load(open(settings_file, "r"))
+        self.getSettings("blender_download")
+        self.getSettings("scenes_download")
 
     def startBenchmark(self):
-        # result = subprocess.run(self.runable_array)
-        return
+        try:
+            startBench = subprocess.run(
+                [
+                    os.path.join(self.filePath, self.baseCommand),
+                    "benchmark",
+                    str(self.scenes),
+                    "-b",
+                    str(self._settings["blender_version"]),
+                    "--device-type",
+                    str(self._settings["device_type"]),
+                    "--json",
+                ]
+            )
+        except subprocess.CalledProcessError as e:
+            print(e.output)
+            exit
+
+        if startBench.returncode == 0:
+            print(startBench.stdout)
+        else:
+            print(startBench.stderr)
 
     def benchmarkStatus():
         pass
 
-    def getSettings(self,command = '',*args):
-        self.setSettings('benchmarks/blender_benchmark/settings/settings1.json')
-        runCommand = [self.baseCommand,command,*args]
-        if not runCommand.__contains__('-b'):
-            runCommand += ['-b', str(self._settings["blender_version"])]
-        process = subprocess.run(runCommand, check=True, universal_newlines=True)
-        if process.returncode == 0:
-            return process.stdout
-        else:
-            return process.stderr
+    def getSettings(self, args):
+        print(args)
+        commands = {
+            "blender_download": [
+                os.path.join(self.filePath, self.baseCommand),
+                "blender",
+                "download",
+                str(self._settings["blender_version"]),
+            ],
+            "blender_list": [
+                os.path.join(self.filePath, self.baseCommand),
+                "blender",
+                "list",
+            ],
+            "compatible_devices": [
+                os.path.join(self.filePath, self.baseCommand),
+                "devices",
+                "-b",
+                str(self._settings["blender_version"]),
+            ],
+            "help": [os.path.join(self.filePath, self.baseCommand), "--help"],
+            "scenes_download": [
+                os.path.join(self.filePath, self.baseCommand),
+                "scenes",
+                "download",
+                "-b",
+                str(self._settings["blender_version"]),
+            ]
+            + (self._settings["scenes"]),
+            "scene_list": [
+                os.path.join(self.filePath, self.baseCommand),
+                "scenes",
+                "list",
+                "-b",
+                str(self._settings["blender_version"]),
+            ],
+            "clear_cache": [
+                os.path.join(self.filePath, self.baseCommand),
+                "clear_cache",
+            ],
+        }
+        try:
+            process = subprocess.run(
+                commands.get(args, "nothing"), check=True, universal_newlines=True
+            )
+        except subprocess.CalledProcessError as e:
+            print(e.output)
+        if process.returncode != 0:
+            raise process.stderr
+
     def stopBenchmark():
         pass
-
-def appendToRunnable(settings:str,runable):
-    if not isinstance(settings,type(None)) and settings != '':
-        runable.append(settings)
-    else:
-        pass
-
-
-'''
-##TODO:
-[ ] Install the blender version given in settings
-[ ] Intuitive way of installing blender scene while showing progress to user
-
-
-sample running commands:
-./benchmark-launcher-cli benchmark bmw27 --blender-version 2.92 --device-type GPU --json 
-'''
