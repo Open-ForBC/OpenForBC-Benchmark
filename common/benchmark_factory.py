@@ -13,11 +13,11 @@ def BenchmarkFactory(benchmark_name, benchmark_settings_file):
         module = SourceFileLoader('{}.{}'.format(implementation_file, class_name),
                                os.path.join(os.path.dirname(benchmark_info_path), implementation_file)).load_module()
         benchmark = eval("module.{}()".format(class_name))
-        benchmark.setSettings(os.path.join(os.path.dirname(benchmark_info_path), 'settings', benchmark_settings_file))
+        benchmark.setSettings(os.path.join(os.path.dirname(benchmark_info_path), 'settings', benchmark_settings_file))                                                                                                                                                                                                                              
         return benchmark
     else:
         raise Exception("Cannot find {} benchmark or benchmark_info.json. ".format(benchmark_name))
 
-if __name__=="__main__":
-    bench = BenchmarkFactory('dummy_benchmark')
-    bench.startBenchmark()
+# if __name__=="__main__":
+#     bench = BenchmarkFactory('dummy_benchmark')
+#     bench.startBenchmark()    

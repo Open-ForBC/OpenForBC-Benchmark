@@ -1,6 +1,6 @@
 {
     "name" : "Blender Benchmark",
-    "description": "Runs one of the blender scene and outputs stats",
+    "description": "Runs one/many blender scene(s) and outputs stats",
     "implementation_file": "implementation.py",
     "class_name": "BlenderBenchmark"
 }

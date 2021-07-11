@@ -2,12 +2,16 @@ from __future__ import print_function, unicode_literals
 from PyInquirer import prompt,Separator
 import os
 from pathlib import Path
-from .utils import getBenchmarksToRun, getSettings, setSettings, getSuitesToRun, EmptyBenchmarkList
 from examples import custom_style_2
-# import argparse
 import typer
-from .interface_skeleton import InterfaceSkeleton
+import sys
 from typing import List
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+from utils import getBenchmarksToRun, getSettings, getSuitesToRun, EmptyBenchmarkList
+from interface_skeleton import InterfaceSkeleton
+
+app = typer.Typer()
+
 
 class InteractiveMenu:
     def __init__(self):
@@ -62,7 +66,6 @@ class InteractiveMenu:
         self.selectBenchmark = prompt(self.benchmarks, style=custom_style_2)
         if not self.selectBenchmark["benchmark"]:
             raise EmptyBenchmarkList
-        _setter = []
         for bmark in self.selectBenchmark["benchmark"]:
             self.pick_settings = [
                 {
@@ -76,14 +79,8 @@ class InteractiveMenu:
             ]
             self.selectSettings = prompt(self.pick_settings)
             print(f"send command to run {bmark} with { self.selectSettings['settings'] } settings.")
-        
             if self.type == 'Benchmark':
-                _setter.append(
-                    dict({"name": bmark, "settings": self.selectSettings["settings"]})
-                )
-                self.runnerDict = {"benchmarks": _setter}
-                setSettings(self.runnerDict)
-                InterfaceSkeleton().startBenchmark()
+                InterfaceSkeleton().startBenchmark(bmark,self.selectSettings['settings'])
             elif self.type == 'Suite':
                 pass
                 #TODO: Fingure out suites settings
@@ -96,17 +93,16 @@ class InteractiveMenu:
         print(" | |_| | |_) |  __/ | | |  _| (_) | |  | |_) | |___ ")
         print("  \___/| .__/ \___|_| |_|_|  \___/|_|  |____/ \____|")
         print("       |_|                                          ")
-        print(" ====Welcome to the OpenForBC Benchmarking Tool====")
+        print(" ====Welcome to the OpenForBC Benchmarking Tool==== ")
 
-
-
-
-app = typer.Typer()
 
 @app.command()
 def interactive(
     interactive:bool = typer.Option(False,prompt ="Run program in interactive mode?")
     ):
+    '''
+        Ask user if they want interactive interface or not
+    '''
     if interactive:
         InteractiveMenu().runner()
     else:
@@ -117,7 +113,9 @@ def interactive(
 def run_benchmark(
     input:List[str]
     ):
-    _setter = []
+    '''
+    Runs the given benchmarks
+    '''
     _availableBench = [x["name"] for x in getBenchmarksToRun()]
     for benchmark in input:
         if benchmark not in _availableBench:
@@ -128,10 +126,7 @@ def run_benchmark(
             benchSet = 'settings1.json'
         else:
             benchSet+='.json'
-        _setter.append(dict({"name": benchmark, "settings": benchSet}))
-    _runnerDict = {"benchmarks": _setter}
-    setSettings(_runnerDict)
-    InterfaceSkeleton().startBenchmark()
+        InterfaceSkeleton().startBenchmark(benchmark,benchSet)
 
 
 # @app.command()
@@ -142,19 +137,31 @@ def run_benchmark(
 
 @app.command()
 def list_suites():
+    '''
+        Lists available suites
+    '''
     for suites in getSuitesToRun():
         print(suites['name'])
 
 @app.command()
 def list_benchmarks():
+    '''
+        Lists available benchmarks
+    '''
     for bmark in getBenchmarksToRun():
         print(bmark['name'])
 
+@app.command()
+def get_settings(
+    benchmark:str,
+    command:List[str]):
+    '''
+        Gets the settings for the benchmark
+    '''
+    InterfaceSkeleton().getSettings(bmark = benchmark,command = command,settings ='settings1.json')
 
 
-def main():
-    app()
 
 if __name__ == "__main__":
-    main()
+    app()
 

@@ -23,8 +23,8 @@ def getBenchmarksToRun():
 
 def getSuitesToRun():
     return [
-        {"name": x}
-        for x in os.listdir(os.path.join(home_dir, "benchmarks","suites"))
+        {"name": x[:-5]}
+        for x in os.listdir(os.path.join(home_dir,"suites"))
     ]
 
 def getSettings(bmark,runType):
@@ -38,16 +38,6 @@ def getSettings(bmark,runType):
             dict({"name": x})
             for x in os.listdir(home_dir.joinpath("benchmarks", bmark, "settings"))
         ]
-
-
-def setSettings(runnerDict):
-    with open(
-        
-        home_dir.joinpath("benchmarks", "benchmark_suite", "settings", "settings1.json"),
-        "w",
-    ) as configFile:
-        json.dump(runnerDict, configFile, indent=4)
-
 
 class EmptyBenchmarkList(BaseException):
     def __str__(self):
