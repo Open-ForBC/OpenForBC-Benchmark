@@ -57,7 +57,6 @@ def getSettings(bmark, runType):
             for x in os.listdir(home_dir.joinpath("benchmarks", bmark, "settings"))
         ]
 
-
 class EmptyBenchmarkList(BaseException):
     def __str__(self):
         return "Please select benchmark(s) to run by pressing spacebar to select."

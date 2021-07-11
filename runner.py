@@ -8,11 +8,6 @@ if __name__ == "__main__":
     # BenchmarkFactory(benchmark_name="dummy_benchmark", benchmark_settings_file="settings1.json").startBenchmark()
     # BenchmarkFactory(benchmark_name="dummy_benchmark", benchmark_settings_file="settings2.json").startBenchmark()
     # BenchmarkFactory(benchmark_name="dummy_benchmark", benchmark_settings_file="settings2.json").startBenchmark()
-<<<<<<< HEAD
     BenchmarkFactory(
         benchmark_name="blender_benchmark", benchmark_settings_file="settings1.json"
     ).startBenchmark()
-=======
-    # BlenderBenchmark().getSettings(command=  '--help')
-    BenchmarkFactory(benchmark_name='blender_benchmark',benchmark_settings_file="settings1.json").startBenchmark()
->>>>>>> 058e6cb... Finished interfacing Blender Benchmark

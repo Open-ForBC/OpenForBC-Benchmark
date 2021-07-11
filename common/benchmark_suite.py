@@ -22,6 +22,7 @@ class BenchmarkSuite(BenchmarkWrapper):
 =======
 import sys
 import os
+
 sys.path.append(os.path.dirname(__file__))
 
 >>>>>>> 24ad128... Additional examples
@@ -34,14 +35,24 @@ import os
 
 class BenchmarkSuite(BenchmarkWrapper):
     def __init__(self, suite_info_path):
-        suite_info_json = json.load(open(suite_info_path, 'r'))
-        self.name = suite_info_json['name']
-        self.description = suite_info_json['description']
+        suite_info_json = json.load(open(suite_info_path, "r"))
+        self.name = suite_info_json["name"]
+        self.description = suite_info_json["description"]
         self.benchmarkArray = []
 
+<<<<<<< HEAD
         for bench in suite_info_json['benchmarks']:
             self.benchmarkArray.append(BenchmarkFactory(benchmark_name=bench['name'], benchmark_settings_file=bench['settings']))
 >>>>>>> c0b38b3... Cleaning up...
+=======
+        for bench in suite_info_json["benchmarks"]:
+            self.benchmarkArray.append(
+                BenchmarkFactory(
+                    benchmark_name=bench["name"],
+                    benchmark_settings_file=bench["settings"],
+                )
+            )
+>>>>>>> d38e1c4... Formatted code
 
     def startBenchmark(self):
         for b in self.benchmarkArray:
