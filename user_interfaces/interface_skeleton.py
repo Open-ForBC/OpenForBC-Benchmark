@@ -6,8 +6,10 @@ class InterfaceSkeleton(BenchmarkWrapper):
     def __init__(self):
         pass
 
-    def startBenchmark(self,bmark,settings):
-        BenchmarkFactory(benchmark_name= bmark,benchmark_settings_file=settings).startBenchmark()
+    def startBenchmark(self, bmark, settings):
+        BenchmarkFactory(
+            benchmark_name=bmark, benchmark_settings_file=settings
+        ).startBenchmark()
 
     def benchmarkStatus():
         """Fetches the status of the current benchmark"""
@@ -17,8 +19,10 @@ class InterfaceSkeleton(BenchmarkWrapper):
         """Stops the benchmark"""
         pass
 
-    def getSettings(self,bmark,settings,command):
-        BenchmarkFactory(benchmark_name= bmark,benchmark_settings_file=settings).getSettings(command)
+    def getSettings(self, bmark, settings, command):
+        BenchmarkFactory(
+            benchmark_name=bmark, benchmark_settings_file=settings
+        ).getSettings(command)
         pass
 
     def setSettings(self):

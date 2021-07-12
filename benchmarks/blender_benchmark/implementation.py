@@ -37,8 +37,8 @@ class BlenderBenchmark(BenchmarkWrapper):
         self._settings = json.load(open(settings_file, "r"))
 
     def startBenchmark(self):
-        self.getSettings(("blender","download"))
-        self.getSettings(("scenes","download"))
+        self.getSettings(("blender", "download"))
+        self.getSettings(("scenes", "download"))
         self.scenes = " ".join([str(elem) for elem in self._settings["scenes"]])
         try:
             startBench = subprocess.run(
@@ -64,20 +64,20 @@ class BlenderBenchmark(BenchmarkWrapper):
 
     def getSettings(self, args):
         commands = {
-            "blender": {
-                "download": [                                               # Downloads the blender version specified in the settings
+            "blender": {  # Container Dictionary for blender download manager
+                "download": [  # Downloads the blender version specified in the settings
                     os.path.join(self.filePath, self.baseCommand),
                     "blender",
                     "download",
                     str(self._settings["blender_version"]),
                 ],
-                "list": [                                                    # Lists available blender versions
+                "list": [  # Lists available blender versions
                     os.path.join(self.filePath, self.baseCommand),
                     "blender",
                     "list",
                 ],
             },
-            "compatible_devices": [                                          # Prints compatible devices, TODO: Filter GPU devices from other devices
+            "devices": [  # Prints compatible devices
                 os.path.join(self.filePath, self.baseCommand),
                 "devices",
                 "-b",
@@ -86,9 +86,9 @@ class BlenderBenchmark(BenchmarkWrapper):
             "help": [
                 os.path.join(self.filePath, self.baseCommand),
                 "--help",
-            ],                                                               # Prints the help window
+            ],  # Prints the help window
             "scenes": {
-                "download": [                                                   # Downloads the scenes mentioned in settings
+                "download": [  # Downloads the scenes mentioned in settings
                     os.path.join(self.filePath, self.baseCommand),
                     "scenes",
                     "download",
@@ -110,17 +110,114 @@ class BlenderBenchmark(BenchmarkWrapper):
             ],
         }
         if len(args) == 2:
-            command = commands.get(args[0]).get(args[1])
+            if args[1] == "help":
+                command = [os.path.join(self.filePath, self.baseCommand)] + [
+                    args[0],
+                    "help",
+                ]
+            else:
+                command = commands.get(args[0]).get(args[1])
         elif len(args) == 1:
             command = commands.get(args[0])
         else:
             raise Exception("Please check your command and enter again")
         try:
-            process = subprocess.run(command, check=True, universal_newlines=True)
-        except subprocess.CalledProcessError as e:
+            process = subprocess.Popen(command, stdout=subprocess.PIPE)
+        except KeyError as e:
             print(e.output)
-        if process.returncode != 0:
-            raise process.stderr
+        if args[0] == "devices":
+            p2 = subprocess.Popen(
+                ["grep", "CUDA\|OPTIX"], stdin=process.stdout, stdout=subprocess.PIPE
+            )
+            process.stdout.close()
+            print(p2.communicate()[0].decode())
+        else:
+            print(process.communicate()[0].decode())
 
     def stopBenchmark():
         pass
+
+
+"""
+[
+  {
+    "timestamp": "2021-07-11T09:00:52.938463+00:00",
+    "blender_version": {
+      "version": "2.92.0",
+      "build_date": "2021-02-25",
+      "build_time": "09:31:37",
+      "build_commit_date": "2021-02-24",
+      "build_commit_time": "16:25",
+      "build_hash": "02948a2cab44",
+      "label": "2.92",
+      "checksum": "2cd17ad6e9d6c241ac14b84ad6e72b507aeec979da3d926b1a146e88e0eb3eb4"
+    },
+    "benchmark_launcher": {
+      "label": "2.0.5",
+      "checksum": "0513a4a626bb0ee387366f67a632ea0f886ee5906aaafe148d473842059fb2ec"
+    },
+    "benchmark_script": {
+      "label": "2.0.1",
+      "checksum": "dee17c82d883838f6da21e7c86f368cda2ab8399eac10b660e199628aca09ec0"
+    },
+    "scene": {
+      "label": "bmw27",
+      "checksum": "bc4fd79cbd85a1cc47926e848ec8f322872f5c170ef33c21e0d0ce303c0ec9ea"
+    },
+    "system_info": {
+      "bitness": "64bit",
+      "machine": "x86_64",
+      "system": "Linux",
+      "dist_name": "Pop!_OS",
+      "dist_version": "20.04",
+      "devices": [
+        {
+          "type": "CPU",
+          "name": "Intel Core i5-8300H CPU @ 2.30GHz"
+        },
+        {
+          "type": "CPU",
+          "name": "Intel Core i5-8300H CPU @ 2.30GHz"
+        },
+        {
+          "type": "CUDA",
+          "name": "NVIDIA GeForce GTX 1060",
+          "is_display": false
+        },
+        {
+          "type": "CPU",
+          "name": "Intel Core i5-8300H CPU @ 2.30GHz"
+        },
+        {
+          "type": "OPTIX",
+          "name": "NVIDIA GeForce GTX 1060",
+          "is_display": false
+        },
+        {
+          "type": "CPU",
+          "name": "Intel Core i5-8300H CPU @ 2.30GHz"
+        }
+      ],
+      "num_cpu_sockets": 1,
+      "num_cpu_cores": 4,
+      "num_cpu_threads": 8
+    },
+    "device_info": {
+      "device_type": "CUDA",
+      "compute_devices": [
+        {
+          "type": "CUDA",
+          "name": "NVIDIA GeForce GTX 1060",
+          "is_display": false
+        }
+      ],
+      "num_cpu_threads": 8
+    },
+    "stats": {
+      "device_peak_memory": 146,
+      "total_render_time": 208.673,
+      "render_time_no_sync": 206.112
+    }
+  }
+]
+"""

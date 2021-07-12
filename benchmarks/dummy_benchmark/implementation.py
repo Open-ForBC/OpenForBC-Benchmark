@@ -1,6 +1,7 @@
 from common.benchmark_wrapper import BenchmarkWrapper
 import json
 
+
 class DummyBenchmark(BenchmarkWrapper):
 
     """
@@ -12,7 +13,7 @@ class DummyBenchmark(BenchmarkWrapper):
         pass
 
     def setSettings(self, settings_file):
-        self.to_print = json.load(open(settings_file, 'r'))['to_print']
+        self.to_print = json.load(open(settings_file, "r"))["to_print"]
         pass
 
     def startBenchmark(self):
