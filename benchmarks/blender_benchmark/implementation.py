@@ -1,9 +1,11 @@
-from user_interfaces.utils import getSettings
 from common.benchmark_wrapper import BenchmarkWrapper
 import json
 import subprocess
 import os
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8fa2e65... Added verbosity; CLI supports running suites
 
 
 class BlenderBenchmark(BenchmarkWrapper):
@@ -29,6 +31,7 @@ class BlenderBenchmark(BenchmarkWrapper):
             self.verbosity = self._settings["verbosity"]
 
         try:
+            print(self.verbosity)
             startBench = subprocess.run(
                 [
                     os.path.join(self.filePath, self.baseCommand),
@@ -100,7 +103,7 @@ class BlenderBenchmark(BenchmarkWrapper):
             ],
         }
         if len(args) == 2:
-            if args[1] == "help":
+            if args[1] == "help" or args[1] == "--help":
                 command = [os.path.join(self.filePath, self.baseCommand)] + [
                     args[0],
                     "help",
@@ -117,7 +120,7 @@ class BlenderBenchmark(BenchmarkWrapper):
             print(e.output)
         if args[0] == "devices":
             p2 = subprocess.Popen(
-                ["grep", "CUDA\|OPTIX"], stdin=process.stdout, stdout=subprocess.PIPE
+                ["grep","-wv", "CPU"], stdin=process.stdout, stdout=subprocess.PIPE
             )
             process.stdout.close()
             print(p2.communicate()[0].decode())

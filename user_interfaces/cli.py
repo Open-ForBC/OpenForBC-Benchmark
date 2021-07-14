@@ -19,6 +19,7 @@ from utils import (
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from interface_skeleton import InterfaceSkeleton
 
+
 app = typer.Typer()
 home_dir = Path.cwd()
 
@@ -253,7 +254,8 @@ def list_benchmarks():
 
 
 @app.command()
-def get_settings(benchmark: str, command: List[str] = ["help"]):
+def get_settings(benchmark: str,
+    command: List[str] = ["help"]):
     """
     Gets the settings for the benchmark
     """

@@ -27,10 +27,14 @@ def getBenchmarksToRun():
 
 def setItUp(benchmarkPath):
     if "setup.py" in os.listdir(benchmarkPath):
-        setUp = subprocess.Popen(
-            [sys.executable, os.path.join(benchmarkPath, "setup.py")],
-            stdin=subprocess.PIPE,
-        )
+        try:                                                                                                                                                            
+            process = subprocess.run(
+                [sys.executable, os.path.join(benchmarkPath, "setup.py")], check=True, universal_newlines=True
+            )
+        except subprocess.CalledProcessError as e:
+            print(e.output)
+        if process.returncode != 0:
+            raise process.stderr
     elif "setup.sh" in os.listdir(benchmarkPath):
         pass  # TODO: call setup.sh from here
     else:
@@ -56,6 +60,7 @@ def getSettings(bmark, runType):
             dict({"name": x})
             for x in os.listdir(home_dir.joinpath("benchmarks", bmark, "settings"))
         ]
+
 
 class EmptyBenchmarkList(BaseException):
     def __str__(self):
