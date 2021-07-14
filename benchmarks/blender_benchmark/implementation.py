@@ -27,7 +27,6 @@ class BlenderBenchmark(BenchmarkWrapper):
             self.verbosity = self._settings["verbosity"]
 
         try:
-            print(self.verbosity)
             startBench = subprocess.run(
                 [
                     os.path.join(self.filePath, self.baseCommand),

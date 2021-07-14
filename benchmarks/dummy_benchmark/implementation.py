@@ -16,7 +16,7 @@ class DummyBenchmark(BenchmarkWrapper):
         self.to_print = json.load(open(settings_file, "r"))["to_print"]
         pass
 
-    def startBenchmark(self):
+    def startBenchmark(self,verbosity = None):
         print(self.to_print)
         return
 

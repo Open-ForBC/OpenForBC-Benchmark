@@ -17,7 +17,7 @@ def BenchmarkFactory(benchmark_name, benchmark_settings_file=None):
             os.path.join(os.path.dirname(benchmark_info_path), implementation_file),
         ).load_module()
         benchmark = eval("module.{}()".format(class_name))
-        if benchmark_settings_file != None:
+        if benchmark_settings_file is not None:
             benchmark.setSettings(
                 os.path.join(
                     os.path.dirname(benchmark_info_path),

@@ -1,12 +1,6 @@
-import sys
-import os
-
-sys.path.append(os.path.dirname(__file__))
-from benchmark_wrapper import BenchmarkWrapper
-from benchmark_factory import BenchmarkFactory
 import json
-import os
-
+from .benchmark_wrapper import BenchmarkWrapper
+from .benchmark_factory import BenchmarkFactory
 
 class BenchmarkSuite(BenchmarkWrapper):
     def __init__(self, suite_info_path):

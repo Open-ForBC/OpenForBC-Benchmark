@@ -1,13 +1,12 @@
 from __future__ import print_function, unicode_literals
-from PyInquirer import prompt, Separator
+from PyInquirer import prompt
 import os
 from pathlib import Path
 from examples import custom_style_2
 import typer
 import sys
+import json
 from typing import List
-
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from utils import (
     getBenchmarksToRun,
     getSettings,
@@ -15,8 +14,10 @@ from utils import (
     EmptyBenchmarkList,
     setItUp,
 )
-from interface_skeleton import InterfaceSkeleton
 
+
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+from interface_skeleton import InterfaceSkeleton
 
 app = typer.Typer()
 home_dir = Path.cwd()
@@ -29,6 +30,9 @@ class InteractiveMenu:
         self.home_dir = Path.cwd()
         self.runnerDict: dict = {}
         self.type = None
+
+    def runner(self):
+        self.benchmarkBanner()
         self.runChoice = [
             {
                 "type": "list",
@@ -37,21 +41,66 @@ class InteractiveMenu:
                 "choices": [
                     "Benchmark Suite",
                     "Stand Alone Benchmark",
-                    Separator(),
                     "Make your own suite",
-                    {
-                        "name": "Suite builder",
-                        "disabled": "function under construction",
-                    },
                 ],
             }
         ]
-
-    def runner(self):
-        self.benchmarkBanner()
         self.selectRunChoice = prompt(self.runChoice, style=custom_style_2)
         if self.selectRunChoice["runchoice"] == "Make your own suite":
-            raise ValueError("This function hasn't been implemented yet")
+            suiteBuilder = [
+                {
+                    "type": "input",
+                    "name": "SuiteName",
+                    "message": "What would you like to call your suite?",
+                    # 'default': lambda answers: 'Suite_1'
+                    # 'validate': lambda val: val == 'Doe' or 'is your last name Doe?'  Check if a file by same name exists or not
+                },
+                {
+                    "type": "input",
+                    "name": "SuiteDescription",
+                    "message": "Add description for your suite",
+                },
+                {
+                    "type": "checkbox",
+                    "message": "Select Benchmark(s) to add to the suite",
+                    "name": "benchInSuite",
+                    "choices": getBenchmarksToRun(),
+                },
+                {
+                    "type": "input",
+                    "name": "FileName",
+                    "message": "Filename for your created suite",
+                },
+            ]
+            suiteBuild = prompt(suiteBuilder, style=custom_style_2)
+            _suiteList = []
+            for bmark in suiteBuild["benchInSuite"]:
+                suite_settings = {
+                    "type": "list",
+                    "message": f"Select Settings to use for {bmark}",
+                    "name": "settings",
+                    "qmark": "->",
+                    "choices": getSettings(bmark, self.type),
+                    "validate": lambda x: os.path.isfile(x),
+                }
+                suiteSettings = prompt(suite_settings, style=custom_style_2)
+                _suiteList.append(
+                    dict({"name": bmark, "settings": suiteSettings["settings"]})
+                )
+            self.runnerDict = dict(
+                {
+                    "name": suiteBuild["SuiteName"],
+                    "description": suiteBuild["SuiteDescription"],
+                    "benchmarks": _suiteList,
+                }
+            )
+            suitePath = os.path.join(
+                home_dir, "suites", suiteBuild["FileName"] + ".json"
+            )
+            print(suitePath)
+            with open(suitePath, "w") as configFile:
+                json.dump(self.runnerDict, configFile, indent=4)
+            exit()
         elif self.selectRunChoice["runchoice"] == "Benchmark Suite":
             self.type = "Suite"
             qtype = "list"
@@ -73,8 +122,6 @@ class InteractiveMenu:
             }
         ]
 
-        ## TODO: Print the benchmarks in a suite in an informative way.
-
         self.selectBenchmark = prompt(self.benchmarks, style=custom_style_2)
         if not self.selectBenchmark["benchmark"]:
             raise EmptyBenchmarkList
@@ -82,12 +129,15 @@ class InteractiveMenu:
         if self.type == "Benchmark":
             for bmark in self.selectBenchmark["benchmark"]:
                 benchmarkPath = os.path.join(Path.cwd(), "benchmarks", bmark)
-                if "setup.py" or "setup.sh" in os.listdir(benchmarkPath):
+                if (
+                    Path(os.path.join(benchmarkPath, "setup.py")).exists()
+                    or Path(os.path.join(benchmarkPath, "setup.sh")).exists()
+                ):
                     setup = typer.prompt(
                         "We found setup file in your directory. Would you like to use it?(y/n)"
                     )
-                if setup == "y" or "Y":
-                    setItUp(benchmarkPath)
+                    if setup == "y" or "Y":
+                        setItUp(benchmarkPath)
                 self.pick_settings = [
                     {
                         "type": "list",
@@ -146,12 +196,15 @@ def run_benchmark(
             )
             continue
         benchmarkPath = os.path.join(Path.cwd(), "benchmarks", benchmark)
-        if "setup.py" or "setup.sh" in os.listdir(benchmarkPath):
+        if (
+            Path(os.path.join(benchmarkPath, "setup.py")).exists()
+            or Path(os.path.join(benchmarkPath, "setup.sh")).exists()
+        ):
             setup = typer.prompt(
                 "We found setup file in your directory. Would you like to use it?(y/n)"
             )
-        if setup == "y" or "Y":
-            setItUp(benchmarkPath)
+            if setup == "y" or "Y":
+                setItUp(benchmarkPath)
         benchSetting = typer.prompt(
             f"What settings would you like for {benchmark} <space> for default"
         )
