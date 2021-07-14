@@ -8,10 +8,18 @@ import sys
 from typing import List
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from utils import getBenchmarksToRun, getSettings, getSuitesToRun, EmptyBenchmarkList
+from utils import (
+    getBenchmarksToRun,
+    getSettings,
+    getSuitesToRun,
+    EmptyBenchmarkList,
+    setItUp,
+)
 from interface_skeleton import InterfaceSkeleton
 
+
 app = typer.Typer()
+home_dir = Path.cwd()
 
 
 class InteractiveMenu:
@@ -44,13 +52,15 @@ class InteractiveMenu:
         self.selectRunChoice = prompt(self.runChoice, style=custom_style_2)
         if self.selectRunChoice["runchoice"] == "Make your own suite":
             raise ValueError("This function hasn't been implemented yet")
-        if self.selectRunChoice["runchoice"] == "Benchmark Suite":
+        elif self.selectRunChoice["runchoice"] == "Benchmark Suite":
             self.type = "Suite"
+            qtype = "list"
         else:
             self.type = "Benchmark"
+            qtype = "checkbox"
         self.benchmarks = [
             {
-                "type": "checkbox",
+                "type": qtype,
                 "message": "Select Benchmark",
                 "name": "benchmark",
                 "qmark": "💻",
@@ -68,28 +78,34 @@ class InteractiveMenu:
         self.selectBenchmark = prompt(self.benchmarks, style=custom_style_2)
         if not self.selectBenchmark["benchmark"]:
             raise EmptyBenchmarkList
-        for bmark in self.selectBenchmark["benchmark"]:
-            self.pick_settings = [
-                {
-                    "type": "list",
-                    "message": f"Select Settings to use for {bmark}",
-                    "name": "settings",
-                    "qmark": "->",
-                    "choices": getSettings(bmark, self.type),
-                    "validate": lambda x: os.path.isfile(x),
-                }
-            ]
-            self.selectSettings = prompt(self.pick_settings)
-            print(
-                f"send command to run {bmark} with { self.selectSettings['settings'] } settings."
+
+        if self.type == "Benchmark":
+            for bmark in self.selectBenchmark["benchmark"]:
+                benchmarkPath = os.path.join(Path.cwd(), "benchmarks", bmark)
+                if "setup.py" or "setup.sh" in os.listdir(benchmarkPath):
+                    setup = typer.prompt(
+                        "We found setup file in your directory. Would you like to use it?(y/n)"
+                    )
+                if setup == "y" or "Y":
+                    setItUp(benchmarkPath)
+                self.pick_settings = [
+                    {
+                        "type": "list",
+                        "message": f"Select Settings to use for {bmark}",
+                        "name": "settings",
+                        "qmark": "->",
+                        "choices": getSettings(bmark, self.type),
+                        "validate": lambda x: os.path.isfile(x),
+                    }
+                ]
+                self.selectSettings = prompt(self.pick_settings)
+            InterfaceSkeleton().startBenchmark(
+                runType=self.type, bmark=bmark, settings=self.selectSettings["settings"]
             )
-            if self.type == "Benchmark":
-                InterfaceSkeleton().startBenchmark(
-                    bmark, self.selectSettings["settings"]
-                )
-            elif self.type == "Suite":
-                pass
-                # TODO: Fingure out suites settings
+        elif self.type == "Suite":
+            suite = self.selectBenchmark["benchmark"]
+            suitePath = os.path.join(home_dir, "suites", suite)
+            InterfaceSkeleton().startBenchmark(runType=self.type, suitePath=suitePath)
 
     def benchmarkBanner(self):
         print("   ___                   _____          ____   ____ ")
@@ -115,7 +131,10 @@ def interactive(
 
 
 @app.command()
-def run_benchmark(input: List[str]):
+def run_benchmark(
+    input: List[str],
+    verbose: int = typer.Option(None, "--verbose", "-v", help="modify verbosity"),
+):
     """
     Runs the given benchmarks
     """
@@ -126,20 +145,40 @@ def run_benchmark(input: List[str]):
                 f"{benchmark} implementation doesn't exist. Please check available benchmarks using list-benchmarks command"
             )
             continue
-        benchSet = typer.prompt(
+        benchmarkPath = os.path.join(Path.cwd(), "benchmarks", benchmark)
+        if "setup.py" or "setup.sh" in os.listdir(benchmarkPath):
+            setup = typer.prompt(
+                "We found setup file in your directory. Would you like to use it?(y/n)"
+            )
+        if setup == "y" or "Y":
+            setItUp(benchmarkPath)
+        benchSetting = typer.prompt(
             f"What settings would you like for {benchmark} <space> for default"
         )
-        if benchSet == " " or benchSet not in getSettings(benchmark, "Benchmark"):
-            benchSet = "settings1.json"
+        if benchSetting == " " or benchSetting not in getSettings(
+            benchmark, "Benchmark"
+        ):
+            benchSetting = "settings1.json"
         else:
-            benchSet += ".json"
-        InterfaceSkeleton().startBenchmark(benchmark, benchSet)
+            benchSetting += ".json"
+        InterfaceSkeleton().startBenchmark(
+            bmark=benchmark, settings=benchSetting, verbosity=verbose
+        )
 
 
-# @app.command()
-# def run_suite(
-#     input:List[str]
-#     ):
+@app.command()
+def run_suite(suite: str):
+    """
+    Runs the given Suite
+    """
+    _availableSuites = [x["name"] for x in getSuitesToRun()]
+    if suite not in _availableSuites:
+        typer.echo(
+            f"{suite} implementation doesn't exist. Please check available benchmarks using list-suites command"
+        )
+        typer.Exit()
+    suitePath = os.path.join(home_dir, "suites", suite)
+    InterfaceSkeleton().startBenchmark(runType="suite", suitePath=suitePath)
 
 
 @app.command()
@@ -161,7 +200,7 @@ def list_benchmarks():
 
 
 @app.command()
-def get_settings(benchmark: str, command: List[str]):
+def get_settings(benchmark: str, command: List[str] = ["help"]):
     """
     Gets the settings for the benchmark
     """

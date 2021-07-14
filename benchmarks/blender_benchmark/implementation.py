@@ -1,12 +1,7 @@
-from user_interfaces.utils import getSettings
 from common.benchmark_wrapper import BenchmarkWrapper
 import json
-import urllib.request as urllib
 import subprocess
-import tarfile
-import platform
 import os
-import zipfile
 
 
 class BlenderBenchmark(BenchmarkWrapper):
@@ -19,28 +14,20 @@ class BlenderBenchmark(BenchmarkWrapper):
         self._settings = {}
         self.filePath = os.path.dirname(__file__)
         self.baseCommand = "benchmark-launcher-cli"
-        self.system = platform.system().lower()
-        if self.system == "linux":
-            self.url = "https://download.blender.org/release/BlenderBenchmark2.0/launcher/benchmark-launcher-cli-2.0.5-linux.tar.gz"
-        else:
-            self.url = f"https://download.blender.org/release/BlenderBenchmark2.0/launcher/benchmark-launcher-cli-2.0.4-{self.system}.zip"
-        if not os.path.isfile(os.path.join(self.filePath, "benchmark-launcher-cli")):
-            filehandle, _ = urllib.urlretrieve(self.url)
-            if self.system == "linux":
-                with tarfile.open(filehandle) as h:
-                    h.extractall(self.filePath)
-            else:
-                with zipfile.ZipFile(filehandle, "r") as h:
-                    h.extractall(self.filePath)
 
     def setSettings(self, settings_file):
         self._settings = json.load(open(settings_file, "r"))
 
-    def startBenchmark(self):
+    def startBenchmark(self, verbosity=None):
         self.getSettings(("blender", "download"))
         self.getSettings(("scenes", "download"))
         self.scenes = " ".join([str(elem) for elem in self._settings["scenes"]])
+        self.verbosity = verbosity
+        if self.verbosity == None:
+            self.verbosity = self._settings["verbosity"]
+
         try:
+            print(self.verbosity)
             startBench = subprocess.run(
                 [
                     os.path.join(self.filePath, self.baseCommand),
@@ -51,20 +38,22 @@ class BlenderBenchmark(BenchmarkWrapper):
                     "--device-type",
                     str(self._settings["device_type"]),
                     "--json",
+                    "-v",
+                    str(self.verbosity),
                 ]
             )
         except subprocess.CalledProcessError as e:
             print(e.output)
             exit
         if startBench.returncode != 0:
-            raise startBench.stderr
+            print(startBench.stderr)
 
     def benchmarkStatus():
         pass
 
     def getSettings(self, args):
         commands = {
-            "blender": {  # Container Dictionary for blender download manager
+            "blender": {  # Container Dictionary for blender download managerc
                 "download": [  # Downloads the blender version specified in the settings
                     os.path.join(self.filePath, self.baseCommand),
                     "blender",
@@ -83,11 +72,11 @@ class BlenderBenchmark(BenchmarkWrapper):
                 "-b",
                 str(self._settings["blender_version"]),
             ],
-            "help": [
+            "help": [  # Prints the help window
                 os.path.join(self.filePath, self.baseCommand),
                 "--help",
-            ],  # Prints the help window
-            "scenes": {
+            ],
+            "scenes": {  # Container Dictionary for scenes download manager
                 "download": [  # Downloads the scenes mentioned in settings
                     os.path.join(self.filePath, self.baseCommand),
                     "scenes",
@@ -139,17 +128,17 @@ class BlenderBenchmark(BenchmarkWrapper):
 
 
 """
+TODO:[Logger Output after parsing]
 [
   {
+    "stats": {
+      "device_peak_memory": 146,
+      "total_render_time": 208.673,
+      "render_time_no_sync": 206.112
+    }
     "timestamp": "2021-07-11T09:00:52.938463+00:00",
     "blender_version": {
-      "version": "2.92.0",
-      "build_date": "2021-02-25",
-      "build_time": "09:31:37",
-      "build_commit_date": "2021-02-24",
-      "build_commit_time": "16:25",
-      "build_hash": "02948a2cab44",
-      "label": "2.92",
+      "label": "2.92",                                                                            
       "checksum": "2cd17ad6e9d6c241ac14b84ad6e72b507aeec979da3d926b1a146e88e0eb3eb4"
     },
     "benchmark_launcher": {
@@ -164,60 +153,6 @@ class BlenderBenchmark(BenchmarkWrapper):
       "label": "bmw27",
       "checksum": "bc4fd79cbd85a1cc47926e848ec8f322872f5c170ef33c21e0d0ce303c0ec9ea"
     },
-    "system_info": {
-      "bitness": "64bit",
-      "machine": "x86_64",
-      "system": "Linux",
-      "dist_name": "Pop!_OS",
-      "dist_version": "20.04",
-      "devices": [
-        {
-          "type": "CPU",
-          "name": "Intel Core i5-8300H CPU @ 2.30GHz"
-        },
-        {
-          "type": "CPU",
-          "name": "Intel Core i5-8300H CPU @ 2.30GHz"
-        },
-        {
-          "type": "CUDA",
-          "name": "NVIDIA GeForce GTX 1060",
-          "is_display": false
-        },
-        {
-          "type": "CPU",
-          "name": "Intel Core i5-8300H CPU @ 2.30GHz"
-        },
-        {
-          "type": "OPTIX",
-          "name": "NVIDIA GeForce GTX 1060",
-          "is_display": false
-        },
-        {
-          "type": "CPU",
-          "name": "Intel Core i5-8300H CPU @ 2.30GHz"
-        }
-      ],
-      "num_cpu_sockets": 1,
-      "num_cpu_cores": 4,
-      "num_cpu_threads": 8
-    },
-    "device_info": {
-      "device_type": "CUDA",
-      "compute_devices": [
-        {
-          "type": "CUDA",
-          "name": "NVIDIA GeForce GTX 1060",
-          "is_display": false
-        }
-      ],
-      "num_cpu_threads": 8
-    },
-    "stats": {
-      "device_peak_memory": 146,
-      "total_render_time": 208.673,
-      "render_time_no_sync": 206.112
-    }
   }
 ]
 """

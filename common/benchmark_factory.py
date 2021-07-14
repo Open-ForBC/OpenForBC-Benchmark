@@ -30,8 +30,3 @@ def BenchmarkFactory(benchmark_name, benchmark_settings_file=None):
         raise Exception(
             "Cannot find {} benchmark or benchmark_info.json. ".format(benchmark_name)
         )
-
-
-# if __name__=="__main__":
-#     bench = BenchmarkFactory('dummy_benchmark')
-#     bench.startBenchmark()

@@ -2,3 +2,4 @@
 config/benchmarkconfig.json
 config/mlperf_config.json
 *.pyc
+*/bin/
