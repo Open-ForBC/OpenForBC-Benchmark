@@ -2,10 +2,6 @@ from common.benchmark_wrapper import BenchmarkWrapper
 import json
 import subprocess
 import os
-<<<<<<< HEAD
-
-=======
->>>>>>> 8fa2e65... Added verbosity; CLI supports running suites
 
 
 class BlenderBenchmark(BenchmarkWrapper):
