@@ -1,13 +1,3 @@
 {
-<<<<<<< HEAD
-<<<<<<< HEAD
     "to_print":"Hello world!!!"
-=======
-    "to_print":"Hello world!!!",
-    "repetitions":10,
-    "burnin":2
->>>>>>> c0b38b3... Cleaning up...
-=======
-    "to_print":"Hello world!!!"
->>>>>>> 0597cdb... Removing unised settings
 }

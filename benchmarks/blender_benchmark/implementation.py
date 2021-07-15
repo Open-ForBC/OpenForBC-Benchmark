@@ -27,7 +27,6 @@ class BlenderBenchmark(BenchmarkWrapper):
             self.verbosity = self._settings["verbosity"]
 
         try:
-            print(self.verbosity)
             startBench = subprocess.run(
                 [
                     os.path.join(self.filePath, self.baseCommand),
@@ -127,7 +126,6 @@ class BlenderBenchmark(BenchmarkWrapper):
         pass
 
     def getSettings(self, args):
-        print(args)
         commands = {
             "blender": {
                 "download": [                                               # Downloads the blender version specified in the settings
