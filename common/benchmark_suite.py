@@ -17,6 +17,7 @@ class BenchmarkSuite(BenchmarkWrapper):
                 )
             )
 
+
     def startBenchmark(self):
         for b in self.benchmarkArray:
             b.startBenchmark()

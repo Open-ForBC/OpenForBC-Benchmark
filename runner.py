@@ -11,3 +11,4 @@ if __name__ == "__main__":
     BenchmarkFactory(
         benchmark_name="blender_benchmark", benchmark_settings_file="settings1.json"
     ).startBenchmark()
+
