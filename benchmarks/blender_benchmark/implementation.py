@@ -19,15 +19,15 @@ class BlenderBenchmark(BenchmarkWrapper):
         self._settings = json.load(open(settings_file, "r"))
 
     def startBenchmark(self, verbosity=None):
-        self.getSettings(("blender", "download"))
-        self.getSettings(("scenes", "download"))
+        self.getSettings(("blender", "download"))               #Downloads blender version specified in benchmarkinfo.json
+        self.getSettings(("scenes", "download"))                #Downloads the scenes as specified in benchmarkinfo.json
         self.scenes = " ".join([str(elem) for elem in self._settings["scenes"]])
         self.verbosity = verbosity
         if self.verbosity == None:
             self.verbosity = self._settings["verbosity"]
 
         try:
-            startBench = subprocess.run(
+            startBench = subprocess.run(                                            #Runs the blender benchmark
                 [
                     os.path.join(self.filePath, self.baseCommand),
                     "benchmark",
@@ -98,7 +98,7 @@ class BlenderBenchmark(BenchmarkWrapper):
             ],
         }
         if len(args) == 2:
-            if args[1] == "help" or args[1] == "--help":
+            if args[1] == "help":
                 command = [os.path.join(self.filePath, self.baseCommand)] + [
                     args[0],
                     "help",
@@ -124,6 +124,7 @@ class BlenderBenchmark(BenchmarkWrapper):
 
     def stopBenchmark():
         pass
+
 
 """
 TODO:[Logger Output after parsing]
