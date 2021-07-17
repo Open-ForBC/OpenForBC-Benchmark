@@ -3,6 +3,7 @@
 OpenForBC-Benchmark is a full-fledged suite of ready-to-run benchmarks in order to measure the performances of various partitioning options on GPUs. 
 
 
+
 ## Installation
 
 - Clone the repository
@@ -16,7 +17,6 @@ git clone https://github.com/Open-ForBC/OpenForBC-Benchmark.git
 ```bash
 pip install -r requirements.txt
 ```
-
 
 
 ## Usage
@@ -97,8 +97,10 @@ To add a benchmark, create a directory in the benchmarks folder similar to the S
 
 -  The Benchmark implementation goes into the ```implementation.py``` folder. 
 
-- Information about the benchmark is stored in ```benchmark_info.json``` with keys labelled as ```name```, ```description```,```implementation file``` and ```class name```.
+- Information about the benchmark is stored in ```benchmark_info.json``` with keys labelled as ```name```, ```description```,```implementation file``` and ```class name``` next to their corresponding values.
 
-- Settings associated to the benchmark are placed in settings folder, to be saved as a json file. 
+- Settings associated to the benchmark are placed in settings folder, to be saved as a json file. You can save more than one settings and select the one you want to run the benchmark with later when running the benchmark. 
 
-
+<!-- [TODO: Add content to build onto the readme.] -->
+<!-- ![Alt text](assets/class_diagram.svg)
+![Alt text](assets/sequence_diagram.svg) -->

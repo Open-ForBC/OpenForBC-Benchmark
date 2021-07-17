@@ -8,24 +8,22 @@ import sys
 import json
 from typing import List
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from utils import (
+from user_interfaces.utils import (
     getBenchmarksToRun,
     getSettings,
     getSuitesToRun,
     EmptyBenchmarkList,
     setItUp,
 )
+from user_interfaces.interface_skeleton import InterfaceSkeleton
 
-
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from interface_skeleton import InterfaceSkeleton
 
 
 app = typer.Typer()
 home_dir = Path.cwd()
 
 
-class InteractiveMenu:
+class InteractiveMenu:                     
     def __init__(self):
         self.selectBenchmark: dict = {}
         self.selectSettings: dict = {}
@@ -39,6 +37,7 @@ class InteractiveMenu:
             {
                 "type": "list",
                 "name": "runchoice",
+                "qmark": "💻",
                 "message": "Collective benchmark suite or individual run?",
                 "choices": [
                     "Benchmark Suite",
@@ -54,8 +53,6 @@ class InteractiveMenu:
                     "type": "input",
                     "name": "SuiteName",
                     "message": "What would you like to call your suite?",
-                    # 'default': lambda answers: 'Suite_1'
-                    # 'validate': lambda val: val == 'Doe' or 'is your last name Doe?'  Check if a file by same name exists or not
                 },
                 {
                     "type": "input",
@@ -71,7 +68,7 @@ class InteractiveMenu:
                 {
                     "type": "input",
                     "name": "FileName",
-                    "message": "Filename for your created suite",
+                    "message": "Filename for your created suite",   
                 },
             ]
             suiteBuild = prompt(suiteBuilder, style=custom_style_2)
@@ -83,7 +80,7 @@ class InteractiveMenu:
                     "name": "settings",
                     "qmark": "->",
                     "choices": getSettings(bmark, self.type),
-                    "validate": lambda x: os.path.isfile(x),
+                    # "validate": lambda x: os.path.isfile(x),
                 }
                 suiteSettings = prompt(suite_settings, style=custom_style_2)
                 _suiteList.append(
@@ -169,6 +166,9 @@ class InteractiveMenu:
         print(" ====Welcome to the OpenForBC Benchmarking Tool==== ")
 
 
+
+# Non interactive menu =>
+
 @app.command()
 def interactive(
     interactive: bool = typer.Option(False, prompt="Run program in interactive mode?")
@@ -179,7 +179,7 @@ def interactive(
     if interactive:
         InteractiveMenu().runner()
     else:
-        raise typer.Exit()
+        raise typer.Exit(code = 5)
 
 
 @app.command()
@@ -242,7 +242,7 @@ def list_suites():
     Lists available suites
     """
     for suites in getSuitesToRun():
-        print(suites["name"])
+        typer.echo(suites["name"])
 
 
 @app.command()
@@ -251,12 +251,12 @@ def list_benchmarks():
     Lists available benchmarks
     """
     for bmark in getBenchmarksToRun():
-        print(bmark["name"])
+        typer.echo(bmark["name"])
 
 
 @app.command()
 def get_settings(
-    benchmark: str, 
+    benchmark: str = typer.Argument(...), 
     command: List[str] = typer.Argument(...)):
     """
     Gets the settings for the benchmark
