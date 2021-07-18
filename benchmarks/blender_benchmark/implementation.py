@@ -2,6 +2,7 @@ from common.benchmark_wrapper import BenchmarkWrapper
 import json
 import subprocess
 import os
+import json
 
 
 class BlenderBenchmark(BenchmarkWrapper):
@@ -39,13 +40,23 @@ class BlenderBenchmark(BenchmarkWrapper):
                     "--json",
                     "-v",
                     str(self.verbosity),
-                ]
+                ],stdout=subprocess.PIPE
             )
         except subprocess.CalledProcessError as e:
             print(e.output)
             exit
         if startBench.returncode != 0:
-            print(startBench.stderr)
+            return startBench.stderr
+        else:
+            s = startBench.stdout.decode("utf-8")
+            s = s[4:-2].replace('false','False')
+            s = eval(s)
+            returnDict = {}
+            specs = ["timestamp","stats","blender_version","benchmark_launcher","benchmark_script","scene"]
+            for spec in specs:
+                returnDict[spec] = s.get(spec,None)
+            return returnDict
+
 
     def benchmarkStatus():
         pass
@@ -190,39 +201,10 @@ class BlenderBenchmark(BenchmarkWrapper):
             print(e.output)
         if args[0] == "devices":
             p2 = subprocess.Popen(
-                ["grep", "CUDA\|OPTIX"], stdin=process.stdout, stdout=subprocess.PIPE
+                ["grep","-wv", "CPU"], stdin=process.stdout, stdout=subprocess.PIPE
             )
             process.stdout.close()
-            print(p2.communicate()[0].decode())
+            return p2.communicate()[0].decode()
         else:
-            print(process.communicate()[0].decode())
+            return process.communicate()[0].decode()
 
-"""
-TODO:[Logger Output after parsing]
-[
-  {
-    "stats": {
-      "device_peak_memory": 146,
-      "total_render_time": 208.673,
-      "render_time_no_sync": 206.112
-    }
-    "timestamp": "2021-07-11T09:00:52.938463+00:00",
-    "blender_version": {
-      "label": "2.92",                                                                            
-      "checksum": "2cd17ad6e9d6c241ac14b84ad6e72b507aeec979da3d926b1a146e88e0eb3eb4"
-    },
-    "benchmark_launcher": {
-      "label": "2.0.5",
-      "checksum": "0513a4a626bb0ee387366f67a632ea0f886ee5906aaafe148d473842059fb2ec"
-    },
-    "benchmark_script": {
-      "label": "2.0.1",
-      "checksum": "dee17c82d883838f6da21e7c86f368cda2ab8399eac10b660e199628aca09ec0"
-    },
-    "scene": {
-      "label": "bmw27",
-      "checksum": "bc4fd79cbd85a1cc47926e848ec8f322872f5c170ef33c21e0d0ce303c0ec9ea"
-    },
-  }
-]
-"""
