@@ -23,6 +23,7 @@ app = typer.Typer()
 home_dir = Path.cwd()
 
 
+
 class InteractiveMenu:
     def __init__(self):
         self.selectBenchmark: dict = {}
@@ -115,6 +116,7 @@ class InteractiveMenu:
                 "choices": getSuitesToRun()
                 if self.type == "Suite"
                 else getBenchmarksToRun(),
+
                 "validate": lambda answer: ValueError("no input")
                 if len(answer) == 0
                 else True,
@@ -155,6 +157,7 @@ class InteractiveMenu:
             suite = self.selectBenchmark["benchmark"]
             suitePath = os.path.join(home_dir, "suites", suite)
             InterfaceSkeleton().startBenchmark(runType=self.type, suitePath=suitePath)
+
 
     def benchmarkBanner(self):
         print("   ___                   _____          ____   ____ ")
@@ -236,6 +239,7 @@ def run_suite(suite: str):
     InterfaceSkeleton().startBenchmark(runType="suite", suitePath=suitePath)
 
 
+
 @app.command()
 def list_suites():
     """
@@ -268,3 +272,4 @@ def get_settings(
 
 if __name__ == "__main__":
     app()
+

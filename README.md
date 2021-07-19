@@ -104,3 +104,4 @@ To add a benchmark, create a directory in the benchmarks folder similar to the S
 <!-- [TODO: Add content to build onto the readme.] -->
 <!-- ![Alt text](assets/class_diagram.svg)
 ![Alt text](assets/sequence_diagram.svg) -->
+

@@ -10,3 +10,4 @@ starlette==0.14.2
 typer==0.3.2
 typing-extensions==3.10.0.0
 wcwidth==0.2.5
+

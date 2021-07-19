@@ -37,4 +37,5 @@ class InterfaceSkeleton(BenchmarkWrapper):
         pass
 
     def setSettings(self):
+
         pass

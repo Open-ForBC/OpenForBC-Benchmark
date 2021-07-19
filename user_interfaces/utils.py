@@ -4,7 +4,6 @@ import json
 import subprocess
 import sys
 
-
 home_dir = Path.cwd()
 
 
@@ -56,12 +55,14 @@ def getSettings(bmark, runType):
             for x in os.listdir(
                 home_dir.joinpath("benchmarks", "suites", bmark, "settings")
             )
+
         ]
     else:
         return [
             dict({"name": x})
             for x in os.listdir(home_dir.joinpath("benchmarks", bmark, "settings"))
         ]
+
 
 
 class EmptyBenchmarkList(BaseException):

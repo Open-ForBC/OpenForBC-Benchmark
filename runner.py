@@ -15,3 +15,4 @@ if __name__ == "__main__":
     print(type(BenchmarkSuite(suite_info_path="./suites/example_suite.json")))
 
     # print(t_benchmark_suite.test1())
+

@@ -4,6 +4,7 @@ import json
 from .utils import checkSettings
 
 
+
 class BenchmarkSuite(BenchmarkWrapper):
     def __init__(self, suite_info_path):
         suite_info_json = json.load(open(suite_info_path, "r"))
@@ -28,11 +29,13 @@ class BenchmarkSuite(BenchmarkWrapper):
     def benchmarkStatus(self):
         return self.counter / len(self.benchmarkArray)
 
+
     def stopBenchmark():
         """Stops the benchmark"""
         pass
 
     def getSettings(self):
+
         pass
 
     def setSettings(self):
