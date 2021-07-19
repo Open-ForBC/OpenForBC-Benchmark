@@ -19,15 +19,19 @@ class BlenderBenchmark(BenchmarkWrapper):
         self._settings = json.load(open(settings_file, "r"))
 
     def startBenchmark(self, verbosity=None):
-        self.getSettings(("blender", "download"))               #Downloads blender version specified in benchmarkinfo.json
-        self.getSettings(("scenes", "download"))                #Downloads the scenes as specified in benchmarkinfo.json
+        self.getSettings(
+            ("blender", "download")
+        )  # Downloads blender version specified in benchmarkinfo.json
+        self.getSettings(
+            ("scenes", "download")
+        )  # Downloads the scenes as specified in benchmarkinfo.json
         self.scenes = " ".join([str(elem) for elem in self._settings["scenes"]])
         self.verbosity = verbosity
         if self.verbosity == None:
             self.verbosity = self._settings["verbosity"]
 
         try:
-            startBench = subprocess.run(                                            #Runs the blender benchmark
+            startBench = subprocess.run(  # Runs the blender benchmark
                 [
                     os.path.join(self.filePath, self.baseCommand),
                     "benchmark",
@@ -115,7 +119,7 @@ class BlenderBenchmark(BenchmarkWrapper):
             print(e.output)
         if args[0] == "devices":
             p2 = subprocess.Popen(
-                ["grep","-wv", "CPU"], stdin=process.stdout, stdout=subprocess.PIPE
+                ["grep", "-wv", "CPU"], stdin=process.stdout, stdout=subprocess.PIPE
             )
             process.stdout.close()
             print(p2.communicate()[0].decode())

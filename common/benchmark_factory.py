@@ -6,9 +6,13 @@ from importlib.machinery import SourceFileLoader
 
 
 def BenchmarkFactory(benchmark_name, benchmark_settings_file=None):
-    base_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "benchmarks")       #Gives path to
+    base_path = os.path.join(
+        os.path.dirname(os.path.dirname(__file__)), "benchmarks"
+    )  # Gives path to
     if not os.path.isdir(base_path):
-        raise Exception(f"The path {base_path} doesn't have directory called benchmarks.")
+        raise Exception(
+            f"The path {base_path} doesn't have directory called benchmarks."
+        )
     benchmark_info_path = os.path.join(base_path, benchmark_name, "benchmark_info.json")
     if not os.path.isfile(benchmark_info_path):
         raise Exception("The file path given doesn't exist.")
@@ -21,7 +25,7 @@ def BenchmarkFactory(benchmark_name, benchmark_settings_file=None):
         class_name = benchmark_info_json["class_name"]
     except KeyError:
         raise Exception("Key(s) you requested for don't exist.")
-    module = SourceFileLoader(  
+    module = SourceFileLoader(
         "{}.{}".format(implementation_file, class_name),
         os.path.join(os.path.dirname(benchmark_info_path), implementation_file),
     ).load_module()

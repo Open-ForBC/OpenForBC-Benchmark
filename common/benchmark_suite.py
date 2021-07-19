@@ -7,8 +7,8 @@ from .utils import checkSettings
 class BenchmarkSuite(BenchmarkWrapper):
     def __init__(self, suite_info_path):
         suite_info_json = json.load(open(suite_info_path, "r"))
-        self.name = checkSettings(suite_info_json,"name")
-        self.description = checkSettings(suite_info_json,"description")
+        self.name = checkSettings(suite_info_json, "name")
+        self.description = checkSettings(suite_info_json, "description")
         self.benchmarkArray = []
 
         for bench in suite_info_json["benchmarks"]:
@@ -26,7 +26,7 @@ class BenchmarkSuite(BenchmarkWrapper):
             self.counter += 1
 
     def benchmarkStatus(self):
-        return self.counter/len(self.benchmarkArray)
+        return self.counter / len(self.benchmarkArray)
 
     def stopBenchmark():
         """Stops the benchmark"""

@@ -7,6 +7,7 @@ import typer
 import sys
 import json
 from typing import List
+
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from user_interfaces.utils import (
     getBenchmarksToRun,
@@ -18,12 +19,11 @@ from user_interfaces.utils import (
 from user_interfaces.interface_skeleton import InterfaceSkeleton
 
 
-
 app = typer.Typer()
 home_dir = Path.cwd()
 
 
-class InteractiveMenu:                     
+class InteractiveMenu:
     def __init__(self):
         self.selectBenchmark: dict = {}
         self.selectSettings: dict = {}
@@ -68,7 +68,7 @@ class InteractiveMenu:
                 {
                     "type": "input",
                     "name": "FileName",
-                    "message": "Filename for your created suite",   
+                    "message": "Filename for your created suite",
                 },
             ]
             suiteBuild = prompt(suiteBuilder, style=custom_style_2)
@@ -166,8 +166,8 @@ class InteractiveMenu:
         print(" ====Welcome to the OpenForBC Benchmarking Tool==== ")
 
 
-
 # Non interactive menu =>
+
 
 @app.command()
 def interactive(
@@ -179,7 +179,7 @@ def interactive(
     if interactive:
         InteractiveMenu().runner()
     else:
-        raise typer.Exit(code = 5)
+        raise typer.Exit(code=5)
 
 
 @app.command()
@@ -256,8 +256,8 @@ def list_benchmarks():
 
 @app.command()
 def get_settings(
-    benchmark: str = typer.Argument(...), 
-    command: List[str] = typer.Argument(...)):
+    benchmark: str = typer.Argument(...), command: List[str] = typer.Argument(...)
+):
     """
     Gets the settings for the benchmark
     """
