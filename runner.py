@@ -1,6 +1,8 @@
 from common.benchmark_wrapper import BenchmarkWrapper
 from common.benchmark_suite import BenchmarkSuite
 from common.benchmark_factory import BenchmarkFactory
+from benchmarks.blender_benchmark.implementation import BlenderBenchmark
+
 
 if __name__ == "__main__":
     # BenchmarkSuite(suite_info_path="./suites/example_suite.json").startBenchmark()
