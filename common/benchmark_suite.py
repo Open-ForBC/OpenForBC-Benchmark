@@ -1,23 +1,22 @@
-import sys
-import os
-sys.path.append(os.path.dirname(__file__))
-
-from benchmark_wrapper import BenchmarkWrapper
-from benchmark_factory import BenchmarkFactory
-import pathlib
 import json
-import os
-
+from .benchmark_wrapper import BenchmarkWrapper
+from .benchmark_factory import BenchmarkFactory
 
 class BenchmarkSuite(BenchmarkWrapper):
     def __init__(self, suite_info_path):
-        suite_info_json = json.load(open(suite_info_path, 'r'))
-        self.name = suite_info_json['name']
-        self.description = suite_info_json['description']
+        suite_info_json = json.load(open(suite_info_path, "r"))
+        self.name = suite_info_json["name"]
+        self.description = suite_info_json["description"]
         self.benchmarkArray = []
 
-        for bench in suite_info_json['benchmarks']:
-            self.benchmarkArray.append(BenchmarkFactory(benchmark_name=bench['name'], benchmark_settings_file=bench['settings']))
+        for bench in suite_info_json["benchmarks"]:
+            self.benchmarkArray.append(
+                BenchmarkFactory(
+                    benchmark_name=bench["name"],
+                    benchmark_settings_file=bench["settings"],
+                )
+            )
+
 
     def startBenchmark(self):
         for b in self.benchmarkArray:

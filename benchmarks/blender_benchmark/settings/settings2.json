@@ -1,0 +1,6 @@
+{
+    "blender_version":"2.93.1",
+    "scenes": ["bmw27","classroom"],
+    "device_type":"CUDA",
+    "verbosity":"1"
+}
