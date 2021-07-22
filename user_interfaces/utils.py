@@ -27,9 +27,11 @@ def getBenchmarksToRun():
 
 def setItUp(benchmarkPath):
     if "setup.py" in os.listdir(benchmarkPath):
-        try:                                                                                                                                                            
+        try:
             process = subprocess.run(
-                [sys.executable, os.path.join(benchmarkPath, "setup.py")], check=True, universal_newlines=True
+                [sys.executable, os.path.join(benchmarkPath, "setup.py")],
+                check=True,
+                universal_newlines=True,
             )
         except subprocess.CalledProcessError as e:
             print(e.output)
@@ -62,7 +64,7 @@ def getSettings(bmark, runType):
         ]
 
 
-def suiteMaker(suiteBuild:dict,suiteList:list):
+def suiteMaker(suiteBuild: dict, suiteList: list):
     runnerDict = dict(
         {
             "name": suiteBuild["SuiteName"],
@@ -70,21 +72,24 @@ def suiteMaker(suiteBuild:dict,suiteList:list):
             "benchmarks": suiteList,
         }
     )
-    suitePath = os.path.join(
-        home_dir, "suites", suiteBuild["FileName"] + ".json"
-    )
+    suitePath = os.path.join(home_dir, "suites", suiteBuild["FileName"] + ".json")
     with open(suitePath, "w") as configFile:
         json.dump(runnerDict, configFile, indent=4)
+
 
 class EmptyBenchmarkList(BaseException):
     def __str__(self):
         return "Please select benchmark(s) to run by pressing spacebar to select."
 
-def logIT(benchmark,settings,logs,pathToLog = "/var/log/openforbc"):
-    path = Path(pathToLog).joinpath(benchmark,str(settings)[:-5],str(datetime.now())[:-8],'output.log')
+
+def logIT(benchmark, settings, logs, pathToLog="/var/log/openforbc"):
+    path = Path(pathToLog).joinpath(
+        benchmark, str(settings)[:-5], str(datetime.now())[:-8], "output.log"
+    )
     path.mkdir(parents=True, exist_ok=True)
     with open(path, "w") as logFile:
-            logFile.writelines(logs)
+        logFile.writelines(logs)
 
-#TODO: fix the error given by logIT due to permissions
+
+# TODO: fix the error given by logIT due to permissions
 # var/log/openforbc/[benchmark name]/[preset name]/[date]/[output files]

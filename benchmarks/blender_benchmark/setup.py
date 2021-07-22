@@ -6,7 +6,9 @@ import zipfile
 
 
 if __name__ == "__main__":
-    filePath = os.path.dirname(__file__)
+    currPath = os.path.dirname(__file__)
+    os.mkdir(os.path.join(currPath, "bin"))
+    filePath = os.path.join(os.path.dirname(__file__), "bin")
     system = platform.system().lower()
     if system == "linux":
         url = "https://download.blender.org/release/BlenderBenchmark2.0/launcher/benchmark-launcher-cli-2.0.5-linux.tar.gz"
