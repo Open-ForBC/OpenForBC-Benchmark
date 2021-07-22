@@ -2,7 +2,6 @@ import unittest
 from typer.testing import CliRunner
 import sys
 import os
-
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from user_interfaces import cli
 
@@ -10,7 +9,6 @@ runner = CliRunner()
 
 
 class TestArguments(unittest.TestCase):
-    # def setUp(self):
 
     def invokeFactory(
         self, arr
@@ -101,13 +99,11 @@ class TestArguments(unittest.TestCase):
         assert (
             self.invokeFactory(
                 ["get-settings", "blender_benchmark", "scenes", "list"]
-            ).exit_code
-            == 0
+            ).exit_code== 0
         )  # Check get_settings returns settings successful
 
         assert (
-            self.invokeFactory(["get-settings", "noBenchmark", "noSettings"]).exit_code
-            != 0
+            self.invokeFactory(["get-settings", "noBenchmark", "noSettings"]).exit_code!= 0
         )  # Check get settings exits unsuccessfully if wrong argument passed
 
 
