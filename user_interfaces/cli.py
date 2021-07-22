@@ -10,10 +10,9 @@ from user_interfaces.utils import (
     getBenchmarksToRun,
     getSettings,
     getSuitesToRun,
-    EmptyBenchmarkList,
     setItUp,
     suiteMaker,
-    logIT,
+    # logITsss,
 )
 from user_interfaces.interface_skeleton import InterfaceSkeleton
 
@@ -111,7 +110,7 @@ class InteractiveMenu:
 
         self.selectBenchmark = prompt(self.benchmarks, style=custom_style_2)
         if not self.selectBenchmark["benchmark"]:
-            raise EmptyBenchmarkList
+            raise Exception("Benchmark list is empty")
 
         if self.type == "Benchmark":
             for bmark in self.selectBenchmark["benchmark"]:
@@ -139,7 +138,7 @@ class InteractiveMenu:
             out = InterfaceSkeleton().startBenchmark(
                 runType=self.type, bmark=bmark, settings=self.selectSettings["settings"]
             )
-            logIT(benchmark = bmark,settings = self.selectSettings["settings"],logs = out)
+            # logIT(benchmark = bmark,settings = self.selectSettings["settings"],logs = out)
         elif self.type == "Suite":
             suite = self.selectBenchmark["benchmark"]
             suitePath = os.path.join(home_dir, "suites", suite)
@@ -211,7 +210,7 @@ def run_benchmark(
             bmark=benchmark, settings=benchSetting, verbosity=verbose
         )
         typer.echo(out)
-        logIT(benchmark = benchmark,settings = benchSetting,logs = out)
+        # logIT(benchmark = benchmark,settings = benchSetting,logs = out)
 
 @app.command()
 def run_suite(
