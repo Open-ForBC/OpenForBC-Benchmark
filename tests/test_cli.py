@@ -97,12 +97,12 @@ class TestArguments(unittest.TestCase):
         )  # Check: help runs when invoked
 
     def test_get_settings(self):
-        self.assertEqual(
+        self.assertNotEqual(
             self.invokeFactory(
-                ["get-settings", "blender_benchmark", "scenes", "list"]
+                ["get-settings", "dummy_benchmark", "IllegalCommand"]
             ).exit_code,
             0,
-        )  # Check: get_settings returns settings successful
+        )# Check: get_settings raises errror if command doesn't exist.
 
         self.assertNotEqual(
             self.invokeFactory(["get-settings", "noBenchmark", "noSettings"]).exit_code,
