@@ -10,7 +10,6 @@ from user_interfaces.utils import (
     getBenchmarksToRun,
     getSettings,
     getSuitesToRun,
-    EmptyBenchmarkList,
     setItUp,
     suiteMaker,
 )
@@ -110,7 +109,7 @@ class InteractiveMenu:
 
         self.selectBenchmark = prompt(self.benchmarks, style=custom_style_2)
         if not self.selectBenchmark["benchmark"]:
-            raise EmptyBenchmarkList
+            raise Exception("EmptyBenchmarkList")
 
         if self.type == "Benchmark":
             for bmark in self.selectBenchmark["benchmark"]:
