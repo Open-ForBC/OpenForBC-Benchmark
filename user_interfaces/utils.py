@@ -76,15 +76,11 @@ def suiteMaker(suiteBuild:dict,suiteList:list):
     with open(suitePath, "w") as configFile:
         json.dump(runnerDict, configFile, indent=4)
 
-class EmptyBenchmarkList(BaseException):
-    def __str__(self):
-        return "Please select benchmark(s) to run by pressing spacebar to select."
-
-def logIT(benchmark,settings,logs,pathToLog = "/var/log/openforbc"):
-    path = Path(pathToLog).joinpath(benchmark,str(settings)[:-5],str(datetime.now())[:-8],'output.log')
-    path.mkdir(parents=True, exist_ok=True)
-    with open(path, "w") as logFile:
-            logFile.writelines(logs)
+# def logIT(benchmark,settings,logs,pathToLog = "/var/log/openforbc"):
+#     path = Path(pathToLog).joinpath(benchmark,str(settings)[:-5],str(datetime.now())[:-8],'output.log')
+#     path.mkdir(parents=True, exist_ok=True)
+#     with open(path, "w") as logFile:
+#             logFile.writelines(logs)
 
 #TODO: fix the error given by logIT due to permissions
 # var/log/openforbc/[benchmark name]/[preset name]/[date]/[output files]
