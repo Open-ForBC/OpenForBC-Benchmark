@@ -2,6 +2,7 @@ import unittest
 import sys
 import os
 from pathlib import Path
+import json
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
@@ -11,6 +12,7 @@ from user_interfaces.utils import (
     isBenchmark,
     getBenchmarksToRun,
     setItUp,
+    suiteMaker,
 )
 
 
@@ -50,6 +52,37 @@ class TestSetup(unittest.TestCase):
 
     def test_setup(self):
         setItUp(Path.cwd())
+
+
+class TestSuiteMaker(unittest.TestCase):
+    def setUp(self) -> None:
+        self._suiteDict = {
+            "SuiteName": "testsuite",
+            "SuiteDescription": "",
+            "FileName": "testfile",
+        }
+        self._suiteList = [
+            dict({"name": "dummy_benchmark", "settings": "settings1.json"}),
+            dict({"name": "dummy_benchmark", "settings": "settings2.json"}),
+        ]
+        self.expectedOutput = {
+            "name": "testsuite",
+            "description": "",
+            "benchmarks": [
+                {"name": "dummy_benchmark", "settings": "settings1.json"},
+                {"name": "dummy_benchmark", "settings": "settings2.json"},
+            ],
+        }
+
+    def tearDown(self) -> None:
+        os.remove(os.path.join(Path.cwd(), "suites", "testfile.json"))
+
+    def test_suite_maker(self):
+        suiteMaker(self._suiteDict, self._suiteList)
+        suitePath = os.path.join(Path.cwd(), "suites", "testfile.json")
+        with open(suitePath, "r") as f:
+            output = json.load(f)
+        self.assertEqual(self.expectedOutput, output)
 
 
 if __name__ == "__main__":
