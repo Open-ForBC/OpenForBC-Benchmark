@@ -158,10 +158,10 @@ class InteractiveMenu:
 
 @app.command()
 def interactive(
-    interactive: bool = typer.Option(False, prompt="Run program in interactive mode?")
+    interactive: bool = typer.Argument(True)
 ):
     """
-    Ask user if they want interactive interface or not
+    Interactive/Non interactive router.
     """
     if interactive:
         InteractiveMenu().runner()
