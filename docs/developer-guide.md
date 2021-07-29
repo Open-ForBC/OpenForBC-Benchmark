@@ -1,6 +1,7 @@
 # Developer Documentation
 
 For running a benchmark check [user-guide.md](user-guide.md).
+
 ## Adding a benchmark 
 
 Following is the file hierarchy for the benchmarks folder.
@@ -23,9 +24,9 @@ Following is the file hierarchy for the benchmarks folder.
         └── setup.sh
 * Essential for executing benchmark
 ```
-To add a benchmark, create a directory in the benchmarks folder similar to the Sample Benchmark directory as shown above.
+To add a benchmark, create a directory in the benchmarks folder similar to the Sample Benchmark directory as shown above. An example can be found in  OpenForBC-Benchmark/benchmarks/dummy_benchmark/. 
 
--  The Benchmark implementation goes into the ```implementation.py``` folder. 
+-  The Benchmark implementation goes into ```implementation.py```. 
 
 - Information about the benchmark is stored in ```benchmark_info.json``` with keys labeled as ```name```, ```description```,```implementation file``` and ```class name``` next to their corresponding values.
 
