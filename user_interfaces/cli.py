@@ -90,13 +90,11 @@ class InteractiveMenu:
             exit()
         elif self.selectRunChoice["runchoice"] == "Benchmark Suite":
             self.type = "Suite"
-            qtype = "list"
         else:
             self.type = "Benchmark"
-            qtype = "checkbox"
         self.benchmarks = [
             {
-                "type": qtype,
+                "type": "list",
                 "message": "Select Benchmark",
                 "name": "benchmark",
                 "qmark": "💻",
@@ -111,7 +109,7 @@ class InteractiveMenu:
 
         self.selectBenchmark = prompt(self.benchmarks, style=custom_style_2)
         if not self.selectBenchmark["benchmark"]:
-            raise EmptyBenchmarkList
+            raise Exception("There are no benchmarks to run.")
 
         if self.type == "Benchmark":
             for bmark in self.selectBenchmark["benchmark"]:
