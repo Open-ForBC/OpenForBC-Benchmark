@@ -119,7 +119,7 @@ class InteractiveMenu:
                 setup = typer.prompt(
                     "We found setup file in your directory. Would you like to use it?(y/n)"
                 )
-                if setup == "y" or "Y":
+                if setup == "y" or setup == "Y":
                     setItUp(benchmarkPath)
             self.pick_settings = [
                 {
