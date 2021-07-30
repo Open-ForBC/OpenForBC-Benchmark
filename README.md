@@ -23,11 +23,11 @@ git clone https://github.com/Open-ForBC/OpenForBC-Benchmark.git
 
 ```
 
-- Install the required python libraries by running
+- Install the required python libraries (python3) by running
 
 ```bash 
 cd OpenForBC-Benchmark
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 
 ```
 ___
