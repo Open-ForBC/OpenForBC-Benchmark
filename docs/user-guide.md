@@ -19,7 +19,7 @@ For a textual CLI interface, you can use the following commands.
 **1. List Benchmarks/Suites:**  
 
 ``` 
-python3 user_interfaces/cli.py list-benchmarks -v <int>
+python3 user_interfaces/cli.py list-benchmarks
 python3 user_interfaces/cli.py list-suites
 ```
 
