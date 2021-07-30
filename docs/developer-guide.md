@@ -1,6 +1,7 @@
 # Developer Documentation
 
-For running a benchmark check [user-guide.md](user-guide.md).
+- For running a benchmark check [user-guide.md](user-guide.md).
+- Installation [README](../README.md).
 
 ## Adding a benchmark 
 
@@ -9,6 +10,7 @@ Following is the file hierarchy for the benchmarks folder.
 .
 ├── benchmarks
 │   ├── Sample Benchmark A
+│   │   ├── README.md                               
 │   │   ├── benchmark_info.json                     *
 │   │   ├── bin <contains executables/docs etc>
 │   │   ├── implementation.py                       *
@@ -16,21 +18,25 @@ Following is the file hierarchy for the benchmarks folder.
 │   │   │   ├── settings1.json
 │   │   └── setup.py
 │   └── Sample Benchmark B
+|   |   ├── README.md                               
 │       ├── benchmark_info.json                     *
 │       ├── implementation.py                       *
 │       └── settings                                *
 │       |   ├── settings1.json
 │       |   └── settings2.json
         └── setup.sh
+
 * Essential for executing benchmark
 ```
-To add a benchmark, create a directory in the benchmarks folder similar to the Sample Benchmark directory as shown above. An example can be found in  OpenForBC-Benchmark/benchmarks/dummy_benchmark/. 
+To add a benchmark, create a directory in the benchmarks folder similar to the Sample Benchmark directory as shown above. An example can be found in the dummy benchmark [implementation](../benchmarks/dummy_benchmark/). 
 
 -  The Benchmark implementation goes into ```implementation.py```. 
 
 - Information about the benchmark is stored in ```benchmark_info.json``` with keys labeled as ```name```, ```description```,```implementation file``` and ```class name``` next to their corresponding values.
 
 - Settings associated with the benchmark are placed in the settings folder, to be saved as a JSON file. You can save more than one setting and select the one you want to run the benchmark with later when running the benchmark. 
+
+* *Documentation.* As a bare minimum, add a README.md file that documents what the benchmark does and the settings. For more comprehensive documentation, you can create an additional doc/ folder and place there additional files.
 
 ## How the tool works
 
