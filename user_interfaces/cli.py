@@ -88,13 +88,11 @@ class InteractiveMenu:
             exit()
         elif self.selectRunChoice["runchoice"] == "Benchmark Suite":
             self.type = "Suite"
-            qtype = "list"
         else:
             self.type = "Benchmark"
-            qtype = "checkbox"
         self.benchmarks = [
             {
-                "type": qtype,
+                "type": "list",
                 "message": "Select Benchmark",
                 "name": "benchmark",
                 "qmark": "💻",
@@ -109,31 +107,31 @@ class InteractiveMenu:
 
         self.selectBenchmark = prompt(self.benchmarks, style=custom_style_2)
         if not self.selectBenchmark["benchmark"]:
-            raise Exception("EmptyBenchmarkList")
+            raise Exception("There are no benchmarks to run.")
 
         if self.type == "Benchmark":
-            for bmark in self.selectBenchmark["benchmark"]:
-                benchmarkPath = os.path.join(Path.cwd(), "benchmarks", bmark)
-                if (
-                    Path(os.path.join(benchmarkPath, "setup.py")).exists()
-                    or Path(os.path.join(benchmarkPath, "setup.sh")).exists()
-                ):
-                    setup = typer.prompt(
-                        "We found setup file in your directory. Would you like to use it?(y/n)"
-                    )
-                    if setup == "y" or "Y":
-                        setItUp(benchmarkPath)
-                self.pick_settings = [
-                    {
-                        "type": "list",
-                        "message": f"Select Settings to use for {bmark}",
-                        "name": "settings",
-                        "qmark": "->",
-                        "choices": getSettings(bmark, self.type),
-                        "validate": lambda x: os.path.isfile(x),
-                    }
-                ]
-                self.selectSettings = prompt(self.pick_settings)
+            bmark = self.selectBenchmark["benchmark"]
+            benchmarkPath = os.path.join(Path.cwd(), "benchmarks", bmark)
+            if (
+                Path(os.path.join(benchmarkPath, "setup.py")).exists()
+                or Path(os.path.join(benchmarkPath, "setup.sh")).exists()
+            ):
+                setup = typer.prompt(
+                    "We found setup file in your directory. Would you like to use it?(y/n)"
+                )
+                if setup == "y" or setup == "Y":
+                    setItUp(benchmarkPath)
+            self.pick_settings = [
+                {
+                    "type": "list",
+                    "message": f"Select Settings to use for {bmark}",
+                    "name": "settings",
+                    "qmark": "->",
+                    "choices": getSettings(bmark, self.type),
+                    "validate": lambda x: os.path.isfile(x),
+                }
+            ]
+            self.selectSettings = prompt(self.pick_settings)
             out = InterfaceSkeleton().startBenchmark(
                 runType=self.type, bmark=bmark, settings=self.selectSettings["settings"]
             )
