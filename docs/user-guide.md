@@ -1,5 +1,8 @@
 # Gettings Started 
 
+- Guide to developer [docs](docs/developer-guide.md).
+- Installation [README](README.md).
+
 ## Usage
 
 Benchmarks can be run interactively using the following command.
