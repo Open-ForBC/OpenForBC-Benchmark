@@ -10,10 +10,8 @@ from user_interfaces.utils import (
     getBenchmarksToRun,
     getSettings,
     getSuitesToRun,
-    EmptyBenchmarkList,
     setItUp,
     suiteMaker,
-    logIT,
 )
 from user_interfaces.interface_skeleton import InterfaceSkeleton
 
@@ -90,13 +88,11 @@ class InteractiveMenu:
             exit()
         elif self.selectRunChoice["runchoice"] == "Benchmark Suite":
             self.type = "Suite"
-            qtype = "list"
         else:
             self.type = "Benchmark"
-            qtype = "checkbox"
         self.benchmarks = [
             {
-                "type": qtype,
+                "type": "list",
                 "message": "Select Benchmark",
                 "name": "benchmark",
                 "qmark": "💻",
@@ -111,35 +107,35 @@ class InteractiveMenu:
 
         self.selectBenchmark = prompt(self.benchmarks, style=custom_style_2)
         if not self.selectBenchmark["benchmark"]:
-            raise EmptyBenchmarkList
+            raise Exception("There are no benchmarks to run.")
 
         if self.type == "Benchmark":
-            for bmark in self.selectBenchmark["benchmark"]:
-                benchmarkPath = os.path.join(Path.cwd(), "benchmarks", bmark)
-                if (
-                    Path(os.path.join(benchmarkPath, "setup.py")).exists()
-                    or Path(os.path.join(benchmarkPath, "setup.sh")).exists()
-                ):
-                    setup = typer.prompt(
-                        "We found setup file in your directory. Would you like to use it?(y/n)"
-                    )
-                    if setup == "y" or "Y":
-                        setItUp(benchmarkPath)
-                self.pick_settings = [
-                    {
-                        "type": "list",
-                        "message": f"Select Settings to use for {bmark}",
-                        "name": "settings",
-                        "qmark": "->",
-                        "choices": getSettings(bmark, self.type),
-                        "validate": lambda x: os.path.isfile(x),
-                    }
-                ]
-                self.selectSettings = prompt(self.pick_settings)
+            bmark = self.selectBenchmark["benchmark"]
+            benchmarkPath = os.path.join(Path.cwd(), "benchmarks", bmark)
+            if (
+                Path(os.path.join(benchmarkPath, "setup.py")).exists()
+                or Path(os.path.join(benchmarkPath, "setup.sh")).exists()
+            ):
+                setup = typer.prompt(
+                    "We found setup file in your directory. Would you like to use it?(y/n)"
+                )
+                if setup == "y" or setup == "Y":
+                    setItUp(benchmarkPath)
+            self.pick_settings = [
+                {
+                    "type": "list",
+                    "message": f"Select Settings to use for {bmark}",
+                    "name": "settings",
+                    "qmark": "->",
+                    "choices": getSettings(bmark, self.type),
+                    "validate": lambda x: os.path.isfile(x),
+                }
+            ]
+            self.selectSettings = prompt(self.pick_settings)
             out = InterfaceSkeleton().startBenchmark(
                 runType=self.type, bmark=bmark, settings=self.selectSettings["settings"]
             )
-            logIT(benchmark = bmark,settings = self.selectSettings["settings"],logs = out)
+            # logIT(benchmark = bmark,settings = self.selectSettings["settings"],logs = out)
         elif self.type == "Suite":
             suite = self.selectBenchmark["benchmark"]
             suitePath = os.path.join(home_dir, "suites", suite)
@@ -160,10 +156,10 @@ class InteractiveMenu:
 
 @app.command()
 def interactive(
-    interactive: bool = typer.Option(False, prompt="Run program in interactive mode?")
+    interactive: bool = typer.Argument(True)
 ):
     """
-    Ask user if they want interactive interface or not
+    Interactive/Non interactive router.
     """
     if interactive:
         InteractiveMenu().runner()
@@ -211,7 +207,7 @@ def run_benchmark(
             bmark=benchmark, settings=benchSetting, verbosity=verbose
         )
         typer.echo(out)
-        logIT(benchmark = benchmark,settings = benchSetting,logs = out)
+        # logIT(benchmark = benchmark,settings = benchSetting,logs = out)
 
 @app.command()
 def run_suite(
