@@ -49,6 +49,9 @@ python3 user_interfaces/cli.py run-benchmark -b dummy_benchmark -s settings1.jso
 ```
 
 **4. Build a suite:**
+```python
+python3 user_interfaces/cli.py make-suite --name <suite-name:str> -b <benchmark-name:str> -s <settings:str> -f <filename:str> -d <description(optional):str>
+```
 
 ```python
 python3 user_interfaces/cli.py make-suite --name Mysuite -b dummy_benchmark -s settings1.json -f my_suite -d "This is demo description."  
