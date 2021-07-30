@@ -1,7 +1,7 @@
 # Gettings Started 
 
-- Guide to developer [docs](docs/developer-guide.md).
-- Installation [README](README.md).
+- Guide to developer [docs](developer-guide.md).
+- Installation [README](../README.md).
 
 ## Usage
 
