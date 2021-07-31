@@ -278,8 +278,8 @@ def list_benchmarks():
 
 @app.command()
 def get_settings(
-    benchmark: str = typer.Argument(...), 
-    command: List[str] = typer.Argument(...)):
+    benchmark: str = typer.Option(...,'-b','--benchmark',help ="benchmark name"), 
+    command: List[str] = typer.Option(...,'-c','--command',help ="command to search")):
     """
     Gets the settings for the benchmark
     """
