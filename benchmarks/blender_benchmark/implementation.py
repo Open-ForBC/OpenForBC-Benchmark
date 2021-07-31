@@ -22,27 +22,25 @@ class BlenderBenchmark(BenchmarkWrapper):
     def startBenchmark(self, verbosity=None):
         self.getSettings(("blender", "download"))
         self.getSettings(("scenes", "download"))
-        self.scenes = " ".join([str(elem) for elem in self._settings["scenes"]])
         self.verbosity = verbosity
         if self.verbosity == None:
             self.verbosity = self._settings["verbosity"]
-
         try:
-            startBench = subprocess.run(
-                [
-                    os.path.join(self.filePath, self.baseCommand),
-                    "benchmark",
-                    str(self.scenes),
-                    "-b",
-                    str(self._settings["blender_version"]),
-                    "--device-type",
-                    str(self._settings["device_type"]),
-                    "--json",
-                    "-v",
-                    str(self.verbosity),
-                ],stdout=subprocess.PIPE
-
-            )
+            for scene in self._settings["scenes"]:
+                startBench = subprocess.run(
+                    [
+                        os.path.join(self.filePath, self.baseCommand),
+                        "benchmark",
+                        str(scene),
+                        "-b",
+                        str(self._settings["blender_version"]),
+                        "--device-type",
+                        str(self._settings["device_type"]),
+                        "--json",
+                        "-v",
+                        str(self.verbosity),
+                    ],stdout=subprocess.PIPE
+                )
         except subprocess.CalledProcessError as e:
             print(e.output)
             exit
