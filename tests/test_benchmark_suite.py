@@ -7,17 +7,15 @@ from common.benchmark_wrapper import BenchmarkWrapper
 from common.benchmark_suite import BenchmarkSuite
 
 
-class TestArguments(unittest.TestCase):
+class TestInheritance(unittest.TestCase):
     def test_class(self):
         self.assertEqual(issubclass(BenchmarkSuite, BenchmarkWrapper), True)
 
+class TestCtor(unittest.TestCase):
     def test_ctor(self):
-        with self.assertRaises(FileNotFoundError) or self.assertRaises(Exception):
+        with self.assertRaises(FileNotFoundError):
             BenchmarkSuite("./wrongPath")
 
-    def test_startBenchmark(self):
-        with self.assertRaises(AttributeError):
-            BenchmarkSuite.startBenchmark("Random_Undefined_Argument")
 
 
 if __name__ == "__main__":
