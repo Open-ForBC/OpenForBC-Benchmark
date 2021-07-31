@@ -7,7 +7,7 @@ from common.benchmark_factory import BenchmarkFactory
 from common.benchmark_wrapper import BenchmarkWrapper
 
 
-class TestArguments(unittest.TestCase):
+class PermuteArguments(unittest.TestCase):
     def test_not_benchmark(self):
         with self.assertRaises(Exception):
             BenchmarkFactory(
@@ -22,6 +22,7 @@ class TestArguments(unittest.TestCase):
                 benchmark_settings_file="ficticious_name",
             )
 
+class TestObjectType(unittest.TestCase):
     def test_proper_benchmark(self):
         self.assertTrue(
             isinstance(
@@ -32,17 +33,6 @@ class TestArguments(unittest.TestCase):
                 BenchmarkWrapper,
             )
         )
-
-    def test_empty_benchmark(self):
-        with self.assertRaises(TypeError):
-            BenchmarkFactory()
-
-    def test_missing_argument(self):
-        with self.assertRaises(TypeError):
-            BenchmarkFactory(benchmark_settings_file="fic_name")
-        with self.assertRaises(Exception):
-            BenchmarkFactory(benchmark_name="No_bench")
-
 
 if __name__ == "__main__":
     unittest.main()
