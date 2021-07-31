@@ -14,8 +14,8 @@ class BlenderBenchmark(BenchmarkWrapper):
     def __init__(self):
         self._settings = {}
         self.filePath = os.path.dirname(__file__)
-        self.baseCommand = "benchmark-launcher-cli"
-
+        self.baseCommand = "bin/benchmark-launcher-cli"
+        
     def setSettings(self, settings_file):
         self._settings = json.load(open(settings_file, "r"))
 
