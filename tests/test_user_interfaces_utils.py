@@ -15,14 +15,6 @@ from user_interfaces.utils import (
     suiteMaker,
 )
 
-
-class TestVerificationFunctions(unittest.TestCase):
-    def test_isBenchmark(self):
-        bmark_list = os.listdir(os.path.join(Path.cwd(), "benchmarks"))
-        for bmark in bmark_list:
-            self.assertTrue(isBenchmark(os.path.join(Path.cwd(), "benchmarks", bmark)))
-
-
 class TestListingFunctions(unittest.TestCase):
     def test_get_benchmark(self):
         bmark_list = os.listdir(os.path.join(Path.cwd(), "benchmarks"))
@@ -58,7 +50,7 @@ class TestSuiteMaker(unittest.TestCase):
     def setUp(self) -> None:
         self._suiteDict = {
             "SuiteName": "testsuite",
-            "SuiteDescription": "",
+            "SuiteDescription": "Test Description",
             "FileName": "testfile",
         }
         self._suiteList = [
@@ -67,7 +59,7 @@ class TestSuiteMaker(unittest.TestCase):
         ]
         self.expectedOutput = {
             "name": "testsuite",
-            "description": "",
+            "description": "Test Description",
             "benchmarks": [
                 {"name": "dummy_benchmark", "settings": "settings1.json"},
                 {"name": "dummy_benchmark", "settings": "settings2.json"},
