@@ -2,11 +2,9 @@
 
 Blender benchmark offers running graphical benchmarks in the background and reporting corresponding stats. More about blender benchmark can be found on it's [website](https://www.blender.org/news/introducing-blender-benchmark/). 
 
-Running help on blender benchmark get-settings command returns the following possible operations.
+Blender Benchmark CLI offers the following functionality
 
 ```
-The Blender Open Data Benchmark launcher command line interface
-
 Available Commands:
   authenticate Request a new authentication token
   benchmark    Benchmark scenes
@@ -29,4 +27,5 @@ All of which can be accessed by using our interfaced script
 python3 user_interfaces/cli.py get-settings -b blender-benchmark <command>
 ```  
 
-Official Blender [docs](bin/README.txt).
+
+Official Blender Benchmark CLI [docs](bin/README.txt).
