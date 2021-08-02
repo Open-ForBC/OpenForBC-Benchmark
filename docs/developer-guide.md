@@ -32,7 +32,7 @@ To add a benchmark, create a directory in the benchmarks folder similar to the S
 
 -  The Benchmark implementation goes into ```implementation.py```. 
 
-- Information about the benchmark is stored in ```benchmark_info.json``` with keys labeled as ```name```, ```description```,```implementation file``` and ```class name``` next to their corresponding values.
+- Information about the benchmark is stored in ```benchmark_info.json``` with keys labeled as ```name```, ```description```,```implementation file``` and ```class name``` next to their corresponding values. Declaring file and class name allows for an easier file search while maintaining uniformity. You can choose to give it any name as long as it ends with a python extension(.py).
 
 - Settings associated with the benchmark are placed in the settings folder, to be saved as a JSON file. You can save more than one setting and select the one you want to run the benchmark with later when running the benchmark. 
 
