@@ -12,6 +12,7 @@ from user_interfaces.utils import (
     getSuitesToRun,
     setItUp,
     suiteMaker,
+    logIT
 )
 from user_interfaces.interface_skeleton import InterfaceSkeleton
 
@@ -135,7 +136,7 @@ class InteractiveMenu:
             out = InterfaceSkeleton().startBenchmark(
                 runType=self.type, bmark=bmark, settings=self.selectSettings["settings"]
             )
-            # logIT(benchmark = bmark,settings = self.selectSettings["settings"],logs = out)
+            logIT(benchmark = bmark,settings = self.selectSettings["settings"],logs = out)
         elif self.type == "Suite":
             suite = self.selectBenchmark["benchmark"]
             suitePath = os.path.join(home_dir, "suites", suite)
@@ -207,7 +208,7 @@ def run_benchmark(
             bmark=benchmark, settings=benchSetting, verbosity=verbose
         )
         typer.echo(out)
-        # logIT(benchmark = benchmark,settings = benchSetting,logs = out)
+        logIT(benchmark = benchmark,settings = benchSetting,logs = out)
 
 @app.command()
 def run_suite(

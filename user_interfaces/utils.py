@@ -76,11 +76,8 @@ def suiteMaker(suiteBuild:dict,suiteList:list):
     with open(suitePath, "w") as configFile:
         json.dump(runnerDict, configFile, indent=4)
 
-# def logIT(benchmark,settings,logs,pathToLog = "/var/log/openforbc"):
-#     path = Path(pathToLog).joinpath(benchmark,str(settings)[:-5],str(datetime.now())[:-8],'output.log')
-#     path.mkdir(parents=True, exist_ok=True)
-#     with open(path, "w") as logFile:
-#             logFile.writelines(logs)
-
-#TODO: fix the error given by logIT due to permissions
-# var/log/openforbc/[benchmark name]/[preset name]/[date]/[output files]
+def logIT(benchmark,settings,logs,pathToLog = "./logs"):
+    path = Path.cwd().joinpath(pathToLog,benchmark,str(settings)[:-5],str(datetime.now())[:-8])
+    path.mkdir(parents=True, exist_ok=True)
+    with open(os.path.join(path,'output.log'), "x") as logFile:
+        json.dump(logs, logFile, indent=4)
