@@ -4,3 +4,4 @@ config/mlperf_config.json
 *.pyc
 */bin/
 benchmarks/blender_benchmark/benchmark-launcher-cli
+logs/*
