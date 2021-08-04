@@ -22,6 +22,8 @@ Blender scenes support for different blender versions:
 ✅ CPU
 ✅ GPU (Tested:CUDA)
 
-The Benchmark has been hardcoded to run on GPU due to this software being a GPU benchmark.
+- The Benchmark has been hardcoded to run on GPU as this software is a GPU benchmark.
+
+- The benchmark responds to **verbosity** in the range of 0-3 (integer value).
 
 Official Blender Benchmark CLI [docs](bin/README.txt).
