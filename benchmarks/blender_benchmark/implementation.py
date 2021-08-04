@@ -20,13 +20,14 @@ class BlenderBenchmark(BenchmarkWrapper):
         self._settings = json.load(open(settings_file, "r"))
 
     def startBenchmark(self, verbosity=None):
+        returnLog = []
         self.getSettings(("blender", "download"))
         self.getSettings(("scenes", "download"))
         self.verbosity = verbosity
         if self.verbosity == None:
             self.verbosity = self._settings["verbosity"]
-        try:
-            for scene in self._settings["scenes"]:
+        for scene in self._settings["scenes"]:
+            try:
                 startBench = subprocess.run(
                     [
                         os.path.join(self.filePath, self.baseCommand),
@@ -41,20 +42,21 @@ class BlenderBenchmark(BenchmarkWrapper):
                         str(self.verbosity),
                     ],stdout=subprocess.PIPE
                 )
-        except subprocess.CalledProcessError as e:
-            print(e.output)
-            exit
-        if startBench.returncode != 0:
-            return startBench.stderr
-        else:
+            except subprocess.CalledProcessError as e:
+                print(e.output)
+                exit(1)
+            if startBench.returncode != 0:
+                return startBench.stderr
             s = startBench.stdout.decode("utf-8")
             s = s[4:-2].replace('false','False')
             s = eval(s)
-            returnDict = {}
+            returndict = {}
             specs = ["timestamp","stats","blender_version","benchmark_launcher","benchmark_script","scene"]
             for spec in specs:
-                returnDict[spec] = s.get(spec,None)
-            return returnDict
+                returndict[spec] = s.get(spec,None)
+            returnLog.append(returndict)
+        print(returnLog)
+        return {"output":returnLog}
 
     def benchmarkStatus():
         pass
