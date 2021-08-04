@@ -27,12 +27,12 @@ python3 user_interfaces/cli.py list-suites
 
 
 ```python
-python3 user_interfaces/cli.py get-settings <benchmark-name:str> <benchmark-settings:str>
+python3 user_interfaces/cli.py get-settings -b <benchmark-name:str> -s <benchmark-settings:str>
 ```
 for example:
 
 ```
-python3 user_interfaces/cli.py get-settings blender_benchmark scenes list
+python3 user_interfaces/cli.py get-settings -b dummy_benchmark -s settings1.json
 ```
 
 **3. Run a benchmark/Suite:**
