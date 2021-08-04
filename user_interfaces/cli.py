@@ -274,15 +274,15 @@ def list_benchmarks():
 
 @app.command()
 def get_settings(
-    benchmark: str = typer.Option(...,'-b','--benchmark',help ="benchmark name"), 
-    command: List[str] = typer.Argument(...)):
+    benchmark: str = typer.Option(...,'-b','--benchmark',help ="benchmark name")):
     """
     Gets the settings for the benchmark
     """
     output = InterfaceSkeleton().getSettings(
-        bmark=benchmark, command=command, settings="settings1.json"
+        bmark=benchmark
     )
-    typer.echo(output)
+    for setting in output:
+        typer.echo(setting)
 
 
 if __name__ == "__main__":
