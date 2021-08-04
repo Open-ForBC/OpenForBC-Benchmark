@@ -133,7 +133,7 @@ class InteractiveMenu:
             out = InterfaceSkeleton().startBenchmark(
                 runType=self.type, bmark=bmark, settings=self.selectSettings["settings"]
             )
-            logIT(benchmark = bmark,settings = self.selectSettings["settings"],logs = out)
+            logIT(benchmark = bmark,settings = self.selectSettings["settings"],logs = out["output"])
         elif self.type == "Suite":
             suite = self.selectBenchmark["benchmark"]
             suitePath = os.path.join(home_dir, "suites", suite)
@@ -196,8 +196,7 @@ def run_benchmark(
         out = InterfaceSkeleton().startBenchmark(
             bmark=benchmark, settings=settings, verbosity=verbose
         )
-        typer.echo(out)
-        logIT(benchmark = benchmark,settings = benchSetting,logs = out)
+        logIT(benchmark = benchmark,settings = benchSetting,logs = out["output"])
 
 @app.command()
 def run_suite(
