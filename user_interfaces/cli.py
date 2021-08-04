@@ -136,11 +136,13 @@ class InteractiveMenu:
             out = InterfaceSkeleton().startBenchmark(
                 runType=self.type, bmark=bmark, settings=self.selectSettings["settings"]
             )
-            logIT(benchmark = bmark,settings = self.selectSettings["settings"],logs = out["output"])
+            if not isinstance(out,type(None)):
+                logIT(benchmark = bmark,settings = self.selectSettings["settings"],logs = out["output"])
         elif self.type == "Suite":
             suite = self.selectBenchmark["benchmark"]
             suitePath = os.path.join(home_dir, "suites", suite)
             out = InterfaceSkeleton().startBenchmark(runType=self.type, suitePath=suitePath)
+            logIT(benchmark = suite[:-5],logs = out)
 
     def benchmarkBanner(self):
         print("   ___                   _____          ____   ____ ")
@@ -224,7 +226,7 @@ def run_suite(
         typer.Exit()
     suitePath = os.path.join(home_dir, "suites", suite)
     benchmarkOutput = InterfaceSkeleton().startBenchmark(runType="suite", suitePath=suitePath)
-    typer.echo(benchmarkOutput)
+    logIT(benchmark = suite[:-5],logs = benchmarkOutput)
 
 @app.command()
 def make_suite(
