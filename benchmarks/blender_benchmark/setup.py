@@ -2,10 +2,26 @@ import os
 import platform
 import urllib.request as urllib
 import tarfile
+import progressbar
 import zipfile
 
+class MyProgressBar():
+    def __init__(self):
+        self.pbar = None
+
+    def __call__(self, block_num, block_size, total_size):
+        if not self.pbar:
+            self.pbar=progressbar.ProgressBar(maxval=total_size)
+            self.pbar.start()
+
+        downloaded = block_num * block_size
+        if downloaded < total_size:
+            self.pbar.update(downloaded)
+        else:
+            self.pbar.finish()
 
 if __name__ == "__main__":
+    print("Initialising setup......")
     currPath = os.path.dirname(__file__)
     if not os.path.exists(os.path.join(currPath, "bin")):
         os.mkdir(os.path.join(currPath, "bin"))
@@ -16,7 +32,8 @@ if __name__ == "__main__":
     else:
         url = f"https://download.blender.org/release/BlenderBenchmark2.0/launcher/benchmark-launcher-cli-2.0.4-{system}.zip"
     if not os.path.isfile(os.path.join(filePath, "benchmark-launcher-cli")):
-        filehandle, _ = urllib.urlretrieve(url)
+        print("Downloading blender executables:")
+        filehandle, _ = urllib.urlretrieve(url,reporthook=MyProgressBar())
         if system == "linux":
             with tarfile.open(filehandle) as h:
                 h.extractall(filePath)
