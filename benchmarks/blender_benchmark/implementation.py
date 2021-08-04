@@ -19,7 +19,7 @@ class BlenderBenchmark(BenchmarkWrapper):
     def setSettings(self, settings_file):
         self._settings = json.load(open(settings_file, "r"))
         try:
-            download_blender = subprocess.run(
+            download_blender = subprocess.run(  #Downloads blender version listed in benchmark_info.json
                 [
                     os.path.join(self.filePath, self.baseCommand),
                     "blender",
@@ -31,7 +31,7 @@ class BlenderBenchmark(BenchmarkWrapper):
         except subprocess.CalledProcessError as e:
             return f"{e}: Can't download blender version listed in benchmark_info.json"
         try:
-            download_scenes = subprocess.run(
+            download_scenes = subprocess.run(   #Downloads scenes listed in benchmark_info.json
                 [
                     os.path.join(self.filePath, self.baseCommand),
                     "scenes",
@@ -46,12 +46,15 @@ class BlenderBenchmark(BenchmarkWrapper):
             return f"{e}: Can't download blender scene(s) listed in benchmark_info.json"
 
     def startBenchmark(self, verbosity=None):
+        """
+            Method defination for starting the benchmark
+        """
         self.verbosity = verbosity
         if self.verbosity == None:
             self.verbosity = self._settings["verbosity"]
         try:
             for scene in self._settings["scenes"]:
-                startBench = subprocess.run(
+                startBench = subprocess.run(    #Runs the benchmark
                     [
                         os.path.join(self.filePath, self.baseCommand),
                         "benchmark",
@@ -88,6 +91,9 @@ class BlenderBenchmark(BenchmarkWrapper):
         pass
 
     def getSettings(self):
+        """
+        Gets the settings for the benchmark
+        """
         return os.listdir(os.path.join(self.filePath, "settings"))
 
     def stopBenchmark():
