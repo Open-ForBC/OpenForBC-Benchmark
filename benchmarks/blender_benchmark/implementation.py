@@ -2,7 +2,6 @@ from common.benchmark_wrapper import BenchmarkWrapper
 import json
 import subprocess
 import os
-from pathlib import Path
 import json
 
 
@@ -49,19 +48,15 @@ class BlenderBenchmark(BenchmarkWrapper):
                     ],stdout=subprocess.PIPE
                 )
         except subprocess.CalledProcessError as e:
-            print(e.output)
-            exit
-        if startBench.returncode != 0:
-            return startBench.stderr
-        else:
-            s = startBench.stdout.decode("utf-8")
-            s = s[4:-2].replace('false','False')
-            s = eval(s)
-            returnDict = {}
-            specs = ["timestamp","stats","blender_version","benchmark_launcher","benchmark_script","scene"]
-            for spec in specs:
-                returnDict[spec] = s.get(spec,None)
-            return returnDict
+            return f"{e.output}: Can't run the blender-benchmark."
+        s = startBench.stdout.decode("utf-8")
+        s = s[4:-2].replace('false','False')
+        s = eval(s)
+        returnDict = {}
+        specs = ["timestamp","stats","blender_version","benchmark_launcher","benchmark_script","scene"]
+        for spec in specs:
+            returnDict[spec] = s.get(spec,None)
+        return returnDict
 
     def benchmarkStatus():
         pass
