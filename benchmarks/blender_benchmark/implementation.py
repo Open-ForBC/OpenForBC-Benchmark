@@ -49,12 +49,14 @@ class BlenderBenchmark(BenchmarkWrapper):
         """
             Method defination for starting the benchmark
         """
+        
+        returnLog = []
         self.verbosity = verbosity
         if self.verbosity == None:
             self.verbosity = self._settings["verbosity"]
-        try:
-            for scene in self._settings["scenes"]:
-                startBench = subprocess.run(    #Runs the benchmark
+        for scene in self._settings["scenes"]:
+            try:
+                startBench = subprocess.run(
                     [
                         os.path.join(self.filePath, self.baseCommand),
                         "benchmark",
@@ -69,23 +71,24 @@ class BlenderBenchmark(BenchmarkWrapper):
                     ],
                     stdout=subprocess.PIPE,
                 )
-        except subprocess.CalledProcessError as e:
-            return f"{e.output}: Can't run the blender-benchmark."
-        s = startBench.stdout.decode("utf-8")
-        s = s[4:-2].replace("false", "False")
-        s = eval(s)
-        returnDict = {}
-        specs = [
-            "timestamp",
-            "stats",
-            "blender_version",
-            "benchmark_launcher",
-            "benchmark_script",
-            "scene",
-        ]
-        for spec in specs:
-            returnDict[spec] = s.get(spec, None)
-        return returnDict
+            except subprocess.CalledProcessError as e:
+                return f"{e.output}: Can't run the blender-benchmark."
+            s = startBench.stdout.decode("utf-8")
+            s = s[4:-2].replace('false','False')
+            s = eval(s)
+            returndict = {}
+            specs = [
+              "timestamp",
+              "stats",
+              "blender_version",
+              "benchmark_launcher",
+              "benchmark_script",
+              "scene",
+            ]
+            for spec in specs:
+                returndict[spec] = s.get(spec,None)
+            returnLog.append(returndict)
+        return {"output":returnLog}
 
     def benchmarkStatus():
         pass
