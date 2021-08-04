@@ -34,6 +34,12 @@ for example:
 ```shell
 python3 user_interfaces/cli.py get-settings -b dummy_benchmark -s settings1.json
 ```
+or if you'd like to list all settings for a benchmark, you can check them using the following command
+
+```shell
+python3 user_interfaces/cli.py get-settings -b dummy_benchmark 
+```
+
 
 **3. Run a benchmark/Suite:**
 
