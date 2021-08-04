@@ -76,8 +76,13 @@ def suiteMaker(suiteBuild:dict,suiteList:list):
     with open(suitePath, "w") as configFile:
         json.dump(runnerDict, configFile, indent=4)
 
-def logIT(benchmark,settings,logs,pathToLog = "./logs"):
-    path = Path.cwd().joinpath(pathToLog,benchmark,str(settings)[:-5],str(datetime.now())[:-8])
+def logIT(benchmark,logs,settings = None,pathToLog = "./logs"):
+    if logs is None:
+        logs = "The Benchmark doesn't return any log"
+    if settings != None:
+        path = Path.cwd().joinpath(pathToLog,benchmark,str(settings)[:-5],str(datetime.now())[:-8])
+    else:
+        path = Path.cwd().joinpath(pathToLog,benchmark,str(datetime.now())[:-7])
     path.mkdir(parents=True, exist_ok=True)
     with open(os.path.join(path,'output.log'), "a") as logFile:
         logFile.write(json.dumps(logs, indent=4))
