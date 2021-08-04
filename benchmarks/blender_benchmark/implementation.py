@@ -19,11 +19,29 @@ class BlenderBenchmark(BenchmarkWrapper):
     def setSettings(self, settings_file):
         self._settings = json.load(open(settings_file, "r"))
         try:
-            download_blender = subprocess.run([ os.path.join(self.filePath, self.baseCommand),"blender","download",str(self._settings["blender_version"])], stdout=subprocess.PIPE)
+            download_blender = subprocess.run(
+                [
+                    os.path.join(self.filePath, self.baseCommand),
+                    "blender",
+                    "download",
+                    str(self._settings["blender_version"]),
+                ],
+                stdout=subprocess.PIPE,
+            )
         except subprocess.CalledProcessError as e:
             return f"{e}: Can't download blender version listed in benchmark_info.json"
         try:
-            download_scenes = subprocess.run([os.path.join(self.filePath, self.baseCommand),"scenes","download","-b",str(self._settings["blender_version"]),]+(self._settings["scenes"]),stdout=subprocess.PIPE)
+            download_scenes = subprocess.run(
+                [
+                    os.path.join(self.filePath, self.baseCommand),
+                    "scenes",
+                    "download",
+                    "-b",
+                    str(self._settings["blender_version"]),
+                ]
+                + (self._settings["scenes"]),
+                stdout=subprocess.PIPE,
+            )
         except subprocess.CalledProcessError as e:
             return f"{e}: Can't download blender scene(s) listed in benchmark_info.json"
 
@@ -45,25 +63,32 @@ class BlenderBenchmark(BenchmarkWrapper):
                         "--json",
                         "-v",
                         str(self.verbosity),
-                    ],stdout=subprocess.PIPE
+                    ],
+                    stdout=subprocess.PIPE,
                 )
         except subprocess.CalledProcessError as e:
             return f"{e.output}: Can't run the blender-benchmark."
         s = startBench.stdout.decode("utf-8")
-        s = s[4:-2].replace('false','False')
+        s = s[4:-2].replace("false", "False")
         s = eval(s)
         returnDict = {}
-        specs = ["timestamp","stats","blender_version","benchmark_launcher","benchmark_script","scene"]
+        specs = [
+            "timestamp",
+            "stats",
+            "blender_version",
+            "benchmark_launcher",
+            "benchmark_script",
+            "scene",
+        ]
         for spec in specs:
-            returnDict[spec] = s.get(spec,None)
+            returnDict[spec] = s.get(spec, None)
         return returnDict
 
     def benchmarkStatus():
         pass
 
     def getSettings(self):
-        return os.listdir(os.path.join(self.filePath,"settings"))
+        return os.listdir(os.path.join(self.filePath, "settings"))
 
     def stopBenchmark():
         pass
-
