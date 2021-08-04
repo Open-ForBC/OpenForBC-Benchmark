@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 from examples import custom_style_2
 import typer
+import json
 import sys
 from typing import List
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
@@ -274,15 +275,25 @@ def list_benchmarks():
 
 @app.command()
 def get_settings(
-    benchmark: str = typer.Option(...,'-b','--benchmark',help ="benchmark name")):
+    benchmark: str = typer.Option(...,'-b','--benchmark',help ="benchmark name"),
+    settings:str = typer.Option(None,'-s','--settings',help="settings file")
+    ):
     """
     Gets the settings for the benchmark
     """
-    output = InterfaceSkeleton().getSettings(
-        bmark=benchmark
-    )
-    for setting in output:
-        typer.echo(setting)
+    if settings != None:
+        try:
+            with open(os.path.join(home_dir,'benchmarks',benchmark,'settings',settings),'r') as settingsFile:
+                output = json.load(settingsFile)
+                typer.echo(json.dumps(output,indent=4))
+        except FileNotFoundError as e:
+            typer.echo(f"{e}: Settings doesn't exist")
+    else:
+        output = InterfaceSkeleton().getSettings(
+            bmark=benchmark
+        )
+        for setting in output:
+            typer.echo(setting)
 
 
 if __name__ == "__main__":
