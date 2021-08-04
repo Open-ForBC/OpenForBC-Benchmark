@@ -79,5 +79,6 @@ def suiteMaker(suiteBuild:dict,suiteList:list):
 def logIT(benchmark,settings,logs,pathToLog = "./logs"):
     path = Path.cwd().joinpath(pathToLog,benchmark,str(settings)[:-5],str(datetime.now())[:-8])
     path.mkdir(parents=True, exist_ok=True)
-    with open(os.path.join(path,'output.log'), "x") as logFile:
-        json.dump(logs, logFile, indent=4)
+    with open(os.path.join(path,'output.log'), "a") as logFile:
+        logFile.write(json.dumps(logs, indent=4))
+
