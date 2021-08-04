@@ -116,11 +116,7 @@ class InteractiveMenu:
                 Path(os.path.join(benchmarkPath, "setup.py")).exists()
                 or Path(os.path.join(benchmarkPath, "setup.sh")).exists()
             ):
-                setup = typer.prompt(
-                "We found a setup file that downloads the requirements for the benchmark. Would you like to use it?(y/n)"
-                )
-                if setup == "y" or setup == "Y":
-                    setItUp(benchmarkPath)
+                setItUp(benchmarkPath)
             self.pick_settings = [
                 {
                     "type": "list",
@@ -188,11 +184,7 @@ def run_benchmark(
             Path(os.path.join(benchmarkPath, "setup.py")).exists()
             or Path(os.path.join(benchmarkPath, "setup.sh")).exists()
         ):
-            setup = typer.prompt(
-                "We found a setup file that downloads the requirements for the benchmark. Would you like to use it?(y/n)"
-            )
-            if setup == "y" or "Y":
-                setItUp(benchmarkPath)
+            setItUp(benchmarkPath)
         if not settings:
             benchSetting = typer.prompt(
                 f"What settings would you like for {benchmark} <space> for default"
