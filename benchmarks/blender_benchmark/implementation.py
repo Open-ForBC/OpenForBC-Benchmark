@@ -2,6 +2,7 @@ from common.benchmark_wrapper import BenchmarkWrapper
 import json
 import subprocess
 import os
+from pathlib import Path
 import json
 
 
@@ -18,10 +19,16 @@ class BlenderBenchmark(BenchmarkWrapper):
 
     def setSettings(self, settings_file):
         self._settings = json.load(open(settings_file, "r"))
+        try:
+            download_blender = subprocess.run([ os.path.join(self.filePath, self.baseCommand),"blender","download",str(self._settings["blender_version"])], stdout=subprocess.PIPE)
+        except subprocess.CalledProcessError as e:
+            return f"{e}: Can't download blender version listed in benchmark_info.json"
+        try:
+            download_scenes = subprocess.run([os.path.join(self.filePath, self.baseCommand),"scenes","download","-b",str(self._settings["blender_version"]),]+(self._settings["scenes"]),stdout=subprocess.PIPE)
+        except subprocess.CalledProcessError as e:
+            return f"{e}: Can't download blender scene(s) listed in benchmark_info.json"
 
     def startBenchmark(self, verbosity=None):
-        self.getSettings(("blender", "download"))
-        self.getSettings(("scenes", "download"))
         self.verbosity = verbosity
         if self.verbosity == None:
             self.verbosity = self._settings["verbosity"]
@@ -59,8 +66,8 @@ class BlenderBenchmark(BenchmarkWrapper):
     def benchmarkStatus():
         pass
 
-    def getSettings(self, args):
-        
+    def getSettings(self):
+        return os.listdir(os.path.join(self.filePath,"settings"))
 
     def stopBenchmark():
         pass
