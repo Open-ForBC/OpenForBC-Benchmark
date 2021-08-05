@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 from examples import custom_style_2
 import typer
+import json
 import sys
 from typing import List
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
@@ -117,11 +118,7 @@ class InteractiveMenu:
                 Path(os.path.join(benchmarkPath, "setup.py")).exists()
                 or Path(os.path.join(benchmarkPath, "setup.sh")).exists()
             ):
-                setup = typer.prompt(
-                    "We found setup file in your directory. Would you like to use it?(y/n)"
-                )
-                if setup == "y" or setup == "Y":
-                    setItUp(benchmarkPath)
+                setItUp(benchmarkPath)
             self.pick_settings = [
                 {
                     "type": "list",
@@ -191,11 +188,7 @@ def run_benchmark(
             Path(os.path.join(benchmarkPath, "setup.py")).exists()
             or Path(os.path.join(benchmarkPath, "setup.sh")).exists()
         ):
-            setup = typer.prompt(
-                "We found setup file in your directory. Would you like to use it?(y/n)"
-            )
-            if setup == "y" or "Y":
-                setItUp(benchmarkPath)
+            setItUp(benchmarkPath)
         if not settings:
             benchSetting = typer.prompt(
                 f"What settings would you like for {benchmark} <space> for default"
@@ -276,15 +269,28 @@ def list_benchmarks():
 
 @app.command()
 def get_settings(
-    benchmark: str = typer.Option(...,'-b','--benchmark',help ="benchmark name"), 
-    command: List[str] = typer.Argument(...)):
+    benchmark: str = typer.Option(...,'-b','--benchmark',help ="benchmark name"),
+    settings:str = typer.Option(None,'-s','--settings',help="settings file")
+    ):
     """
     Gets the settings for the benchmark
     """
-    output = InterfaceSkeleton().getSettings(
-        bmark=benchmark, command=command, settings="settings1.json"
-    )
-    typer.echo(output)
+    if settings != None:
+        try:
+            with open(os.path.join(home_dir,'benchmarks',benchmark,'settings',settings),'r') as settingsFile:
+                output = json.load(settingsFile)
+                typer.echo(json.dumps(output,indent=4))
+        except FileNotFoundError as e:
+            typer.echo(f"{e}: Settings doesn't exist")
+    else:
+        settings_list = []
+        try:
+            settings_list =  os.listdir(os.path.join(home_dir,'benchmarks',benchmark, "settings"))
+        except FileNotFoundError as e:
+            typer.echo(f"No settings folder in {benchmark} directory.")
+        assert len(settings_list) > 0 and not isinstance(settings_list,type(None))
+        for setting in settings_list:
+            typer.echo(setting)
 
 
 if __name__ == "__main__":
