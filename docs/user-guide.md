@@ -7,7 +7,7 @@
 
 Benchmarks can be run interactively using the following command.
 
-```python
+```shell
  python3 user_interfaces/cli.py interactive
 ```
 
@@ -18,7 +18,7 @@ For a textual CLI interface, you can use the following commands.
 
 **1. List Benchmarks/Suites:**  
 
-``` 
+```shell
 python3 user_interfaces/cli.py list-benchmarks
 python3 user_interfaces/cli.py list-suites
 ```
@@ -26,44 +26,50 @@ python3 user_interfaces/cli.py list-suites
 **2. Get settings from a particular benchmark:**
 
 
-```python
-python3 user_interfaces/cli.py get-settings <benchmark-name:str> <benchmark-settings:str>
+```shell
+python3 user_interfaces/cli.py get-settings -b <benchmark-name:str> -s <benchmark-settings:str>
 ```
 for example:
 
+```shell
+python3 user_interfaces/cli.py get-settings -b dummy_benchmark -s settings1.json
 ```
-python3 user_interfaces/cli.py get-settings blender_benchmark scenes list
+or if you'd like to list all settings for a benchmark, you can check them using the following command
+
+```shell
+python3 user_interfaces/cli.py get-settings -b dummy_benchmark 
 ```
+
 
 **3. Run a benchmark/Suite:**
 
 
-```python 
+```shell 
 python3 user_interfaces/cli.py run-benchmark -b <benchmark-name:str> -s <settings:str> -v <verbosity:int> 
 python3 user_interfaces/cli.py run-suite <suite-name:str> 
 ```
 for example:
 
-```python
+```shell
 python3 user_interfaces/cli.py run-benchmark -b dummy_benchmark -s settings1.json -v 1 
 ```
 
 **4. Build a suite:**
-```python
-python3 user_interfaces/cli.py make-suite --name <suite-name:str> -b <benchmark-name:str> -s <settings:str> -f <filename:str> -d <description(optional):str>
+```shell
+python3 user_interfaces/cli.py make-suite --name <suite-name:str> -b <benchmark-name:str> -s <settings:str> -f <file-name:str> -d <description(optional):str>
 ```
 for example:
 
-```python
+```shell
 python3 user_interfaces/cli.py make-suite --name Mysuite -b dummy_benchmark -s settings1.json -f my_suite -d "This is demo description."  
 ```
 
 A reference to the above commands can be found using the following command.
-```python
+```shell
 python3 user_interfaces/cli.py --help
 ```
 
 To get help for a particular commands, use:
-```python
+```shell
 python3 user_interfaces/cli.py <command:str> --help
 ```
