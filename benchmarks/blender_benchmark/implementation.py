@@ -18,16 +18,43 @@ class BlenderBenchmark(BenchmarkWrapper):
 
     def setSettings(self, settings_file):
         self._settings = json.load(open(settings_file, "r"))
+        try:
+            download_blender = subprocess.run(  #Downloads blender version listed in benchmark_info.json
+                [
+                    os.path.join(self.filePath, self.baseCommand),
+                    "blender",
+                    "download",
+                    str(self._settings["blender_version"]),
+                ],
+                stdout=subprocess.PIPE,
+            )
+        except subprocess.CalledProcessError as e:
+            return f"{e}: Can't download blender version listed in benchmark_info.json"
+        try:
+            download_scenes = subprocess.run(   #Downloads scenes listed in benchmark_info.json
+                [
+                    os.path.join(self.filePath, self.baseCommand),
+                    "scenes",
+                    "download",
+                    "-b",
+                    str(self._settings["blender_version"]),
+                ]
+                + (self._settings["scenes"]),
+                stdout=subprocess.PIPE,
+            )
+        except subprocess.CalledProcessError as e:
+            return f"{e}: Can't download blender scene(s) listed in benchmark_info.json"
 
     def startBenchmark(self, verbosity=None):
-        self.getSettings(("blender", "download"))
-        self.getSettings(("scenes", "download"))
+        """
+            Method defination for starting the benchmark
+        """
         self.verbosity = verbosity
         if self.verbosity == None:
             self.verbosity = self._settings["verbosity"]
         try:
             for scene in self._settings["scenes"]:
-                startBench = subprocess.run(
+                startBench = subprocess.run(    #Runs the benchmark
                     [
                         os.path.join(self.filePath, self.baseCommand),
                         "benchmark",
@@ -39,98 +66,35 @@ class BlenderBenchmark(BenchmarkWrapper):
                         "--json",
                         "-v",
                         str(self.verbosity),
-                    ],stdout=subprocess.PIPE
+                    ],
+                    stdout=subprocess.PIPE,
                 )
         except subprocess.CalledProcessError as e:
-            print(e.output)
-            exit
-        if startBench.returncode != 0:
-            return startBench.stderr
-        else:
-            s = startBench.stdout.decode("utf-8")
-            s = s[4:-2].replace('false','False')
-            s = eval(s)
-            returnDict = {}
-            specs = ["timestamp","stats","blender_version","benchmark_launcher","benchmark_script","scene"]
-            for spec in specs:
-                returnDict[spec] = s.get(spec,None)
-            return returnDict
+            return f"{e.output}: Can't run the blender-benchmark."
+        s = startBench.stdout.decode("utf-8")
+        s = s[4:-2].replace("false", "False")
+        s = eval(s)
+        returnDict = {}
+        specs = [
+            "timestamp",
+            "stats",
+            "blender_version",
+            "benchmark_launcher",
+            "benchmark_script",
+            "scene",
+        ]
+        for spec in specs:
+            returnDict[spec] = s.get(spec, None)
+        return returnDict
 
     def benchmarkStatus():
         pass
 
-    def getSettings(self, args):
-        commands = {
-            "blender": {  # Container Dictionary for blender download managerc
-                "download": [  # Downloads the blender version specified in the settings
-                    os.path.join(self.filePath, self.baseCommand),
-                    "blender",
-                    "download",
-                    str(self._settings["blender_version"]),
-                ],
-                "list": [  # Lists available blender versions
-                    os.path.join(self.filePath, self.baseCommand),
-                    "blender",
-                    "list",
-                ],
-            },
-            "devices": [  # Prints compatible devices
-                os.path.join(self.filePath, self.baseCommand),
-                "devices",
-                "-b",
-                str(self._settings["blender_version"]),
-            ],
-            "help": [  # Prints the help window
-                os.path.join(self.filePath, self.baseCommand),
-                "--help",
-            ],
-            "scenes": {  # Container Dictionary for scenes download manager
-                "download": [  # Downloads the scenes mentioned in settings
-                    os.path.join(self.filePath, self.baseCommand),
-                    "scenes",
-                    "download",
-                    "-b",
-                    str(self._settings["blender_version"]),
-                ]
-                + (self._settings["scenes"]),
-                "list": [  # Lists scenes
-                    os.path.join(self.filePath, self.baseCommand),
-                    "scenes",
-                    "list",
-                    "-b",
-                    str(self._settings["blender_version"]),
-                ],
-            },
-            "clear_cache": [  # Clears cache generated by the blender cli
-                os.path.join(self.filePath, self.baseCommand),
-                "clear_cache",
-            ],
-        }
-        if len(args) == 2:
-            if args[1] == "help" or args[1] == "--help":
-                command = [os.path.join(self.filePath, self.baseCommand)] + [
-                    args[0],
-                    "help",
-                ]
-            else:
-                command = commands.get(args[0]).get(args[1])
-        elif len(args) == 1:
-            command = commands.get(args[0])
-        else:
-            raise Exception("Please check your command and enter again")
-        try:
-            process = subprocess.Popen(command, stdout=subprocess.PIPE)
-        except KeyError as e:
-            print(e.output)
-        if args[0] == "devices":
-            p2 = subprocess.Popen(
-                ["grep","-wv", "CPU"], stdin=process.stdout, stdout=subprocess.PIPE
-            )
-            process.stdout.close()
-            print(p2.communicate()[0].decode())
-        else:
-            print(process.communicate()[0].decode())
+    def getSettings(self):
+        """
+        Gets the settings for the benchmark
+        """
+        pass
 
     def stopBenchmark():
         pass
-

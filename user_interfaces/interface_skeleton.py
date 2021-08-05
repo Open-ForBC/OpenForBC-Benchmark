@@ -30,10 +30,10 @@ class InterfaceSkeleton(BenchmarkWrapper):
         """Stops the benchmark"""
         pass
 
-    def getSettings(self, bmark, settings, command):
+    def getSettings(self, bmark):
         return BenchmarkFactory(
-            benchmark_name=bmark, benchmark_settings_file=settings
-        ).getSettings(command)
+            benchmark_name=bmark
+        ).getSettings()
         pass
 
     def setSettings(self):
