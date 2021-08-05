@@ -289,10 +289,13 @@ def get_settings(
         except FileNotFoundError as e:
             typer.echo(f"{e}: Settings doesn't exist")
     else:
-        output = InterfaceSkeleton().getSettings(
-            bmark=benchmark
-        )
-        for setting in output:
+        settings_list = []
+        try:
+            settings_list =  os.listdir(os.path.join(home_dir,'benchmarks',benchmark, "settings"))
+        except FileNotFoundError as e:
+            typer.echo(f"No settings folder in {benchmark} directory.")
+        assert len(settings_list) > 0 and not isinstance(settings_list,type(None))
+        for setting in settings_list:
             typer.echo(setting)
 
 
