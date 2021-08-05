@@ -94,7 +94,7 @@ class BlenderBenchmark(BenchmarkWrapper):
         """
         Gets the settings for the benchmark
         """
-        return os.listdir(os.path.join(self.filePath, "settings"))
+        pass
 
     def stopBenchmark():
         pass
