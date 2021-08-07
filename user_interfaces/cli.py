@@ -250,29 +250,40 @@ def make_suite(
 
 
 @app.command()
-def list_suites():
+def list_suites(
+    csv:bool = typer.Option(False,'--csv',help="show as csv")
+    ):
     """
     Lists available suites
     """
     suites_list = [list(i.values()) for i in getSuitesToRun()]
-    table = tablify(legend = ["suites"],data = suites_list)
-    typer.echo(table)
+    if not csv:
+        table = tablify(legend = ["suites"],data = suites_list)
+        typer.echo(table)
+    else:
+        typer.echo(suites_list)
 
 
 @app.command()
-def list_benchmarks():
+def list_benchmarks(
+    csv:bool = typer.Option(False,'--csv',help="show as csv")
+    ):
     """
     Lists available benchmarks
     """
     benchmark_list = [list(i.values()) for i in getBenchmarksToRun()]
-    table = tablify(legend = ["benchmarks"],data = benchmark_list)
-    typer.echo(table)
+    if not csv:
+        table = tablify(legend = ["benchmarks"],data = benchmark_list)
+        typer.echo(table)
+    else:
+        typer.echo(benchmark_list)
 
 
 @app.command()
 def get_settings(
     benchmark: str = typer.Option(...,'-b','--benchmark',help ="benchmark name"),
-    settings:str = typer.Option(None,'-s','--settings',help="settings file")
+    settings:str = typer.Option(None,'-s','--settings',help="settings file"),
+    csv:bool = typer.Option(False,'--csv',help="show as csv")
     ):
     """
     Gets the settings for the benchmark
@@ -291,11 +302,16 @@ def get_settings(
         except FileNotFoundError as e:
             typer.echo(f"No settings folder in {benchmark} directory.")
         assert len(settings_list) > 0 and not isinstance(settings_list,type(None))
-        table = tablify(legend=["settings"],data = settings_list,sorting = True,col = 0)
-        typer.echo(table)
+        if not csv:
+            table = tablify(legend=["settings"],data = settings_list,sorting = True,col = 0)
+            typer.echo(table)
+        else:
+            typer.echo(settings_list)
 
 @app.command()
-def list_logs():
+def list_logs(
+    csv:bool = typer.Option(False,'--csv',help="show as csv")
+    ):
     """
     Lists all previous logs
     """
@@ -315,9 +331,11 @@ def list_logs():
                             index+=1
                             break
                     tableOutput.append([index,date,bmark])
-    print(tableOutput)
-    table = tablify(legend = ['Index', 'Date', 'Benchmark'],data = tableOutput)
-    typer.echo(table)
+    if not csv:
+        table = tablify(legend = ['Index', 'Date', 'Benchmark'],data = tableOutput)
+        typer.echo(table)
+    else:
+        typer.echo(tableOutput)
 
 
     

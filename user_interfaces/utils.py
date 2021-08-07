@@ -81,7 +81,7 @@ def logIT(benchmark,logs,settings = None,pathToLog = "./logs"):
     if logs is None:
         logs = "The Benchmark doesn't return any log"
     if settings != None:
-        path = Path.cwd().joinpath(pathToLog,benchmark,str(settings)[:-5],str(datetime.now())[:-8])
+        path = Path.cwd().joinpath(pathToLog,benchmark,str(settings)[:-5],str(datetime.now())[:-7])
     else:
         path = Path.cwd().joinpath(pathToLog,benchmark,str(datetime.now())[:-7])
     path.mkdir(parents=True, exist_ok=True)
