@@ -135,6 +135,8 @@ class InteractiveMenu:
             )
             if not isinstance(out,type(None)):
                 logIT(benchmark = bmark,settings = self.selectSettings["settings"],logs = out["output"])
+            else:
+                logIT(benchmark = bmark,settings = self.selectSettings["settings"],logs = "No logs")
         elif self.type == "Suite":
             suite = self.selectBenchmark["benchmark"]
             suitePath = os.path.join(home_dir, "suites", suite)
@@ -159,7 +161,7 @@ def interactive(
     interactive: bool = typer.Argument(True)
 ):
     """
-    Interactive/Non interactive router.
+    Interactive/Non interactive router
     """
     if interactive:
         InteractiveMenu().runner()
@@ -291,6 +293,18 @@ def get_settings(
         assert len(settings_list) > 0 and not isinstance(settings_list,type(None))
         for setting in settings_list:
             typer.echo(setting)
+
+@app.command()
+def list_logs():
+    """
+    Lists all previous logs
+    """
+    logPath = os.path.join(home_dir,'logs')
+    for root,dirs,files in os.walk(logPath):
+        if os.listdir(root).__contains__('output.log'):
+            typer.echo(root)
+
+    
 
 
 if __name__ == "__main__":
