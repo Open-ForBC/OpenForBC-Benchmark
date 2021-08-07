@@ -4,7 +4,9 @@ from pathlib import Path
 from examples import custom_style_2
 import typer
 import json
+from prettytable import PrettyTable
 import sys
+import re
 from typing import List
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from user_interfaces.utils import (
@@ -300,9 +302,28 @@ def list_logs():
     Lists all previous logs
     """
     logPath = os.path.join(home_dir,'logs')
+    index = 0
+    tableOutput = []
+    typer.echo("Date  Benchmark")
     for root,dirs,files in os.walk(logPath):
-        if os.listdir(root).__contains__('output.log'):
-            typer.echo(root)
+        if 'output.log' in files:
+            root = root.split('/')
+            for pathChunk in root:
+                res = re.match(r'(19|20)\d\d[- /.](0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])',pathChunk)
+                if res!=None:
+                    date = pathChunk
+                    for i in range(len(root)):
+                        if root[i] == 'logs':
+                            bmark = root[i+1] 
+                            index+=1
+                            break
+                    tableOutput.append([index,date,bmark])
+
+    table = PrettyTable(['Index', 'Date', 'Benchmark'])
+    for rec in tableOutput:
+        table.add_row(rec)
+    typer.echo(table)
+
 
     
 
