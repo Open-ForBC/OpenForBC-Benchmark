@@ -3,6 +3,7 @@ from pathlib import Path
 import json
 import subprocess
 import sys
+from prettytable import PrettyTable
 from datetime import datetime
 
 home_dir = Path.cwd()
@@ -87,3 +88,11 @@ def logIT(benchmark,logs,settings = None,pathToLog = "./logs"):
     with open(os.path.join(path,'output.log'), "a") as logFile:
         logFile.write(json.dumps(logs, indent=4))
 
+
+def tablify(legend,data,sorting = False,col = 0):
+    table = PrettyTable(legend)
+    if sorting:
+        data.sort(key = lambda x: x[col])
+    for rec in data:
+        table.add_row(rec)
+    return table
