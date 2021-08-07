@@ -4,7 +4,6 @@ from pathlib import Path
 from examples import custom_style_2
 import typer
 import json
-from prettytable import PrettyTable
 import sys
 import re
 from typing import List
@@ -15,7 +14,8 @@ from user_interfaces.utils import (
     getSuitesToRun,
     setItUp,
     suiteMaker,
-    logIT
+    logIT,
+    tablify
 )
 from user_interfaces.interface_skeleton import InterfaceSkeleton
 
@@ -258,8 +258,9 @@ def list_suites():
     """
     Lists available suites
     """
-    for suites in getSuitesToRun():
-        typer.echo(suites["name"])
+    suites_list = [list(i.values()) for i in getSuitesToRun()]
+    table = tablify(legend = ["suites"],data = suites_list)
+    typer.echo(table)
 
 
 @app.command()
@@ -267,8 +268,9 @@ def list_benchmarks():
     """
     Lists available benchmarks
     """
-    for bmark in getBenchmarksToRun():
-        typer.echo(bmark["name"])
+    benchmark_list = [list(i.values()) for i in getBenchmarksToRun()]
+    table = tablify(legend = ["benchmarks"],data = benchmark_list)
+    typer.echo(table)
 
 
 @app.command()
@@ -289,12 +291,12 @@ def get_settings(
     else:
         settings_list = []
         try:
-            settings_list =  os.listdir(os.path.join(home_dir,'benchmarks',benchmark, "settings"))
+            settings_list =  [[file] for file in os.listdir(os.path.join(home_dir,'benchmarks',benchmark, "settings"))]
         except FileNotFoundError as e:
             typer.echo(f"No settings folder in {benchmark} directory.")
         assert len(settings_list) > 0 and not isinstance(settings_list,type(None))
-        for setting in settings_list:
-            typer.echo(setting)
+        table = tablify(legend=["settings"],data = settings_list,sorting = True,col = 0)
+        typer.echo(table)
 
 @app.command()
 def list_logs():
@@ -304,8 +306,7 @@ def list_logs():
     logPath = os.path.join(home_dir,'logs')
     index = 0
     tableOutput = []
-    typer.echo("Date  Benchmark")
-    for root,dirs,files in os.walk(logPath):
+    for root,_,files in os.walk(logPath):
         if 'output.log' in files:
             root = root.split('/')
             for pathChunk in root:
@@ -318,10 +319,8 @@ def list_logs():
                             index+=1
                             break
                     tableOutput.append([index,date,bmark])
-
-    table = PrettyTable(['Index', 'Date', 'Benchmark'])
-    for rec in tableOutput:
-        table.add_row(rec)
+    print(tableOutput)
+    table = tablify(legend = ['Index', 'Date', 'Benchmark'],data = tableOutput)
     typer.echo(table)
 
 
