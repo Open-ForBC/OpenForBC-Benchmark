@@ -7,7 +7,7 @@ from common.benchmark_factory import BenchmarkFactory
 from common.benchmark_wrapper import BenchmarkWrapper
 
 
-class PermuteArguments(unittest.TestCase):
+class TestArguments(unittest.TestCase):
     def test_not_benchmark(self):
         with self.assertRaises(Exception):
             BenchmarkFactory(
