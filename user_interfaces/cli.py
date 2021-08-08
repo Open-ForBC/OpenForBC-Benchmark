@@ -167,7 +167,7 @@ def interactive(
 @app.command()
 def run_benchmark(
     input: List[str] = typer.Option(...,'-b','--benchmark',help ="benchmark name"),
-    settings: List[str] = typer.Option(None,'-s','--settings',help = "benchmark settings"),
+    settings: str = typer.Option(None,'-s','--settings',help = "benchmark settings"),
     verbose: int = typer.Option(None, "--verbose", "-v", help="modify verbosity"),
 ):
     """
@@ -186,18 +186,14 @@ def run_benchmark(
             or Path(os.path.join(benchmarkPath, "setup.sh")).exists()
         ):
             setItUp(benchmarkPath)
-        if not settings:
-            benchSetting = typer.prompt(
-                f"What settings would you like for {benchmark} <space> for default"
-            )
-        else:
-            benchSetting = settings
-        if benchSetting == " " or benchSetting not in getSettings(
-                benchmark, "Benchmark"
-            ):
-                benchSetting = "settings1.json"
+        print(settings)
+        if settings == None:
+            with open(os.path.join(benchmarkPath, "benchmark_info.json")) as info:
+                settings = json.load(info)["default_settings"]
+        elif settings not in os.listdir(os.path.join(benchmarkPath,"settings")):
+            raise Exception("Setting not found.")
         out = InterfaceSkeleton().startBenchmark(
-            bmark=benchmark, settings=benchSetting, verbosity=verbose
+            bmark=benchmark, settings=settings, verbosity=verbose
         )
         typer.echo(out)
         # logIT(benchmark = benchmark,settings = benchSetting,logs = out)
