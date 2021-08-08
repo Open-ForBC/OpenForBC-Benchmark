@@ -2,7 +2,8 @@
     "name" : "Dummy Benchmark",
     "description": "Prints something to the output",
     "implementation_file": "implementation.py",
-    "class_name": "DummyBenchmark"
+    "class_name": "DummyBenchmark",
+    "default_settings":"settings1.json"
 }
 
 
