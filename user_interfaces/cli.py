@@ -206,7 +206,10 @@ def run_benchmark(
         out = InterfaceSkeleton().startBenchmark(
             bmark=benchmark, settings=benchSetting, verbosity=verbose
         )
-        logIT(benchmark = benchmark,settings = benchSetting,logs = out["output"])
+        if not isinstance(out,type(None)):
+            logIT(benchmark = benchmark,settings = benchSetting,logs = out["output"])
+        else:
+            logIT(benchmark = benchmark,settings = benchSetting,logs = "No logs")
 
 @app.command()
 def run_suite(
