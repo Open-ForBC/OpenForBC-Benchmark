@@ -80,13 +80,13 @@ def suiteMaker(suiteBuild:dict,suiteList:list):
 def logIT(benchmark,logs,settings = None,pathToLog = "./logs"):
     if logs is None:
         logs = "The Benchmark doesn't return any log"
+    [date,time] = str(datetime.now()).split(" ")
+    date = "".join(str(date).split("-"))
+    time = "".join(str(time).split(":"))[:-7]
     if settings != None:
-        [date,time] = str(datetime.now()).split(" ")
-        date = "".join(str(date).split("-"))
-        time = "".join(str(time).split(":"))[:-7]
         path = Path.cwd().joinpath(pathToLog,benchmark,str(settings)[:-5],str(date)+'_'+str(time))
     else:
-        path = Path.cwd().joinpath(pathToLog,benchmark,str(datetime.now())[:-7])
+        path = Path.cwd().joinpath(pathToLog,benchmark,str(date)+'_'+str(time))
     path.mkdir(parents=True, exist_ok=True)
     with open(os.path.join(path,'output.log'), "a") as logFile:
         logFile.write(json.dumps(logs, indent=4))
