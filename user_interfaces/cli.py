@@ -138,7 +138,7 @@ class InteractiveMenu:
             if not isinstance(out,type(None)):
                 logIT(benchmark = bmark,settings = self.selectSettings["settings"],logs = out["output"])
             else:
-                logIT(benchmark = bmark,settings = self.selectSettings["settings"],logs = "No logs")
+                logIT(benchmark = bmark,settings = self.selectSettings["settings"],logs = "The Benchmark doesn't return any log")
         elif self.type == "Suite":
             suite = self.selectBenchmark["benchmark"]
             suitePath = os.path.join(home_dir, "suites", suite)
@@ -202,7 +202,10 @@ def run_benchmark(
         out = InterfaceSkeleton().startBenchmark(
             bmark=benchmark, settings=settings, verbosity=verbose
         )
-        logIT(benchmark = benchmark,settings = benchSetting,logs = out["output"])
+        if not isinstance(out,type(None)):
+            logIT(benchmark = benchmark,settings = settings,logs = out["output"])
+        else:
+            logIT(benchmark = benchmark,settings = settings,logs = "The Benchmark doesn't return any log")
 
 @app.command()
 def run_suite(
