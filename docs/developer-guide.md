@@ -50,4 +50,4 @@ To communicate the above to end-user, there are three outlets: GUI, CLI and daem
 
 Further, the benchmark implementations also adhere to the Benchmark Wrapper interface.
 
-The class diagram for the project can be found [here](assets/class_diagram.svg).
+The class diagram for the project can be found [here](../assets/class_diagram.svg).
