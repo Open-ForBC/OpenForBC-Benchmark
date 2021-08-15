@@ -36,6 +36,8 @@ To add a benchmark, create a directory in the benchmarks folder similar to the S
 
 - Settings associated with the benchmark are placed in the settings folder, to be saved as a JSON file. You can save more than one setting and select the one you want to run the benchmark with later when running the benchmark. 
 
+- To properly propagate the execution logs, return the logs as a dictionary with the format ```{"output":<logging data>}``` from the method responsible for running the benchmark, ie. ```startBenchmark()``` in usual cases.
+
 * *Documentation.* As a bare minimum, add a README.md file that documents what the benchmark does and the settings. For more comprehensive documentation, you can create an additional doc/ folder and place there additional files.
 
 ## How the tool works
