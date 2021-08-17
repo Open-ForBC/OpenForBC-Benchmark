@@ -1,6 +1,7 @@
 args==0.1.0
 astunparse==1.6.3
 click==7.1.2
+prettytable==2.1.0
 progressbar==2.5
 prompt-toolkit==1.0.14
 Pygments==2.9.0
