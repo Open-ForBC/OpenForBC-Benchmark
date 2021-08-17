@@ -26,4 +26,4 @@ Blender scenes support for different blender versions:
 
 - The benchmark responds to **verbosity** in the range of 0-3 (integer value).
 
-Official Blender Benchmark CLI [docs](bin/README.txt).
+Official Blender Benchmark CLI [docs](./README.txt).
