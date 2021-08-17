@@ -19,10 +19,10 @@ Blender scenes support for different blender versions:
 ---------------------------------------------------------------------------------------------
 
 ### Devices supported:
-✅ CPU
+✅ CPU 
 ✅ GPU (Tested:CUDA)
 
-- The Benchmark has been hardcoded to run on GPU as this software is a GPU benchmark.
+- The Benchmark can run either on GPU os CPU by setting device_type appropriately (tested: CUDA, GPU) in settings.json.
 
 - The benchmark responds to **verbosity** in the range of 0-3 (integer value).
 
