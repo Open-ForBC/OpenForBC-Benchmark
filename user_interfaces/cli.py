@@ -193,7 +193,6 @@ def run_benchmark(
             or Path(os.path.join(benchmarkPath, "setup.sh")).exists()
         ):
             setItUp(benchmarkPath)
-        print(settings)
         if settings == None:
             with open(os.path.join(benchmarkPath, "benchmark_info.json")) as info:
                 settings = json.load(info)["default_settings"]

@@ -69,7 +69,7 @@ A reference to the above commands can be found using the following command.
 python3 user_interfaces/cli.py --help
 ```
 
-To get help for a particular commands, use:
+To get help for a particular command, use:
 ```shell
 python3 user_interfaces/cli.py <command:str> --help
 ```
