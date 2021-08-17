@@ -64,6 +64,7 @@ for example:
 python3 user_interfaces/cli.py make-suite --name Mysuite -b dummy_benchmark -s settings1.json -f my_suite -d "This is demo description."  
 ```
 
+**5. Get help on CLI:**
 A reference to the above commands can be found using the following command.
 ```shell
 python3 user_interfaces/cli.py --help
@@ -73,3 +74,14 @@ To get help for a particular command, use:
 ```shell
 python3 user_interfaces/cli.py <command:str> --help
 ```
+
+## Logs for benchmarks/suites
+
+Logs for each run can be found in ```/logs``` directory. Each run is saved by the following format:
+
+- For stand-alone benchmarks:
+
+```<benchmark_name>/<settings>/<yyyymmdd_hhmmss>/output.log``` 
+- For suites:
+
+```<suite_name>/<yyyymmdd_hhmmss>/output.log ```
