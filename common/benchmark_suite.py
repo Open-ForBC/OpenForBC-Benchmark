@@ -1,4 +1,7 @@
 import json
+import os
+from pathlib import Path
+from user_interfaces.utils import setItUp
 from .benchmark_wrapper import BenchmarkWrapper
 from .benchmark_factory import BenchmarkFactory
 
@@ -10,6 +13,12 @@ class BenchmarkSuite(BenchmarkWrapper):
         self.benchmarkArray = []
 
         for bench in suite_info_json["benchmarks"]:
+            benchmarkPath = os.path.join(Path.cwd(), "benchmarks", bench["name"])
+            if (
+                Path(os.path.join(benchmarkPath, "setup.py")).exists()
+                or Path(os.path.join(benchmarkPath, "setup.sh")).exists()
+            ):
+                setItUp(benchmarkPath)
             self.benchmarkArray.append(
                 BenchmarkFactory(
                     benchmark_name=bench["name"],
