@@ -3,6 +3,7 @@ from pathlib import Path
 import json
 import subprocess
 import sys
+from prettytable import PrettyTable
 from datetime import datetime
 
 home_dir = Path.cwd()
@@ -76,11 +77,25 @@ def suiteMaker(suiteBuild:dict,suiteList:list):
     with open(suitePath, "w") as configFile:
         json.dump(runnerDict, configFile, indent=4)
 
-# def logIT(benchmark,settings,logs,pathToLog = "/var/log/openforbc"):
-#     path = Path(pathToLog).joinpath(benchmark,str(settings)[:-5],str(datetime.now())[:-8],'output.log')
-#     path.mkdir(parents=True, exist_ok=True)
-#     with open(path, "w") as logFile:
-#             logFile.writelines(logs)
+def logIT(benchmark,logs,settings = None,pathToLog = "./logs"):
+    if logs is None:
+        logs = "The Benchmark doesn't return any log"
+    [date,time] = str(datetime.now()).split(" ")
+    date = "".join(str(date).split("-"))
+    time = "".join(str(time).split(":"))[:-7]
+    if settings != None:
+        path = Path.cwd().joinpath(pathToLog,benchmark,str(settings)[:-5],str(date)+'_'+str(time))
+    else:
+        path = Path.cwd().joinpath(pathToLog,benchmark,str(date)+'_'+str(time))
+    path.mkdir(parents=True, exist_ok=True)
+    with open(os.path.join(path,'output.log'), "a") as logFile:
+        logFile.write(json.dumps(logs, indent=4))
 
-#TODO: fix the error given by logIT due to permissions
-# var/log/openforbc/[benchmark name]/[preset name]/[date]/[output files]
+
+def tablify(legend,data,sorting = False,col = 0):
+    table = PrettyTable(legend)
+    if sorting:
+        data.sort(key = lambda x: x[col])
+    for rec in data:
+        table.add_row(rec)
+    return table
