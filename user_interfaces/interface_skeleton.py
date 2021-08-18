@@ -16,9 +16,9 @@ class InterfaceSkeleton(BenchmarkWrapper):
         verbosity=None,
     ):
         if runType.lower() == "benchmark":
-            return BenchmarkFactory(           
-                benchmark_name=bmark, benchmark_settings_file=settings
-            ).startBenchmark(verbosity)
+            benchmarkObject = BenchmarkFactory(benchmark_name=bmark, benchmark_settings_file=settings)
+            benchmarkObject.setSettings(settings)
+            return benchmarkObject.startBenchmark(verbosity)
         elif runType.lower() == "suite":
             return BenchmarkSuite(suite_info_path=suitePath).startBenchmark()
 
