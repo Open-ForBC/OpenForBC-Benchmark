@@ -85,3 +85,9 @@ Logs for each run can be found in ```/logs``` directory. Each run is saved by th
 - For suites:
 
 ```<suite_name>/<yyyymmdd_hhmmss>/output.log ```
+
+Logs can be listed with the following command
+
+```shell
+python3 user_interfaces/cli.py list-logs
+```
