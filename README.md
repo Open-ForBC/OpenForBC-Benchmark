@@ -32,11 +32,18 @@ pip3 install -r requirements.txt
 ```
 ___
 
-- Guide to developer [docs](docs/developer-guide.md).
+## Documentation
 
-  
+- Guide to developer [docs](docs/developer-guide.md).  
 
 - Guide to users [docs](docs/user-guide.md).
+
+## Benchmarks
+
+Currently, the following benchmarks are implemented:
+
+- [Dummy](benchmarks/dummy_benchmark).
+- [Blender](benchmarks/blender_benchmark).
 
   
 
