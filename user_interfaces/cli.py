@@ -322,17 +322,18 @@ def list_logs(
     tableOutput = []
     for root,_,files in os.walk(logPath):
         if 'output.log' in files:
-            root = root.split('/')
+            root = root.split(os.path.sep)
             for pathChunk in root:
-                res = re.match(r'(19|20)\d\d[- /.](0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])',pathChunk)
+                res = re.match(r'(19|20)\d\d(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])',pathChunk)
                 if res!=None:
-                    date = pathChunk
+                    date = pathChunk.split("_")[0]
+                    formatted_date = date[:4]+'-'+date[4:6]+'-'+date[6:]
                     for i in range(len(root)):
                         if root[i] == 'logs':
                             bmark = root[i+1] 
                             index+=1
                             break
-                    tableOutput.append([index,date,bmark])
+                    tableOutput.append([index,formatted_date,bmark])
     if not csv:
         table = tablify(legend = ['Index', 'Date', 'Benchmark'],data = tableOutput)
         typer.echo(table)
