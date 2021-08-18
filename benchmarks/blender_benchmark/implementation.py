@@ -18,9 +18,9 @@ class BlenderBenchmark(BenchmarkWrapper):
 
     def setSettings(self, settings_file = None):
         if settings_file == None:
-            _fileName = json.load(open("benchmarks/blender_benchmark/benchmark_info.json","r"))["default_settings"]
+            _fileName = json.load(open(os.path.join(self.filePath,"/benchmark_info.json"),"r"))["default_settings"]
             settings_file = os.path.join(self.filePath,"settings",_fileName)
-        self._settings = json.load(open(settings_file, "r"))
+        self._settings = json.load(open(os.path.join(self.filePath,"settings",settings_file), "r"))
         try:
             download_blender = subprocess.run(  #Downloads blender version listed in benchmark_info.json
                 [
@@ -53,7 +53,6 @@ class BlenderBenchmark(BenchmarkWrapper):
             Method defination for starting the benchmark
         """
         returnLog = []
-        self.setSettings()
         self.verbosity = verbosity
         if self.verbosity == None:
             self.verbosity = self._settings["verbosity"]
