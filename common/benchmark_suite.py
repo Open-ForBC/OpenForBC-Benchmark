@@ -29,7 +29,7 @@ class BenchmarkSuite(BenchmarkWrapper):
 
     def startBenchmark(self):
         for b in self.benchmarkArray:
-            b.startBenchmark()
+            return b.startBenchmark()
 
     def benchmarkStatus():
         """Fetches the status of the current benchmark"""
