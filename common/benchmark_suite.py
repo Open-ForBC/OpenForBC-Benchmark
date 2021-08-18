@@ -11,6 +11,7 @@ class BenchmarkSuite(BenchmarkWrapper):
         self.name = suite_info_json["name"]
         self.description = suite_info_json["description"]
         self.benchmarkArray = []
+        self.output = []
 
         for bench in suite_info_json["benchmarks"]:
             benchmarkPath = os.path.join(Path.cwd(), "benchmarks", bench["name"])
@@ -29,7 +30,8 @@ class BenchmarkSuite(BenchmarkWrapper):
 
     def startBenchmark(self):
         for b in self.benchmarkArray:
-            return b.startBenchmark()
+            self.output.append(b.startBenchmark())
+        return self.output
 
     def benchmarkStatus():
         """Fetches the status of the current benchmark"""
