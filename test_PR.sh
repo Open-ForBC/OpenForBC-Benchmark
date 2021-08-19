@@ -17,4 +17,4 @@ pytest
 
 echo
 echo "RUNNING BASH TESTS"
-# bash ./bin/test_*
+bash ./bin/test_*
