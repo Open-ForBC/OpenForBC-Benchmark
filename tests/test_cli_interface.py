@@ -1,9 +1,10 @@
-from user_interfaces import cli
 import unittest
 from typer.testing import CliRunner
 import sys
 import os
+
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+from user_interfaces import cli # noqa: E402
 
 runner = CliRunner()
 

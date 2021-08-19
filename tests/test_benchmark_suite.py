@@ -1,10 +1,10 @@
-from common.benchmark_suite import BenchmarkSuite
-from common.benchmark_wrapper import BenchmarkWrapper
 import unittest
 import os
 import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+from common.benchmark_suite import BenchmarkSuite # noqa: E402
+from common.benchmark_wrapper import BenchmarkWrapper # noqa: E402
 
 
 class TestInheritance(unittest.TestCase):

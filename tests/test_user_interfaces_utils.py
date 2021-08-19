@@ -1,10 +1,3 @@
-from user_interfaces.utils import (
-    getSettings,
-    getSuitesToRun,
-    getBenchmarksToRun,
-    setItUp,
-    suiteMaker,
-)
 import unittest
 import sys
 import os
@@ -12,6 +5,13 @@ from pathlib import Path
 import json
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+from user_interfaces.utils import ( # noqa: E402
+    getSettings,
+    getSuitesToRun,
+    getBenchmarksToRun,
+    setItUp,
+    suiteMaker,
+)
 
 
 class TestListingFunctions(unittest.TestCase):
