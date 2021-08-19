@@ -11,6 +11,7 @@ class BenchmarkSuite(BenchmarkWrapper):
         self.name = suite_info_json["name"]
         self.description = suite_info_json["description"]
         self.benchmarkArray = []
+        self.output = []
 
         for bench in suite_info_json["benchmarks"]:
             benchmarkPath = os.path.join(Path.cwd(), "benchmarks", bench["name"])
@@ -20,16 +21,18 @@ class BenchmarkSuite(BenchmarkWrapper):
             ):
                 setItUp(benchmarkPath)
             self.benchmarkArray.append(
-                BenchmarkFactory(
+                (BenchmarkFactory(
                     benchmark_name=bench["name"],
                     benchmark_settings_file=bench["settings"],
-                )
+                ),bench["settings"])
             )
 
 
     def startBenchmark(self):
-        for b in self.benchmarkArray:
-            return b.startBenchmark()
+        for benchmarks,settings in self.benchmarkArray:
+            self.setSettings(benchmarks,settings)
+            self.output.append(benchmarks.startBenchmark())
+        return self.output
 
     def benchmarkStatus():
         """Fetches the status of the current benchmark"""
@@ -39,8 +42,8 @@ class BenchmarkSuite(BenchmarkWrapper):
         """Stops the benchmark"""
         pass
 
-    def getSettings(self, bmark):
+    def getSettings(self):
         pass
 
-    def setSettings(self):
-        pass
+    def setSettings(self,benchmarkObject,settings):
+        benchmarkObject.setSettings(settings)
