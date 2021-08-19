@@ -19,12 +19,9 @@ from user_interfaces.utils import ( # noqa: E402
     logIT,
     tablify
 )
-<<<<<<< HEAD
-=======
 from user_interfaces.interface_skeleton import InterfaceSkeleton
 home_dir = Path.cwd()
 
->>>>>>> c6750f5 (Added comments for functions)
 
 """
 This CLI interface makes use of Typer (https://typer.tiangolo.com/) 
@@ -354,6 +351,7 @@ def list_logs(
         if 'output.log' in files:
             root = root.split(os.path.sep)
             for pathChunk in root:
+<<<<<<< HEAD
                 res = re.match(r'(19|20)\d\d(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])', pathChunk)
                 if res is not None:
                     date = pathChunk.split("_")[0]
@@ -362,6 +360,18 @@ def list_logs(
                         if root[i] == 'logs':
                             bmark = root[i + 1]
                             index += 1
+=======
+                res = re.match(r'(19|20)\d\d(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])',pathChunk)         #Regex pattern to match yyyymmdd_hhmmss
+                
+                #If pattern matches:
+                if res!=None:                                                                           
+                    date = pathChunk.split("_")[0]                              #Extract date
+                    formatted_date = date[:4]+'-'+date[4:6]+'-'+date[6:]        #Format it to add hypens for printing
+                    for i in range(len(root)):                                  
+                        if root[i] == 'logs':
+                            bmark = root[i+1]                                   #root[i+1] is the benchmark name
+                            index+=1
+>>>>>>> 2322930 (Added comments to list-log function)
                             break
                     tableOutput.append([index, formatted_date, bmark])
     if not csv:
@@ -371,5 +381,12 @@ def list_logs(
         typer.echo(tableOutput)
 
 
+<<<<<<< HEAD
 if __name__ == "__main__":
     app()
+=======
+
+if __name__ == "__main__":
+    app()       
+
+>>>>>>> 2322930 (Added comments to list-log function)
