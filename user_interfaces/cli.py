@@ -1,13 +1,3 @@
-from user_interfaces.interface_skeleton import InterfaceSkeleton
-from user_interfaces.utils import (
-    getBenchmarksToRun,
-    getSettings,
-    getSuitesToRun,
-    setItUp,
-    suiteMaker,
-    logIT,
-    tablify
-)
 from PyInquirer import prompt
 import os
 from pathlib import Path
@@ -17,7 +7,18 @@ import json
 import sys
 import re
 from typing import List
+
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+from user_interfaces.interface_skeleton import InterfaceSkeleton # noqa: E402
+from user_interfaces.utils import ( # noqa: E402
+    getBenchmarksToRun,
+    getSettings,
+    getSuitesToRun,
+    setItUp,
+    suiteMaker,
+    logIT,
+    tablify
+)
 
 
 app = typer.Typer()
