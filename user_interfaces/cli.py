@@ -209,12 +209,16 @@ def run_benchmark(
             )
             continue
         benchmarkPath = os.path.join(Path.cwd(), "benchmarks", benchmark)
-        if (                                                                        #Check if setup file present in benchmark directory
+        
+        #Check if setup file present in benchmark directory
+        if (                                                                       
             Path(os.path.join(benchmarkPath, "setup.py")).exists()
             or Path(os.path.join(benchmarkPath, "setup.sh")).exists()
         ):
             setItUp(benchmarkPath)
-        if settings is None:
+
+        #Use default settings if settings option None
+        if settings is None:                
             with open(os.path.join(benchmarkPath, "benchmark_info.json")) as info:
                 settings = json.load(info)["default_settings"]
         elif settings not in os.listdir(os.path.join(benchmarkPath, "settings")):
@@ -268,7 +272,8 @@ def make_suite(
     for i in range(len(benchmarks)):
         _suiteList.append(
             dict({"name": benchmarks[i], "settings": settings[i]})
-        )
+            )
+    #Define suitebuilding dictionary for the suite.
     suiteBuild = {
         "SuiteName": suite_name,
         "SuiteDescription": description,
@@ -305,6 +310,7 @@ def list_benchmarks(
         typer.echo(table)
     else:
         typer.echo(benchmark_list)
+
 
 # Get available settings with python user_interfaces/cli.py get-settings 
 @app.command()
