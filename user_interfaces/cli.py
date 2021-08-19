@@ -19,10 +19,20 @@ from user_interfaces.utils import ( # noqa: E402
     logIT,
     tablify
 )
-
-
-app = typer.Typer()
+<<<<<<< HEAD
+=======
+from user_interfaces.interface_skeleton import InterfaceSkeleton
 home_dir = Path.cwd()
+
+>>>>>>> c6750f5 (Added comments for functions)
+
+"""
+This CLI interface makes use of Typer (https://typer.tiangolo.com/) 
+which has an extensible functionality.
+"""
+
+
+app = typer.Typer()                
 
 
 class InteractiveMenu:
@@ -34,6 +44,11 @@ class InteractiveMenu:
         self.type = None
 
     def runner(self):
+        """
+        Function responsible for running interactive prompts in the benchmark.
+        Questions are put as a list of dictionary which are shown to user as prompts.
+        """
+
         self.benchmarkBanner()
         self.runChoice = [
             {
@@ -49,6 +64,8 @@ class InteractiveMenu:
             }
         ]
         self.selectRunChoice = prompt(self.runChoice, style=custom_style_2)
+        
+        # If user chooses to make their own suite =>
         if self.selectRunChoice["runchoice"] == "Make your own suite":
             suiteBuilder = [
                 {
@@ -90,6 +107,8 @@ class InteractiveMenu:
                 )
             suiteMaker(suiteBuild=suiteBuild, suiteList=_suiteList)
             exit()
+
+        # Else if user chooses to execute a benchmark/suite =>
         elif self.selectRunChoice["runchoice"] == "Benchmark Suite":
             self.type = "Suite"
         else:
@@ -110,9 +129,12 @@ class InteractiveMenu:
         ]
 
         self.selectBenchmark = prompt(self.benchmarks, style=custom_style_2)
+
+        #Check that user selected a benchmark atleast 
         if not self.selectBenchmark["benchmark"]:
             raise Exception("There are no benchmarks to run.")
 
+        #Benchmark driver=>
         if self.type == "Benchmark":
             bmark = self.selectBenchmark["benchmark"]
             benchmarkPath = os.path.join(Path.cwd(), "benchmarks", bmark)
@@ -138,8 +160,9 @@ class InteractiveMenu:
             if not isinstance(out, type(None)):
                 logIT(benchmark=bmark, settings=self.selectSettings["settings"], logs=out["output"])
             else:
-                logIT(benchmark=bmark, settings=self.selectSettings["settings"],
-                      logs="The Benchmark doesn't return any log")
+                logIT(benchmark = bmark,settings = self.selectSettings["settings"],logs = "The Benchmark doesn't return any log")
+        
+        #Suite driver=>
         elif self.type == "Suite":
             suite = self.selectBenchmark["benchmark"]
             suitePath = os.path.join(home_dir, "suites", suite)
@@ -158,6 +181,7 @@ class InteractiveMenu:
 
 # Non interactive menu =>
 
+
 @app.command()
 def interactive(
     interactive: bool = typer.Argument(True)
@@ -170,7 +194,7 @@ def interactive(
     else:
         raise typer.Exit(code=5)
 
-
+#Run benchmark with python user_interfaces/cli.py run-benchmark
 @app.command()
 def run_benchmark(
     input: List[str] = typer.Option(..., '-b', '--benchmark', help="benchmark name"),
@@ -180,15 +204,15 @@ def run_benchmark(
     """
     Runs the given benchmarks
     """
-    _availableBench = [x["name"] for x in getBenchmarksToRun()]
-    for benchmark in input:
+    _availableBench = [x["name"] for x in getBenchmarksToRun()]     #List of all available benchmarks
+    for benchmark in input:                                         
         if benchmark not in _availableBench:
             typer.echo(
                 f"{benchmark} implementation doesn't exist. To list available benchmarks use list-benchmarks command"
             )
             continue
         benchmarkPath = os.path.join(Path.cwd(), "benchmarks", benchmark)
-        if (
+        if (                                                                        #Check if setup file present in benchmark directory
             Path(os.path.join(benchmarkPath, "setup.py")).exists()
             or Path(os.path.join(benchmarkPath, "setup.sh")).exists()
         ):
@@ -207,6 +231,8 @@ def run_benchmark(
             logIT(benchmark=benchmark, settings=settings, logs="The Benchmark doesn't return any log")
 
 
+
+#Run suite with python user_interfaces/cli.py run-suite
 @app.command()
 def run_suite(
     suite: str = typer.Argument(..., help="Suite name")
@@ -225,6 +251,7 @@ def run_suite(
     logIT(benchmark=suite[:-5], logs=benchmarkOutput)
 
 
+#Make a suite with python user_interfaces/cli.py make-suite
 @app.command()
 def make_suite(
     suite_name: str = typer.Option(..., "--name", help="Suite name"),
@@ -252,7 +279,7 @@ def make_suite(
     }
     suiteMaker(suiteBuild=suiteBuild, suiteList=_suiteList)
 
-
+# List all suites with python user_interfaces/cli.py list-suites
 @app.command()
 def list_suites(
     csv: bool = typer.Option(False, '--csv', help="show as csv")
@@ -267,7 +294,7 @@ def list_suites(
     else:
         typer.echo(suites_list)
 
-
+# List all benchmarks with python user_interfaces/cli.py list-benchmarks
 @app.command()
 def list_benchmarks(
     csv: bool = typer.Option(False, '--csv', help="show as csv")
@@ -282,7 +309,7 @@ def list_benchmarks(
     else:
         typer.echo(benchmark_list)
 
-
+# Get available settings with python user_interfaces/cli.py get-settings 
 @app.command()
 def get_settings(
     benchmark: str = typer.Option(..., '-b', '--benchmark', help="benchmark name"),
@@ -312,7 +339,7 @@ def get_settings(
         else:
             typer.echo(settings_list)
 
-
+# List all logs with python user_interfaces/cli.py list-logs
 @app.command()
 def list_logs(
     csv: bool = typer.Option(False, '--csv', help="show as csv")
