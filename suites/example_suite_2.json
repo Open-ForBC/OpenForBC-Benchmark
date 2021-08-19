@@ -1,6 +1,6 @@
 {
     "name": "Dummy benchmark suite",
-    "description": "A preconfigured suite running 4 time the same benchmark with the same settings",
+    "description": "A preconfigured suite running 4 time the same benchmark with different settings",
     "benchmarks": [
         {
             "name": "dummy_benchmark",
