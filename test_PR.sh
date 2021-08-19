@@ -3,8 +3,8 @@
 
 echo
 echo "INSTALLING DEPENDENCIES"
-pip install flake8 pytest
-if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+pip3 install flake8 pytest
+if [ -f requirements.txt ]; then pip3 install -r requirements.txt; fi
 
 echo
 echo "RUNNING FLAKE8"
