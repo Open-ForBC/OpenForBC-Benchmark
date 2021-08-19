@@ -74,6 +74,8 @@ class InteractiveMenu:
                 },
             ]
             suiteBuild = prompt(suiteBuilder, style=custom_style_2)
+            if len(suiteBuild["benchInSuite"]) <=0:
+                raise Exception("Can't make a suite with no benchmarks.")
             _suiteList = []
             for bmark in suiteBuild["benchInSuite"]:
                 suite_settings = {
