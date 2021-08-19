@@ -30,6 +30,16 @@ cd OpenForBC-Benchmark
 pip3 install -r requirements.txt
 
 ```
+
+- You can test the installation and run the prepackaged suites/benchmarks with:
+```bash 
+bin/test_cli.sh
+```
+- You can also test and run the prepackaged suites/benchmarks with (mind that it takes quite some time to run all tests):
+```bash 
+bin/test_benchmarks.sh
+bin/test_suites.sh
+```
 ___
 
 ## Documentation
