@@ -25,12 +25,12 @@ class BenchmarkSuite(BenchmarkWrapper):
                 (BenchmarkFactory(
                     benchmark_name=bench["name"],
                     benchmark_settings_file=bench["settings"],
-                ),bench["settings"])
+                ), bench["settings"])
             )
 
     def startBenchmark(self):
-        for benchmarks,settings in self.benchmarkArray:
-            self.setSettings(benchmarks,settings)
+        for benchmarks, settings in self.benchmarkArray:
+            self.setSettings(benchmarks, settings)
             self.output.append(benchmarks.startBenchmark())
         return self.output
 
@@ -45,5 +45,5 @@ class BenchmarkSuite(BenchmarkWrapper):
     def getSettings(self):
         pass
 
-    def setSettings(self,benchmarkObject,settings):
+    def setSettings(self, benchmarkObject, settings):
         benchmarkObject.setSettings(settings)

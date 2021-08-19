@@ -15,13 +15,17 @@ class BlenderBenchmark(BenchmarkWrapper):
         self.filePath = os.path.dirname(__file__)
         self.baseCommand = "bin/benchmark-launcher-cli"
 
-    def setSettings(self, settings_file = None):
-        if settings_file == None:
-            _fileName = json.load(open(os.path.join(self.filePath,"benchmark_info.json"),"r"))["default_settings"]
-            settings_file = os.path.join(self.filePath,"settings",_fileName)
-        self._settings = json.load(open(os.path.join(self.filePath,"settings",settings_file), "r"))
+    def setSettings(self, settings_file=None):
+        if settings_file is None:
+            _fileName = json.load(
+                open(os.path.join(self.filePath, "benchmark_info.json"), "r")
+            )["default_settings"]
+            settings_file = os.path.join(self.filePath, "settings", _fileName)
+        self._settings = json.load(
+            open(os.path.join(self.filePath, "settings", settings_file), "r")
+        )
         try:
-            subprocess.run(  #Downloads blender version listed in benchmark_info.json
+            subprocess.run(  # Downloads blender version listed in benchmark_info.json
                 [
                     os.path.join(self.filePath, self.baseCommand),
                     "blender",
@@ -33,7 +37,7 @@ class BlenderBenchmark(BenchmarkWrapper):
         except subprocess.CalledProcessError as e:
             return f"{e}: Can't download blender version listed in benchmark_info.json"
         try:
-            subprocess.run(   #Downloads scenes listed in benchmark_info.json
+            subprocess.run(  # Downloads scenes listed in benchmark_info.json
                 [
                     os.path.join(self.filePath, self.baseCommand),
                     "scenes",
@@ -49,7 +53,7 @@ class BlenderBenchmark(BenchmarkWrapper):
 
     def startBenchmark(self, verbosity=None):
         """
-            Method defination for starting the benchmark
+        Method defination for starting the benchmark
         """
         returnLog = []
         self.verbosity = verbosity
@@ -75,7 +79,7 @@ class BlenderBenchmark(BenchmarkWrapper):
             except subprocess.CalledProcessError as e:
                 return f"{e.output}: Can't run the blender-benchmark."
             s = startBench.stdout.decode("utf-8")
-            s = s[4:-2].replace('false', 'False')
+            s = s[4:-2].replace("false", "False")
             s = eval(s)
             returndict = {}
             specs = [
