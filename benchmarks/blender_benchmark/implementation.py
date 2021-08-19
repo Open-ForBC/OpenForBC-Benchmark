@@ -18,7 +18,7 @@ class BlenderBenchmark(BenchmarkWrapper):
 
     def setSettings(self, settings_file = None):
         if settings_file == None:
-            _fileName = json.load(open(os.path.join(self.filePath,"/benchmark_info.json"),"r"))["default_settings"]
+            _fileName = json.load(open(os.path.join(self.filePath,"benchmark_info.json"),"r"))["default_settings"]
             settings_file = os.path.join(self.filePath,"settings",_fileName)
         self._settings = json.load(open(os.path.join(self.filePath,"settings",settings_file), "r"))
         try:
