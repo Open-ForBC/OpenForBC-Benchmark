@@ -3,6 +3,12 @@
 - For running a benchmark check [user-guide.md](user-guide.md).
 - Installation [README](../README.md).
 
+## Before opening a PR
+
+Continuous integration is setup [here](../.github/workflows/CI.yml). 
+
+Before opening a PR, please check that your changes do not break anything by executing ./test_PR.sh
+
 ## Adding a benchmark 
 
 Following is the file hierarchy for the benchmarks folder.
