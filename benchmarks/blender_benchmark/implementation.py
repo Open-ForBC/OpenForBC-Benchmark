@@ -2,7 +2,6 @@ from common.benchmark_wrapper import BenchmarkWrapper
 import json
 import subprocess
 import os
-import json
 
 
 class BlenderBenchmark(BenchmarkWrapper):
@@ -16,13 +15,13 @@ class BlenderBenchmark(BenchmarkWrapper):
         self.filePath = os.path.dirname(__file__)
         self.baseCommand = "bin/benchmark-launcher-cli"
 
-    def setSettings(self, settings_file = None):
-        if settings_file == None:
-            _fileName = json.load(open("benchmarks/blender_benchmark/benchmark_info.json","r"))["default_settings"]
-            settings_file = os.path.join(self.filePath,"settings",_fileName)
+    def setSettings(self, settings_file=None):
+        if settings_file is None:
+            _fileName = json.load(open("benchmarks/blender_benchmark/benchmark_info.json", "r"))["default_settings"]
+            settings_file = os.path.join(self.filePath, "settings", _fileName)
         self._settings = json.load(open(settings_file, "r"))
         try:
-            download_blender = subprocess.run(  #Downloads blender version listed in benchmark_info.json
+            subprocess.run(  #Downloads blender version listed in benchmark_info.json
                 [
                     os.path.join(self.filePath, self.baseCommand),
                     "blender",
@@ -34,7 +33,7 @@ class BlenderBenchmark(BenchmarkWrapper):
         except subprocess.CalledProcessError as e:
             return f"{e}: Can't download blender version listed in benchmark_info.json"
         try:
-            download_scenes = subprocess.run(   #Downloads scenes listed in benchmark_info.json
+            subprocess.run(   #Downloads scenes listed in benchmark_info.json
                 [
                     os.path.join(self.filePath, self.baseCommand),
                     "scenes",
@@ -55,7 +54,7 @@ class BlenderBenchmark(BenchmarkWrapper):
         returnLog = []
         self.setSettings()
         self.verbosity = verbosity
-        if self.verbosity == None:
+        if self.verbosity is None:
             self.verbosity = self._settings["verbosity"]
         for scene in self._settings["scenes"]:
             try:
@@ -77,21 +76,21 @@ class BlenderBenchmark(BenchmarkWrapper):
             except subprocess.CalledProcessError as e:
                 return f"{e.output}: Can't run the blender-benchmark."
             s = startBench.stdout.decode("utf-8")
-            s = s[4:-2].replace('false','False')
+            s = s[4:-2].replace('false', 'False')
             s = eval(s)
             returndict = {}
             specs = [
-              "timestamp",
-              "stats",
-              "blender_version",
-              "benchmark_launcher",
-              "benchmark_script",
-              "scene",
+                "timestamp",
+                "stats",
+                "blender_version",
+                "benchmark_launcher",
+                "benchmark_script",
+                "scene",
             ]
             for spec in specs:
-                returndict[spec] = s.get(spec,None)
+                returndict[spec] = s.get(spec, None)
             returnLog.append(returndict)
-        return {"output":returnLog}
+        return {"output": returnLog}
 
     def benchmarkStatus():
         pass

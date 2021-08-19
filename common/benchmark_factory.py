@@ -16,7 +16,7 @@ def BenchmarkFactory(benchmark_name, benchmark_settings_file=None):
 
     implementation_file = benchmark_info_json["implementation_file"]
     class_name = benchmark_info_json["class_name"]
-    module = SourceFileLoader(
+    module = SourceFileLoader( # noqa: F841
         "{}.{}".format(implementation_file, class_name),
         os.path.join(os.path.dirname(benchmark_info_path), implementation_file),
     ).load_module()

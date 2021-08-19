@@ -1,3 +1,10 @@
+from user_interfaces.utils import (
+    getSettings,
+    getSuitesToRun,
+    getBenchmarksToRun,
+    setItUp,
+    suiteMaker,
+)
 import unittest
 import sys
 import os
@@ -6,14 +13,6 @@ import json
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from user_interfaces.utils import (
-    getSettings,
-    getSuitesToRun,
-    isBenchmark,
-    getBenchmarksToRun,
-    setItUp,
-    suiteMaker,
-)
 
 class TestListingFunctions(unittest.TestCase):
     def test_get_benchmark(self):

@@ -1,10 +1,10 @@
-import unittest
 import os
 import sys
+import unittest
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from common.benchmark_factory import BenchmarkFactory
-from common.benchmark_wrapper import BenchmarkWrapper
+from common.benchmark_wrapper import BenchmarkWrapper # noqa: E402
+from common.benchmark_factory import BenchmarkFactory # noqa: E402
 
 
 class TestArguments(unittest.TestCase):
@@ -22,6 +22,7 @@ class TestArguments(unittest.TestCase):
                 benchmark_settings_file="ficticious_name",
             )
 
+
 class TestObjectType(unittest.TestCase):
     def test_proper_benchmark(self):
         self.assertTrue(
@@ -33,6 +34,7 @@ class TestObjectType(unittest.TestCase):
                 BenchmarkWrapper,
             )
         )
+
 
 if __name__ == "__main__":
     unittest.main()

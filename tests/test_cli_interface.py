@@ -1,11 +1,12 @@
+from user_interfaces import cli
 import unittest
 from typer.testing import CliRunner
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from user_interfaces import cli
 
 runner = CliRunner()
+
 
 class HelperFunction:
     def invokeFactory(argv):# Function that invokes the method defined in the CLI app
@@ -33,10 +34,9 @@ class RunBenchmark(unittest.TestCase):
         self.assertEqual(
             HelperFunction.invokeFactory(
                 [
-                    "run-suite", 
+                    "run-suite",
                     "example_suite.json"]).exit_code, 0
         )  # Checks: correctly called run-suite exits sucessfully
-
 
 
 if __name__ == "__main__":

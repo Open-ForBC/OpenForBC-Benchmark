@@ -1,7 +1,7 @@
-from common.benchmark_wrapper import BenchmarkWrapper
-from common.benchmark_suite import BenchmarkSuite
+# from common.benchmark_wrapper import BenchmarkWrapper
+# from common.benchmark_suite import BenchmarkSuite
 from common.benchmark_factory import BenchmarkFactory
-from benchmarks.blender_benchmark.implementation import BlenderBenchmark
+# from benchmarks.blender_benchmark.implementation import BlenderBenchmark
 
 
 if __name__ == "__main__":
@@ -13,4 +13,3 @@ if __name__ == "__main__":
     BenchmarkFactory(
         benchmark_name="blender_benchmark", benchmark_settings_file="settings1.json"
     ).startBenchmark()
-

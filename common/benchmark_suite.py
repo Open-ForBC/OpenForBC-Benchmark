@@ -5,6 +5,7 @@ from user_interfaces.utils import setItUp
 from .benchmark_wrapper import BenchmarkWrapper
 from .benchmark_factory import BenchmarkFactory
 
+
 class BenchmarkSuite(BenchmarkWrapper):
     def __init__(self, suite_info_path):
         suite_info_json = json.load(open(suite_info_path, "r"))
@@ -25,7 +26,6 @@ class BenchmarkSuite(BenchmarkWrapper):
                     benchmark_settings_file=bench["settings"],
                 )
             )
-
 
     def startBenchmark(self):
         for b in self.benchmarkArray:
