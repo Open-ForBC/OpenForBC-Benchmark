@@ -10,6 +10,9 @@ home_dir = Path.cwd()
 
 
 def isBenchmark(path):
+    """
+        Checks to make sure given path belongs to a benchmark
+    """
     try:
         if "benchmark_info.json" in os.listdir(path) and os.path.isdir(path):
             return True
@@ -19,6 +22,9 @@ def isBenchmark(path):
 
 
 def getBenchmarksToRun():
+    """
+        Gets the Runnable benchmark while also performing the isBenchmark check
+    """
     return [
         {"name": x}
         for x in os.listdir(os.path.join(home_dir, "benchmarks"))
@@ -27,6 +33,9 @@ def getBenchmarksToRun():
 
 
 def setItUp(benchmarkPath):
+    """
+        Executes the setup file if present in benchmark directory
+    """
     if "setup.py" in os.listdir(benchmarkPath):
         try:
             process = subprocess.run(
@@ -45,10 +54,16 @@ def setItUp(benchmarkPath):
 
 
 def getSuitesToRun():
+    """
+        Gets all the runnable suites
+    """
     return [{"name": x} for x in os.listdir(os.path.join(home_dir, "suites"))]
 
 
 def getSettings(bmark, runType):
+    """
+        Gets a list of available settings
+    """
     if runType == "Suite":
         return [
             dict({"name": x})
@@ -64,6 +79,9 @@ def getSettings(bmark, runType):
 
 
 def suiteMaker(suiteBuild: dict, suiteList: list):
+    """
+        Builds up a suite according to given details
+    """
     runnerDict = dict(
         {
             "name": suiteBuild["SuiteName"],
@@ -79,6 +97,9 @@ def suiteMaker(suiteBuild: dict, suiteList: list):
 
 
 def logIT(benchmark, logs, settings=None, pathToLog="./logs"):
+    """
+        Logs the given list/dictionary
+    """
     if logs is None:
         logs = "The Benchmark doesn't return any log"
     [date, time] = str(datetime.now()).split(" ")
@@ -94,6 +115,9 @@ def logIT(benchmark, logs, settings=None, pathToLog="./logs"):
 
 
 def tablify(legend, data, sorting=False, col=0):
+    """
+        Creates a pretty table out of data provided
+    """
     table = PrettyTable(legend)
     if sorting:
         data.sort(key=lambda x: x[col])
