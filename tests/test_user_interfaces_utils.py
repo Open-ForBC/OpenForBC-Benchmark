@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 import json
 
+
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from user_interfaces.utils import ( # noqa: E402
     getSettings,
