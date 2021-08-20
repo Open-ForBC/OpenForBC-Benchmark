@@ -1,5 +1,5 @@
 {
-    "blender_version":"2.93.1",
+    "blender_version":"2.92",
     "scenes": ["bmw27","fishy_cat"],
     "device_type":"CUDA",
     "verbosity":"1"
