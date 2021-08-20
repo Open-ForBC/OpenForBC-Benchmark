@@ -1,13 +1,14 @@
 # Developer Documentation
 
-- For running a benchmark check [user-guide.md](user-guide.md).
+- To run benchmarks check the [user-guide.md](user-guide.md).
 - Installation [README](../README.md).
 
 ## Before opening a PR
 
-Continuous integration is setup [here](../.github/workflows/CI.yml). 
+Continuous integration is setup [here](../.github/workflows/CI.yml). It currently runs the CLI test and blender with one setting file.
 
-Before opening a PR, please check that your changes do not break anything by executing ./test_PR.sh
+Before opening a PR, please check that your changes do not break anything by executing ./test_PR.sh.
+This executes full tests: CLI, blender with various settings, suites.
 
 ## Adding a benchmark 
 
@@ -44,7 +45,9 @@ To add a benchmark, create a directory in the benchmarks folder similar to the S
 
 - To properly propagate the execution logs, return the logs as a dictionary with the format ```{"output":<logging data>}``` from the method responsible for running the benchmark, ie. ```startBenchmark()``` in usual cases.
 
-* *Documentation.* As a bare minimum, add a README.md file that documents what the benchmark does and the settings. For more comprehensive documentation, you can create an additional doc/ folder and place there additional files.
+- *Documentation.* As a bare minimum, add a README.md file that documents what the benchmark does and the settings. For more comprehensive documentation, you can create an additional doc/ folder and place there additional files.
+
+- *Continuous integration* (CI). Please consider adding tests for your benchmark in bin/, and also if appropriate add them to CI or test_PR.sh 
 
 ## How the tool works
 
