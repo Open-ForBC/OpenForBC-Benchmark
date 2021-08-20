@@ -9,20 +9,26 @@ import re
 from typing import List
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from user_interfaces.interface_skeleton import InterfaceSkeleton # noqa: E402
-from user_interfaces.utils import ( # noqa: E402
+from user_interfaces.interface_skeleton import InterfaceSkeleton  # noqa: E402
+from user_interfaces.utils import (  # noqa: E402
     getBenchmarksToRun,
     getSettings,
     getSuitesToRun,
     setItUp,
     suiteMaker,
     logIT,
-    tablify
+    tablify,
 )
+home_dir = Path.cwd()
+
+
+"""
+This CLI interface makes use of Typer (https://typer.tiangolo.com/)
+which has an extensible functionality.
+"""
 
 
 app = typer.Typer()
-home_dir = Path.cwd()
 
 
 class InteractiveMenu:
@@ -34,6 +40,11 @@ class InteractiveMenu:
         self.type = None
 
     def runner(self):
+        """
+        Function responsible for running interactive prompts in the benchmark.
+        Questions are put as a list of dictionary which are shown to user as prompts.
+        """
+
         self.benchmarkBanner()
         self.runChoice = [
             {
@@ -49,6 +60,8 @@ class InteractiveMenu:
             }
         ]
         self.selectRunChoice = prompt(self.runChoice, style=custom_style_2)
+
+        # If user chooses to make their own suite =>
         if self.selectRunChoice["runchoice"] == "Make your own suite":
             suiteBuilder = [
                 {
@@ -74,6 +87,8 @@ class InteractiveMenu:
                 },
             ]
             suiteBuild = prompt(suiteBuilder, style=custom_style_2)
+            if len(suiteBuild["benchInSuite"]) <= 0:
+                raise Exception("Can't make a suite with no benchmarks.")
             _suiteList = []
             for bmark in suiteBuild["benchInSuite"]:
                 suite_settings = {
@@ -90,6 +105,8 @@ class InteractiveMenu:
                 )
             suiteMaker(suiteBuild=suiteBuild, suiteList=_suiteList)
             exit()
+
+        # Else if user chooses to execute a benchmark/suite =>
         elif self.selectRunChoice["runchoice"] == "Benchmark Suite":
             self.type = "Suite"
         else:
@@ -110,9 +127,12 @@ class InteractiveMenu:
         ]
 
         self.selectBenchmark = prompt(self.benchmarks, style=custom_style_2)
+
+        # Check that user selected a benchmark atleast
         if not self.selectBenchmark["benchmark"]:
             raise Exception("There are no benchmarks to run.")
 
+        # Benchmark driver=>
         if self.type == "Benchmark":
             bmark = self.selectBenchmark["benchmark"]
             benchmarkPath = os.path.join(Path.cwd(), "benchmarks", bmark)
@@ -136,14 +156,25 @@ class InteractiveMenu:
                 runType=self.type, bmark=bmark, settings=self.selectSettings["settings"]
             )
             if not isinstance(out, type(None)):
-                logIT(benchmark=bmark, settings=self.selectSettings["settings"], logs=out["output"])
+                logIT(
+                    benchmark=bmark,
+                    settings=self.selectSettings["settings"],
+                    logs=out["output"],
+                )
             else:
-                logIT(benchmark=bmark, settings=self.selectSettings["settings"],
-                      logs="The Benchmark doesn't return any log")
+                logIT(
+                    benchmark=bmark,
+                    settings=self.selectSettings["settings"],
+                    logs="The Benchmark doesn't return any log",
+                )
+
+        # Suite driver=>
         elif self.type == "Suite":
             suite = self.selectBenchmark["benchmark"]
             suitePath = os.path.join(home_dir, "suites", suite)
-            out = InterfaceSkeleton().startBenchmark(runType=self.type, suitePath=suitePath)
+            out = InterfaceSkeleton().startBenchmark(
+                runType=self.type, suitePath=suitePath
+            )
             logIT(benchmark=suite[:-5], logs=out)
 
     def benchmarkBanner(self):
@@ -158,10 +189,9 @@ class InteractiveMenu:
 
 # Non interactive menu =>
 
+
 @app.command()
-def interactive(
-    interactive: bool = typer.Argument(True)
-):
+def interactive(interactive: bool = typer.Argument(True)):
     """
     Interactive/Non interactive router
     """
@@ -171,16 +201,19 @@ def interactive(
         raise typer.Exit(code=5)
 
 
+# Run benchmark with python user_interfaces/cli.py run-benchmark
 @app.command()
 def run_benchmark(
-    input: List[str] = typer.Option(..., '-b', '--benchmark', help="benchmark name"),
-    settings: str = typer.Option(None, '-s', '--settings', help="benchmark settings"),
+    input: List[str] = typer.Option(..., "-b", "--benchmark", help="benchmark name"),
+    settings: str = typer.Option(None, "-s", "--settings", help="benchmark settings"),
     verbose: int = typer.Option(None, "--verbose", "-v", help="modify verbosity"),
 ):
     """
     Runs the given benchmarks
     """
-    _availableBench = [x["name"] for x in getBenchmarksToRun()]
+    _availableBench = [
+        x["name"] for x in getBenchmarksToRun()
+    ]  # List of all available benchmarks
     for benchmark in input:
         if benchmark not in _availableBench:
             typer.echo(
@@ -188,11 +221,15 @@ def run_benchmark(
             )
             continue
         benchmarkPath = os.path.join(Path.cwd(), "benchmarks", benchmark)
+
+        # Check if setup file present in benchmark directory
         if (
             Path(os.path.join(benchmarkPath, "setup.py")).exists()
             or Path(os.path.join(benchmarkPath, "setup.sh")).exists()
         ):
             setItUp(benchmarkPath)
+
+        # Use default settings if settings option None
         if settings is None:
             with open(os.path.join(benchmarkPath, "benchmark_info.json")) as info:
                 settings = json.load(info)["default_settings"]
@@ -204,13 +241,16 @@ def run_benchmark(
         if not isinstance(out, type(None)):
             logIT(benchmark=benchmark, settings=settings, logs=out["output"])
         else:
-            logIT(benchmark=benchmark, settings=settings, logs="The Benchmark doesn't return any log")
+            logIT(
+                benchmark=benchmark,
+                settings=settings,
+                logs="The Benchmark doesn't return any log",
+            )
 
 
+# Run suite with python user_interfaces/cli.py run-suite
 @app.command()
-def run_suite(
-    suite: str = typer.Argument(..., help="Suite name")
-):
+def run_suite(suite: str = typer.Argument(..., help="Suite name")):
     """
     Runs the given Suite
     """
@@ -221,42 +261,45 @@ def run_suite(
         )
         typer.Exit()
     suitePath = os.path.join(home_dir, "suites", suite)
-    benchmarkOutput = InterfaceSkeleton().startBenchmark(runType="suite", suitePath=suitePath)
+    benchmarkOutput = InterfaceSkeleton().startBenchmark(
+        runType="suite", suitePath=suitePath
+    )
     logIT(benchmark=suite[:-5], logs=benchmarkOutput)
 
 
+# Make a suite with python user_interfaces/cli.py make-suite
 @app.command()
 def make_suite(
     suite_name: str = typer.Option(..., "--name", help="Suite name"),
-    benchmarks: List[str] = typer.Option(..., '-b', help="Benchmarks in the suite"),
-    settings: List[str] = typer.Option(..., '-s', help="Settings for corresponding benchmarks"),
-    filename: str = typer.Option(..., '-f', help="filename"),
-    description: str = typer.Option("No description", '-d', help="description")
+    benchmarks: List[str] = typer.Option(..., "-b", help="Benchmarks in the suite"),
+    settings: List[str] = typer.Option(
+        ..., "-s", help="Settings for corresponding benchmarks"
+    ),
+    filename: str = typer.Option(..., "-f", help="filename"),
+    description: str = typer.Option("No description", "-d", help="description"),
 ):
     """
     Makes a suite out of given benchmarks
     """
-    #TODO: Make a check to ensure settings and benchmarks exist.
+    # TODO: Make a check to ensure settings and benchmarks exist.
     if len(settings) != len(benchmarks):
         typer.echo("Unequal number of settings for benchmarks")
         raise typer.Exit()
     _suiteList = []
     for i in range(len(benchmarks)):
-        _suiteList.append(
-            dict({"name": benchmarks[i], "settings": settings[i]})
-        )
+        _suiteList.append(dict({"name": benchmarks[i], "settings": settings[i]}))
+    # Define suitebuilding dictionary for the suite.
     suiteBuild = {
         "SuiteName": suite_name,
         "SuiteDescription": description,
-        "FileName": filename
+        "FileName": filename,
     }
     suiteMaker(suiteBuild=suiteBuild, suiteList=_suiteList)
 
 
+# List all suites with python user_interfaces/cli.py list-suites
 @app.command()
-def list_suites(
-    csv: bool = typer.Option(False, '--csv', help="show as csv")
-):
+def list_suites(csv: bool = typer.Option(False, "--csv", help="show as csv")):
     """
     Lists available suites
     """
@@ -268,10 +311,9 @@ def list_suites(
         typer.echo(suites_list)
 
 
+# List all benchmarks with python user_interfaces/cli.py list-benchmarks
 @app.command()
-def list_benchmarks(
-    csv: bool = typer.Option(False, '--csv', help="show as csv")
-):
+def list_benchmarks(csv: bool = typer.Option(False, "--csv", help="show as csv")):
     """
     Lists available benchmarks
     """
@@ -283,62 +325,86 @@ def list_benchmarks(
         typer.echo(benchmark_list)
 
 
+# Get available settings with python user_interfaces/cli.py get-settings
 @app.command()
 def get_settings(
-    benchmark: str = typer.Option(..., '-b', '--benchmark', help="benchmark name"),
-    settings: str = typer.Option(None, '-s', '--settings', help="settings file"),
-    csv: bool = typer.Option(False, '--csv', help="show as csv")
+    benchmark: str = typer.Option(..., "-b", "--benchmark", help="benchmark name"),
+    settings: str = typer.Option(None, "-s", "--settings", help="settings file"),
+    csv: bool = typer.Option(False, "--csv", help="show as csv"),
 ):
     """
     Gets the settings for the benchmark
     """
+    # If user wants to read the contents of a setting in a benchmark
     if settings is not None:
         try:
-            with open(os.path.join(home_dir, 'benchmarks', benchmark, 'settings', settings), 'r') as settingsFile:
+            with open(
+                os.path.join(home_dir, "benchmarks", benchmark, "settings", settings),
+                "r",
+            ) as settingsFile:
                 output = json.load(settingsFile)
-                typer.echo(json.dumps(output, indent=4))
+                typer.echo(
+                    json.dumps(output, indent=4)
+                )  # Print the contents of the settingsFile
         except FileNotFoundError as e:
             typer.echo(f"{e}: Settings doesn't exist")
+
+    # If user wants to see what all settings are present for a benchmark
     else:
         settings_list = []
         try:
-            settings_list = [[file] for file in os.listdir(os.path.join(home_dir, 'benchmarks', benchmark, "settings"))]
+            settings_list = [
+                [file]
+                for file in os.listdir(
+                    os.path.join(home_dir, "benchmarks", benchmark, "settings")
+                )
+            ]
         except FileNotFoundError as e:
-            typer.echo(f"No settings folder in {benchmark} directory. {e}")
-        assert len(settings_list) > 0 and not isinstance(settings_list, type(None))
+            typer.echo(f"{e}:No settings folder in {benchmark} directory.")
+        assert len(settings_list) > 0 and not isinstance(
+            settings_list, type(None)
+        )  # Check to make sure settings list is not empty
         if not csv:
-            table = tablify(legend=["settings"], data=settings_list, sorting=True, col=0)
+            table = tablify(
+                legend=["settings"], data=settings_list, sorting=True, col=0
+            )
             typer.echo(table)
         else:
             typer.echo(settings_list)
 
 
+# List all logs with python user_interfaces/cli.py list-logs
 @app.command()
-def list_logs(
-    csv: bool = typer.Option(False, '--csv', help="show as csv")
-):
+def list_logs(csv: bool = typer.Option(False, "--csv", help="show as csv")):
     """
     Lists all previous logs
     """
-    logPath = os.path.join(home_dir, 'logs')
+    logPath = os.path.join(home_dir, "logs")
     index = 0
     tableOutput = []
     for root, _, files in os.walk(logPath):
-        if 'output.log' in files:
+        if "output.log" in files:
             root = root.split(os.path.sep)
             for pathChunk in root:
-                res = re.match(r'(19|20)\d\d(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])', pathChunk)
+                res = re.match(
+                    r"(19|20)\d\d(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])", pathChunk
+                )  # Regex pattern to match yyyymmdd
+
+                # If pattern matches:
                 if res is not None:
-                    date = pathChunk.split("_")[0]
-                    formatted_date = date[:4] + '-' + date[4:6] + '-' + date[6:]
+                    date = pathChunk.split("_")[0]  # Extract date
+                    formatted_date = (
+                        date[:4] + "-" + date[4:6] + "-" + date[6:]
+                    )  # Format it to add hypens for printing
                     for i in range(len(root)):
-                        if root[i] == 'logs':
-                            bmark = root[i + 1]
+                        if root[i] == "logs":
+                            bmark = root[i + 1]  # root[i+1] is the benchmark name
+
                             index += 1
                             break
                     tableOutput.append([index, formatted_date, bmark])
     if not csv:
-        table = tablify(legend=['Index', 'Date', 'Benchmark'], data=tableOutput)
+        table = tablify(legend=["Index", "Date", "Benchmark"], data=tableOutput)
         typer.echo(table)
     else:
         typer.echo(tableOutput)
