@@ -46,7 +46,7 @@ ___
 
 - Guide to developer [docs](docs/developer-guide.md).  
 
-- Guide to users [docs](docs/user-guide.md).
+- Guide to user [docs](docs/user-guide.md).
 
 ## Benchmarks
 
