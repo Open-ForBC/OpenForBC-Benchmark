@@ -111,16 +111,19 @@ class InteractiveMenu:
             suiteMaker(suiteBuild=suiteBuild, suiteList=_suiteList)
             exit()
 
-        # Else if user chooses to execute a benchmark/suite =>
-        elif self.selectRunChoice["runchoice"] == "Benchmark Suite":
-            self.type = "Suite"
         else:
-            self.type = "Benchmark"
+            run_type = {
+                "Benchmark Suite": "Suite",
+                "Stand Alone Benchmark": "Benchmark"
+            }
+        self.type = run_type[self.selectRunChoice["runchoice"]]
         choices = []
+
         if self.type == "Suite":
             choices = getSuitesToRun()
         elif self.type == "Benchmark":
             choices = getBenchmarksToRun()
+
         choices.append({"name": "Quit"})
         self.benchmarks = [
             {
