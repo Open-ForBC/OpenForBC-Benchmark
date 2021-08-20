@@ -18,6 +18,8 @@ Blender scenes support for different blender versions:
 |  2.82            |   ✅   |     ✅    |      ✅   |   ✅  |          ✅        |
 -----------------------------------------------------------------------------------
 
+* victor scene is also available, but causes blender to exit
+
 ### Devices supported:
 ✅ CPU 
 ✅ GPU (Tested:CUDA)
