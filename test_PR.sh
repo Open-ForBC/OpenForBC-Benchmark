@@ -16,5 +16,13 @@ echo "RUNNING PYTEST"
 pytest
 
 echo
-echo "RUNNING BASH TESTS"
-bash ./bin/test_*
+echo "RUNNING CLI TESTS"
+bash ./bin/test_cli.sh
+
+echo
+echo "RUNNING BENCHMARK TESTS"
+bash ./bin/test_benchmarks.sh
+
+echo
+echo "RUNNING SUITE TESTS"
+bash ./bin/test_suites.sh
