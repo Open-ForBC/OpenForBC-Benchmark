@@ -25,5 +25,6 @@ jobs:
           typer --install-completion     
           source ~/.bashrc
           touch user_interfaces/auto-cli-docs.md
+          truncate -s 0 user_interfaces/auto-cli-docs.md
           typer user_interfaces/cli.py utils docs >> user_interfaces/auto-cli-docs.md
 
