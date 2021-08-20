@@ -93,3 +93,7 @@ Logs can be listed with the following command
 ```shell
 python3 user_interfaces/cli.py list-logs
 ```
+
+## View format
+
+Commands like ```list-logs``` , ```list-benchmarks``` , ```list-suites``` and  ```get-settings``` support viewing in pretty table format by default. To view as a csv use --csv flags with the command.
