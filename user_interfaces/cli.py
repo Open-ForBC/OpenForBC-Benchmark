@@ -420,10 +420,12 @@ def list_logs(csv: bool = typer.Option(False, "--csv", help="show as csv")):
                     for i in range(len(root)):
                         if root[i] == "logs":
                             bmark = root[i + 1]     # root[i+1] is the benchmark name
-                            settings = root[i + 2]  
+                            settings = root[i + 2]  #root[i+2] is the settings name
                             index += 1
                             break
-                    if not settings.find(date) and bmark.find("suite"):
+                    #Check settings != date (ie. not a suite) and benchmark name doesn't have 'suite' in it
+                    #TODO: make a stronger check
+                    if not settings.find(date) and bmark.find("suite"):    
                         settings = "-"
                     tableOutput.append([index, formatted_date, bmark,settings])
     if not csv:
