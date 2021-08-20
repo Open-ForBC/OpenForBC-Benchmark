@@ -1,16 +1,11 @@
 name: Dynamic CLI README 
 
-name: Continuous integration testing
-
-name: Continuous integration testing
-
 on:  
   schedule:
     - cron:"*/20 * * *"
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
       matrix:
