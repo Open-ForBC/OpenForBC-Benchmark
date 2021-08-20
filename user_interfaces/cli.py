@@ -9,15 +9,15 @@ import re
 from typing import List
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from user_interfaces.interface_skeleton import InterfaceSkeleton # noqa: E402
-from user_interfaces.utils import ( # noqa: E402
+from user_interfaces.interface_skeleton import InterfaceSkeleton  # noqa: E402
+from user_interfaces.utils import (  # noqa: E402
     getBenchmarksToRun,
     getSettings,
     getSuitesToRun,
     setItUp,
     suiteMaker,
     logIT,
-    tablify
+    tablify,
 )
 
 
@@ -74,6 +74,8 @@ class InteractiveMenu:
                 },
             ]
             suiteBuild = prompt(suiteBuilder, style=custom_style_2)
+            if len(suiteBuild["benchInSuite"]) <= 0:
+                raise Exception("Can't make a suite with no benchmarks.")
             _suiteList = []
             for bmark in suiteBuild["benchInSuite"]:
                 suite_settings = {
@@ -136,14 +138,23 @@ class InteractiveMenu:
                 runType=self.type, bmark=bmark, settings=self.selectSettings["settings"]
             )
             if not isinstance(out, type(None)):
-                logIT(benchmark=bmark, settings=self.selectSettings["settings"], logs=out["output"])
+                logIT(
+                    benchmark=bmark,
+                    settings=self.selectSettings["settings"],
+                    logs=out["output"],
+                )
             else:
-                logIT(benchmark=bmark, settings=self.selectSettings["settings"],
-                      logs="The Benchmark doesn't return any log")
+                logIT(
+                    benchmark=bmark,
+                    settings=self.selectSettings["settings"],
+                    logs="The Benchmark doesn't return any log",
+                )
         elif self.type == "Suite":
             suite = self.selectBenchmark["benchmark"]
             suitePath = os.path.join(home_dir, "suites", suite)
-            out = InterfaceSkeleton().startBenchmark(runType=self.type, suitePath=suitePath)
+            out = InterfaceSkeleton().startBenchmark(
+                runType=self.type, suitePath=suitePath
+            )
             logIT(benchmark=suite[:-5], logs=out)
 
     def benchmarkBanner(self):
@@ -158,10 +169,9 @@ class InteractiveMenu:
 
 # Non interactive menu =>
 
+
 @app.command()
-def interactive(
-    interactive: bool = typer.Argument(True)
-):
+def interactive(interactive: bool = typer.Argument(True)):
     """
     Interactive/Non interactive router
     """
@@ -173,8 +183,8 @@ def interactive(
 
 @app.command()
 def run_benchmark(
-    input: List[str] = typer.Option(..., '-b', '--benchmark', help="benchmark name"),
-    settings: str = typer.Option(None, '-s', '--settings', help="benchmark settings"),
+    input: List[str] = typer.Option(..., "-b", "--benchmark", help="benchmark name"),
+    settings: str = typer.Option(None, "-s", "--settings", help="benchmark settings"),
     verbose: int = typer.Option(None, "--verbose", "-v", help="modify verbosity"),
 ):
     """
@@ -204,13 +214,15 @@ def run_benchmark(
         if not isinstance(out, type(None)):
             logIT(benchmark=benchmark, settings=settings, logs=out["output"])
         else:
-            logIT(benchmark=benchmark, settings=settings, logs="The Benchmark doesn't return any log")
+            logIT(
+                benchmark=benchmark,
+                settings=settings,
+                logs="The Benchmark doesn't return any log",
+            )
 
 
 @app.command()
-def run_suite(
-    suite: str = typer.Argument(..., help="Suite name")
-):
+def run_suite(suite: str = typer.Argument(..., help="Suite name")):
     """
     Runs the given Suite
     """
@@ -221,42 +233,42 @@ def run_suite(
         )
         typer.Exit()
     suitePath = os.path.join(home_dir, "suites", suite)
-    benchmarkOutput = InterfaceSkeleton().startBenchmark(runType="suite", suitePath=suitePath)
+    benchmarkOutput = InterfaceSkeleton().startBenchmark(
+        runType="suite", suitePath=suitePath
+    )
     logIT(benchmark=suite[:-5], logs=benchmarkOutput)
 
 
 @app.command()
 def make_suite(
     suite_name: str = typer.Option(..., "--name", help="Suite name"),
-    benchmarks: List[str] = typer.Option(..., '-b', help="Benchmarks in the suite"),
-    settings: List[str] = typer.Option(..., '-s', help="Settings for corresponding benchmarks"),
-    filename: str = typer.Option(..., '-f', help="filename"),
-    description: str = typer.Option("No description", '-d', help="description")
+    benchmarks: List[str] = typer.Option(..., "-b", help="Benchmarks in the suite"),
+    settings: List[str] = typer.Option(
+        ..., "-s", help="Settings for corresponding benchmarks"
+    ),
+    filename: str = typer.Option(..., "-f", help="filename"),
+    description: str = typer.Option("No description", "-d", help="description"),
 ):
     """
     Makes a suite out of given benchmarks
     """
-    #TODO: Make a check to ensure settings and benchmarks exist.
+    # TODO: Make a check to ensure settings and benchmarks exist.
     if len(settings) != len(benchmarks):
         typer.echo("Unequal number of settings for benchmarks")
         raise typer.Exit()
     _suiteList = []
     for i in range(len(benchmarks)):
-        _suiteList.append(
-            dict({"name": benchmarks[i], "settings": settings[i]})
-        )
+        _suiteList.append(dict({"name": benchmarks[i], "settings": settings[i]}))
     suiteBuild = {
         "SuiteName": suite_name,
         "SuiteDescription": description,
-        "FileName": filename
+        "FileName": filename,
     }
     suiteMaker(suiteBuild=suiteBuild, suiteList=_suiteList)
 
 
 @app.command()
-def list_suites(
-    csv: bool = typer.Option(False, '--csv', help="show as csv")
-):
+def list_suites(csv: bool = typer.Option(False, "--csv", help="show as csv")):
     """
     Lists available suites
     """
@@ -269,9 +281,7 @@ def list_suites(
 
 
 @app.command()
-def list_benchmarks(
-    csv: bool = typer.Option(False, '--csv', help="show as csv")
-):
+def list_benchmarks(csv: bool = typer.Option(False, "--csv", help="show as csv")):
     """
     Lists available benchmarks
     """
@@ -285,16 +295,19 @@ def list_benchmarks(
 
 @app.command()
 def get_settings(
-    benchmark: str = typer.Option(..., '-b', '--benchmark', help="benchmark name"),
-    settings: str = typer.Option(None, '-s', '--settings', help="settings file"),
-    csv: bool = typer.Option(False, '--csv', help="show as csv")
+    benchmark: str = typer.Option(..., "-b", "--benchmark", help="benchmark name"),
+    settings: str = typer.Option(None, "-s", "--settings", help="settings file"),
+    csv: bool = typer.Option(False, "--csv", help="show as csv"),
 ):
     """
     Gets the settings for the benchmark
     """
     if settings is not None:
         try:
-            with open(os.path.join(home_dir, 'benchmarks', benchmark, 'settings', settings), 'r') as settingsFile:
+            with open(
+                os.path.join(home_dir, "benchmarks", benchmark, "settings", settings),
+                "r",
+            ) as settingsFile:
                 output = json.load(settingsFile)
                 typer.echo(json.dumps(output, indent=4))
         except FileNotFoundError as e:
@@ -302,43 +315,50 @@ def get_settings(
     else:
         settings_list = []
         try:
-            settings_list = [[file] for file in os.listdir(os.path.join(home_dir, 'benchmarks', benchmark, "settings"))]
+            settings_list = [
+                [file]
+                for file in os.listdir(
+                    os.path.join(home_dir, "benchmarks", benchmark, "settings")
+                )
+            ]
         except FileNotFoundError as e:
             typer.echo(f"No settings folder in {benchmark} directory. {e}")
         assert len(settings_list) > 0 and not isinstance(settings_list, type(None))
         if not csv:
-            table = tablify(legend=["settings"], data=settings_list, sorting=True, col=0)
+            table = tablify(
+                legend=["settings"], data=settings_list, sorting=True, col=0
+            )
             typer.echo(table)
         else:
             typer.echo(settings_list)
 
 
 @app.command()
-def list_logs(
-    csv: bool = typer.Option(False, '--csv', help="show as csv")
-):
+def list_logs(csv: bool = typer.Option(False, "--csv", help="show as csv")):
     """
     Lists all previous logs
     """
-    logPath = os.path.join(home_dir, 'logs')
+    logPath = os.path.join(home_dir, "logs")
     index = 0
     tableOutput = []
     for root, _, files in os.walk(logPath):
-        if 'output.log' in files:
+        if "output.log" in files:
             root = root.split(os.path.sep)
             for pathChunk in root:
-                res = re.match(r'(19|20)\d\d(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])', pathChunk)
+                res = re.match(
+                    r"(19|20)\d\d(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])", pathChunk
+                )
                 if res is not None:
                     date = pathChunk.split("_")[0]
-                    formatted_date = date[:4] + '-' + date[4:6] + '-' + date[6:]
+                    formatted_date = date[:4] + "-" + date[4:6] + "-" + date[6:]
                     for i in range(len(root)):
-                        if root[i] == 'logs':
+                        if root[i] == "logs":
                             bmark = root[i + 1]
                             index += 1
                             break
                     tableOutput.append([index, formatted_date, bmark])
     if not csv:
-        table = tablify(legend=['Index', 'Date', 'Benchmark'], data=tableOutput)
+        table = tablify(legend=["Index", "Date", "Benchmark"], data=tableOutput)
         typer.echo(table)
     else:
         typer.echo(tableOutput)
