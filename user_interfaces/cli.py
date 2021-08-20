@@ -419,13 +419,15 @@ def list_logs(csv: bool = typer.Option(False, "--csv", help="show as csv")):
                     )  # Format it to add hypens for printing
                     for i in range(len(root)):
                         if root[i] == "logs":
-                            bmark = root[i + 1]  # root[i+1] is the benchmark name
-
+                            bmark = root[i + 1]     # root[i+1] is the benchmark name
+                            settings = root[i + 2]  
                             index += 1
                             break
-                    tableOutput.append([index, formatted_date, bmark])
+                    if not settings.find(date) and bmark.find("suite"):
+                        settings = "-"
+                    tableOutput.append([index, formatted_date, bmark,settings])
     if not csv:
-        table = tablify(legend=["Index", "Date", "Benchmark"], data=tableOutput)
+        table = tablify(legend=["Index", "Date", "Benchmark","settings"], data=tableOutput)
         typer.echo(table)
     else:
         typer.echo(tableOutput)
