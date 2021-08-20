@@ -8,14 +8,14 @@ from datetime import datetime
 import shutil
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from user_interfaces.utils import ( # noqa: E402
+from user_interfaces.utils import (  # noqa: E402
     getSettings,
     getSuitesToRun,
     getBenchmarksToRun,
     setItUp,
     suiteMaker,
     logIT,
-    tablify
+    tablify,
 )
 
 
@@ -80,34 +80,45 @@ class TestSuiteMaker(unittest.TestCase):
             output = json.load(f)
         self.assertEqual(self.expectedOutput, output)
 
+
 class TestLogging(unittest.TestCase):
-    def setUp(self):    
-        logIT(benchmark="MyBenchmark", logs="hello world", settings = "settings1.json",pathToLog="./logs/temp-log")
+    def setUp(self):
+        logIT(
+            benchmark="MyBenchmark",
+            logs="hello world",
+            settings="settings1.json",
+            pathToLog=os.path.join("logs", "temp-log"),
+        )
 
     def tearDown(self):
         shutil.rmtree(os.path.join(Path.cwd(), "logs", "temp-log"))
-    
+
     def test_logging(self):
         my_logs = "hello world"
         gotten_logs = ""
         [date, time] = str(datetime.now()).split(" ")
         date = "".join(str(date).split("-"))
         time = "".join(str(time).split(":"))[:-7]
-        path = Path.cwd().joinpath("./logs", "temp-log","MyBenchmark","settings1", str(date) + '_' + str(time))
-        with open(os.path.join(path,"output.log"),"r") as logFile:
+        path = Path.cwd().joinpath(
+            "logs", "temp-log", "MyBenchmark", "settings1", str(date)
+            + "_" + str(time)
+        )
+        with open(os.path.join(path, "output.log"), "r") as logFile:
             gotten_logs = logFile.read()
-        gotten_log = gotten_logs.strip("\"")
-        self.assertEqual(my_logs,gotten_log)
-        
+        gotten_log = gotten_logs.strip('"')
+        self.assertEqual(my_logs, gotten_log)
+
 
 class TestTableMaker(unittest.TestCase):
     def test_tablify(self):
-        input_data = [[1,2,3],[4,5,6]]
-        gotten_output = tablify(legend=['a','b','c'],data = input_data,sorting=True)
-        my_table = PrettyTable(['a','b','c'])
-        my_table.add_row([1,2,3])
-        my_table.add_row([4,5,6])
-        self.assertEqual(type(my_table),type(gotten_output))
+        input_data = [[1, 2, 3], [4, 5, 6]]
+        gotten_output = tablify(
+            legend=["a", "b", "c"], data=input_data, sorting=True
+        )
+        my_table = PrettyTable(["a", "b", "c"])
+        my_table.add_row([1, 2, 3])
+        my_table.add_row([4, 5, 6])
+        self.assertEqual(type(my_table), type(gotten_output))
 
 
 if __name__ == "__main__":
