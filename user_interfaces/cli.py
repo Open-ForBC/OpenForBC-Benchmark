@@ -404,11 +404,11 @@ def list_logs(csv: bool = typer.Option(False, "--csv", help="show as csv")):
                             break
                     #Check settings != date (ie. not a suite) and benchmark name doesn't have 'suite' in it
                     #TODO: make a stronger check
-                    if not settings.find(date) and bmark.find("suite"):    
+                    if not settings.find(date) and bmark.find("suite"):
                         settings = "-"
-                    tableOutput.append([index, formatted_date, bmark,settings])
+                    tableOutput.append([index, formatted_date, bmark, settings])
     if not csv:
-        table = tablify(legend=["Index", "Date", "Benchmark","settings"], data=tableOutput)
+        table = tablify(legend=["Index", "Date", "Benchmark", "settings"], data=tableOutput)
         typer.echo(table)
     else:
         typer.echo(tableOutput)
