@@ -33,6 +33,6 @@ jobs:
       - name: Run CLI bash tests
         run: |
           bash ./bin/test_cli.sh
-      - name: Run benchmark tests
+      - name: Run blender test
         run: |
-          bash ./bin/test_benchmarks.sh
+          bash ./bin/test_blender.sh
