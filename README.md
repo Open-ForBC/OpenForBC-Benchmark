@@ -31,7 +31,7 @@ pip3 install -r requirements.txt
 
 ```
 
-- You can test the installation and run the prepackaged suites/benchmarks with:
+- You can test the installation with:
 ```bash 
 bin/test_cli.sh
 ```
