@@ -56,13 +56,18 @@ class InteractiveMenu:
                     "Benchmark Suite",
                     "Stand Alone Benchmark",
                     "Make your own suite",
+                    "Quit"
                 ],
             }
         ]
         self.selectRunChoice = prompt(self.runChoice, style=custom_style_2)
 
+        #If user chooses to quit the cli
+        if self.selectRunChoice["runchoice"] == "Quit":
+            exit()
+
         # If user chooses to make their own suite =>
-        if self.selectRunChoice["runchoice"] == "Make your own suite":
+        elif self.selectRunChoice["runchoice"] == "Make your own suite":
             suiteBuilder = [
                 {
                     "type": "input",
@@ -111,15 +116,19 @@ class InteractiveMenu:
             self.type = "Suite"
         else:
             self.type = "Benchmark"
+        choices = []
+        if self.type == "Suite":
+            choices = getSuitesToRun()
+        elif self.type == "Benchmark":
+            choices = getBenchmarksToRun()
+        choices.append({"name": "Quit"})
         self.benchmarks = [
             {
                 "type": "list",
                 "message": "Select Benchmark",
                 "name": "benchmark",
                 "qmark": "💻",
-                "choices": getSuitesToRun()
-                if self.type == "Suite"
-                else getBenchmarksToRun(),
+                "choices": choices,
                 "validate": lambda answer: ValueError("no input")
                 if len(answer) == 0
                 else True,
@@ -127,6 +136,10 @@ class InteractiveMenu:
         ]
 
         self.selectBenchmark = prompt(self.benchmarks, style=custom_style_2)
+
+        #If user quit
+        if self.selectBenchmark["benchmark"] == "Quit":
+            exit()
 
         # Check that user selected a benchmark atleast
         if not self.selectBenchmark["benchmark"]:
