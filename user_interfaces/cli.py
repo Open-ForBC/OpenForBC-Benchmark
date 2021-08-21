@@ -44,7 +44,7 @@ class InteractiveMenu:
         Function responsible for running interactive prompts in the benchmark.
         Questions are put as a list of dictionary which are shown to user as prompts.
         """
-        
+
         self.benchmarkBanner()
         self.runChoice = [
             {
