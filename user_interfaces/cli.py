@@ -44,7 +44,7 @@ class InteractiveMenu:
         Function responsible for running interactive prompts in the benchmark.
         Questions are put as a list of dictionary which are shown to user as prompts.
         """
-        
+
         self.benchmarkBanner()
         self.runChoice = [
             {
@@ -69,8 +69,8 @@ class InteractiveMenu:
         # Else if user chooses to execute a benchmark/suite =>
         else:
             runChoices = {
-                "Benchmark Suite":"Suite",
-                "Stand Alone Benchmark":"Benchmark"
+                "Benchmark Suite": "Suite",
+                "Stand Alone Benchmark": "Benchmark"
             }
 
             self.type = runChoices.get(self.selectRunChoice["runchoice"])
@@ -102,9 +102,10 @@ class InteractiveMenu:
         elif self.type == "Suite":
             self.runSuite()
 
-
-
     def runBenchmark(self):
+        """
+            Method that is responsible for taking benchmark attribute and running it
+        """
         bmark = self.selectBenchmark["benchmark"]
         benchmarkPath = os.path.join(Path.cwd(), "benchmarks", bmark)
         if (
@@ -139,9 +140,10 @@ class InteractiveMenu:
                 logs="The Benchmark doesn't return any log",
             )
 
-
-
     def runSuite(self):
+        """
+            Method responsible for running the suite
+        """
         suite = self.selectBenchmark["benchmark"]
         suitePath = os.path.join(home_dir, "suites", suite)
         out = InterfaceSkeleton().startBenchmark(
@@ -149,9 +151,10 @@ class InteractiveMenu:
         )
         logIT(benchmark=suite[:-5], logs=out)
 
-
-
     def buildSuite(self):
+        """
+            Method takes in attributes of suite and builds a suite for the specifications.
+        """
         suiteBuilder = [
             {
                 "type": "input",
@@ -194,7 +197,6 @@ class InteractiveMenu:
             )
         suiteMaker(suiteBuild=suiteBuild, suiteList=_suiteList)
         exit()
-
 
     def benchmarkBanner(self):
         print("   ___                   _____          ____   ____ ")
