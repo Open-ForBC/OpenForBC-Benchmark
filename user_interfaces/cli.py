@@ -79,15 +79,19 @@ class InteractiveMenu:
             }
 
             self.type = runChoices.get(self.selectRunChoice["runchoice"])
+            if self.type == "Suite":
+                choices = getSuitesToRun()
+            elif self.type == "Benchmark":
+                choices = getBenchmarksToRun()
+            choices.append({"name": "Quit"})
+
             self.benchmarks = [
                 {
                     "type": "list",
                     "message": "Select Benchmark",
                     "name": "benchmark",
                     "qmark": "💻",
-                    "choices": getSuitesToRun()
-                    if self.type == "Suite"
-                    else getBenchmarksToRun(),
+                    "choices": choices,
                     "validate": lambda answer: ValueError("no input")
                     if len(answer) == 0
                     else True,
