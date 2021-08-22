@@ -157,7 +157,7 @@ if __name__ == "__main__":
     # print()
     # print("Listing all vpxenc versions:")
     # phoronix_list("vpxenc")
-    
+
     # print()
     # print("Trying to list non-existing benchmark:")
     # phoronix_list("doesnt_exists")
