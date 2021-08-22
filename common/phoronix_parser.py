@@ -182,4 +182,5 @@ if __name__ == "__main__":
     # print("Checking doesnt_exists benchmark existance:")
     # print(phoronix_exists("doesnt_exists", "1.0.0"))
 
+    phoronix_init()
     phoronix_install("astcenc", "1.1.0")
