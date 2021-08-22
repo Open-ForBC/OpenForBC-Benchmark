@@ -14,6 +14,7 @@ file_dir = os.path.dirname(os.path.abspath(__file__))
 clone_dir = os.path.join(file_dir, "phoronix-benchs")
 bench_root_path = os.path.join(clone_dir, REMOTE_BENCH_ROOT_PATH)
 o4bc_benchmark_dir = os.path.join(os.path.dirname(file_dir), "benchmarks")
+installer_map = {"linux": "install.sh", "linux2": "install.sh", "darwin": "install_macosx.sh", "windows": "install_windows.sh"}
 bench_dict = {}
 
 
@@ -133,19 +134,10 @@ def phoronix_install(benchmark_name, benchmark_v=None):
                             else:
                                 raise Exception("None of the provided URLs works.")
 
-            cmd = ("bash").split(' ')
-
-            if platform == "linux" or platform == "linux2":
-                cmd.append("install.sh")
-            elif platform == "darwin":
-                cmd.append("install_macosx.sh")
-            elif platform == "win32":
-                cmd.append("install_windows.sh")
-
+            cmd = ["bash", installer_map[platform]]
             process = subprocess.Popen(cmd, stdout=subprocess.PIPE, cwd=target_dir)
             output, error = process.communicate()
             print(output.decode('utf-8'))
-
     else:
         raise Exception("downloads.xml not found for {} benchmark.".format(benchmark_name))
 
