@@ -80,64 +80,59 @@ def phoronix_exists(benchmark_name, benchmark_v=None):
         raise Exception("Please provide a non-empty benchmark name.")
 
 
-def phoronix_install(benchmark_name, benchmark_v=None):
+def phoronix_install(benchmark_name, benchmark_v=None): # noqa: C901
     if phoronix_exists(benchmark_name, benchmark_v):
         if not benchmark_v:
             benchmark_v = bench_dict[benchmark_name][-1]
         bench_path = os.path.join(bench_root_path, "{}-{}".format(benchmark_name, benchmark_v))
         downloads_xml_path = os.path.join(bench_path, "downloads.xml")
+        downloads_xml = minidom.parse(downloads_xml_path)
+        packages_list = downloads_xml.getElementsByTagName('Package')
+        target_dir = os.path.join(o4bc_benchmark_dir, 'phoronix-{}-{}'.format(benchmark_name, benchmark_v))
 
-        if os.path.isfile(downloads_xml_path):
-            downloads_xml = minidom.parse(downloads_xml_path)
-            packages_list = downloads_xml.getElementsByTagName('Package')
-            target_dir = os.path.join(o4bc_benchmark_dir, 'phoronix-{}-{}'.format(benchmark_name, benchmark_v))
+        if not os.path.isdir(target_dir):
+            os.mkdir(target_dir)
 
-            if not os.path.isdir(target_dir):
-                os.mkdir(target_dir)
+        for installer in glob.glob(os.path.join(bench_path, "install*.sh")):
+            cp(installer, target_dir)
+            installer_path = os.path.join(target_dir, installer)
+            os.chmod(installer_path, os.stat(installer_path).st_mode | stat.S_IEXEC)
 
-            for installer in glob.glob(os.path.join(bench_path, "install*.sh")):
-                cp(installer, target_dir)
-                installer_path = os.path.join(target_dir, installer)
-                os.chmod(installer_path, os.stat(installer_path).st_mode | stat.S_IEXEC)
+        for package in packages_list:
+            urls = package.getElementsByTagName('URL')[0].firstChild.nodeValue.split(',')
+            md5 = package.getElementsByTagName('MD5')[0].firstChild.nodeValue
+            # sha256 = package.getElementsByTagName('SHA256')[0].firstChild.nodeValue
+            filename = package.getElementsByTagName('FileName')[0].firstChild.nodeValue
+            # size = package.getElementsByTagName('FileSize')[0].firstChild.nodeValue
+            print("Downloading {} (md5:{})".format(filename, md5))
+            target_file = os.path.join(target_dir, filename)
+            should_download = True
 
-            for package in packages_list:
-                urls = package.getElementsByTagName('URL')[0].firstChild.nodeValue.split(',')
-                md5 = package.getElementsByTagName('MD5')[0].firstChild.nodeValue
-                # sha256 = package.getElementsByTagName('SHA256')[0].firstChild.nodeValue
-                filename = package.getElementsByTagName('FileName')[0].firstChild.nodeValue
-                # size = package.getElementsByTagName('FileSize')[0].firstChild.nodeValue
-                print("Downloading {} (md5:{})".format(filename, md5))
-                target_file = os.path.join(target_dir, filename)
-                should_download = True
+            if os.path.isfile(target_file):
+                if hashlib.md5(open(target_file, 'rb').read()).hexdigest() == md5:
+                    print("Already downloaded. Skipping.")
+                    should_download = False
+                else:
+                    os.remove(target_file)
 
-                if os.path.isfile(target_file):
-                    if hashlib.md5(open(target_file, 'rb').read()).hexdigest() == md5:
-                        print("Already downloaded. Skipping.")
-                        should_download = False
-                    else:
-                        os.remove(target_file)
+            if should_download:
+                for url in urls:
+                    print(url)
+                    try:
+                        urllib.request.urlretrieve(url, filename=target_file)
+                        if hashlib.md5(open(target_file, 'rb').read()).hexdigest() == md5:
+                            break
+                        else:
+                            print("Wrong checksum. Trying again.")
+                            os.remove(target_file)
+                    except Exception:
+                        if url == urls[-1]:
+                            raise Exception("None of the provided URLs works.")
 
-                if should_download:
-                    for url in urls:
-                        print(url)
-                        try:
-                            urllib.request.urlretrieve(url, filename=target_file)
-                            if hashlib.md5(open(target_file, 'rb').read()).hexdigest() == md5:
-                                break
-                            else:
-                                print("Wrong checksum. Trying again.")
-                                os.remove(target_file)
-                        except Exception:
-                            if not url == urls[-1]:
-                                print("Trying another url")
-                                pass
-                            else:
-                                raise Exception("None of the provided URLs works.")
-
-            cmd = ["bash", installer_map[platform]]
-            process = subprocess.Popen(cmd, stdout=subprocess.PIPE, cwd=target_dir)
-            output, error = process.communicate()
-            print(output.decode('utf-8'))
+        cmd = ["bash", installer_map[platform]]
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, cwd=target_dir)
+        output, error = process.communicate()
+        print(output.decode('utf-8'))
     else:
         raise Exception("downloads.xml not found for {} benchmark.".format(benchmark_name))
 
