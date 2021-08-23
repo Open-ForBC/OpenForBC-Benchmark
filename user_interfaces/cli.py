@@ -84,7 +84,6 @@ class InteractiveMenu:
             elif self.type == "Benchmark":
                 choices = getBenchmarksToRun()
             choices.append({"name": "Quit"})
-
             self.benchmarks = [
                 {
                     "type": "list",
@@ -269,11 +268,18 @@ def run_benchmark(
                 settings = json.load(info)["default_settings"]
         elif settings not in os.listdir(os.path.join(benchmarkPath, "settings")):
             raise Exception("Setting not found.")
-        out = InterfaceSkeleton().startBenchmark(
-            bmark=benchmark, settings=settings, verbosity=verbose
-        )
+        try:
+            out = InterfaceSkeleton().startBenchmark(
+                bmark=benchmark, settings=settings, verbosity=verbose
+            )
+        except Exception as e:
+            raise Exception(f"{e}The benchmark run failed")
+
         if not isinstance(out, type(None)):
-            logIT(benchmark=benchmark, settings=settings, logs=out["output"])
+            try:
+                logIT(benchmark=benchmark, settings=settings, logs=out["output"])
+            except TypeError as e:
+                print(f"{e} Encountered while logging")
         else:
             logIT(
                 benchmark=benchmark,
@@ -295,9 +301,12 @@ def run_suite(suite: str = typer.Argument(..., help="Suite name")):
         )
         typer.Exit()
     suitePath = os.path.join(home_dir, "suites", suite)
-    benchmarkOutput = InterfaceSkeleton().startBenchmark(
-        runType="suite", suitePath=suitePath
-    )
+    try:
+        benchmarkOutput = InterfaceSkeleton().startBenchmark(
+            runType="suite", suitePath=suitePath
+        )
+    except Exception as e:
+        raise Exception(f"{e}The benchmark run failed")
     logIT(benchmark=suite[:-5], logs=benchmarkOutput)
 
 
@@ -432,13 +441,17 @@ def list_logs(csv: bool = typer.Option(False, "--csv", help="show as csv")):
                     )  # Format it to add hypens for printing
                     for i in range(len(root)):
                         if root[i] == "logs":
-                            bmark = root[i + 1]  # root[i+1] is the benchmark name
-
+                            bmark = root[i + 1]     # root[i+1] is the benchmark name
+                            settings = root[i + 2]  #root[i+2] is the settings name
                             index += 1
                             break
-                    tableOutput.append([index, formatted_date, bmark])
+                    #Check settings != date (ie. not a suite) and benchmark name doesn't have 'suite' in it
+                    #TODO: make a stronger check
+                    if not settings.find(date) and bmark.find("suite"):
+                        settings = "-"
+                    tableOutput.append([index, formatted_date, bmark, settings])
     if not csv:
-        table = tablify(legend=["Index", "Date", "Benchmark"], data=tableOutput)
+        table = tablify(legend=["Index", "Date", "Benchmark", "settings"], data=tableOutput)
         typer.echo(table)
     else:
         typer.echo(tableOutput)

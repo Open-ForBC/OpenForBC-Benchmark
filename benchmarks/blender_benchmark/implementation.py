@@ -55,32 +55,39 @@ class BlenderBenchmark(BenchmarkWrapper):
         """
         Method defination for starting the benchmark
         """
-        returnLog = []
+        returnLog = []  # List for returning to logging func
         self.verbosity = verbosity
+
         if self.verbosity is None:
             self.verbosity = self._settings["verbosity"]
+        print("Running Benchmark......")
+
         for scene in self._settings["scenes"]:
-            try:
-                startBench = subprocess.run(
-                    [
-                        os.path.join(self.filePath, self.baseCommand),
-                        "benchmark",
-                        str(scene),
-                        "-b",
-                        str(self._settings["blender_version"]),
-                        "--device-type",
-                        str(self._settings["device_type"]),
-                        "--json",
-                        "-v",
-                        str(self.verbosity),
-                    ],
-                    stdout=subprocess.PIPE,
-                )
-            except subprocess.CalledProcessError as e:
-                return f"{e.output}: Can't run the blender-benchmark."
-            s = startBench.stdout.decode("utf-8")
-            s = s[4:-2].replace("false", "False")
-            s = eval(s)
+            print(f"Benchmarking Scene: {scene}")
+            res = subprocess.run(
+                [  # Subprocess to run the benchmark
+                    os.path.join(self.filePath, self.baseCommand),
+                    "benchmark",
+                    str(scene),
+                    "-b",
+                    str(self._settings["blender_version"]),
+                    "--device-type",
+                    str(self._settings["device_type"]),
+                    "--json",
+                    "-v",
+                    str(self.verbosity),
+                ],
+                stdout=subprocess.PIPE,
+            )
+
+            if res.stderr or res.returncode != 0:  # Error catching
+                print(f"Blender-benchmark scene: {scene} exited with non zero error")
+                returnLog.append({"scene": scene, "run": "Unsuccessful"})
+                continue
+
+            s = res.stdout.decode("utf-8")  # get output in proper formatting
+            s = s[4:-2].replace("false", "False")  # Replace to use with eval
+            s = eval(s)  # Converting to a dictionary
             returndict = {}
             specs = [
                 "timestamp",
@@ -90,6 +97,7 @@ class BlenderBenchmark(BenchmarkWrapper):
                 "benchmark_script",
                 "scene",
             ]
+
             for spec in specs:
                 returndict[spec] = s.get(spec, None)
             returnLog.append(returndict)
