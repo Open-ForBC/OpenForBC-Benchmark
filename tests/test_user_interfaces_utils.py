@@ -112,13 +112,11 @@ class TestLogging(unittest.TestCase):
 class TestTableMaker(unittest.TestCase):
     def test_tablify(self):
         input_data = [[1, 2, 3], [4, 5, 6]]
-        gotten_output = tablify(
+        gotten_output = str(tablify(
             legend=["a", "b", "c"], data=input_data, sorting=True
-        )
-        my_table = PrettyTable(["a", "b", "c"])
-        my_table.add_row([1, 2, 3])
-        my_table.add_row([4, 5, 6])
-        self.assertEqual(type(my_table), type(gotten_output))
+        ))
+        my_table = "+---+---+---+\n| a | b | c |\n+---+---+---+\n| 1 | 2 | 3 |\n| 4 | 5 | 6 |\n+---+---+---+"
+        self.assertEqual(my_table, gotten_output)
 
 
 if __name__ == "__main__":
