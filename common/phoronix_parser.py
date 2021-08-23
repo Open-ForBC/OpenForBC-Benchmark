@@ -62,8 +62,9 @@ def phoronix_init():
                 sparse_checkout_info_file = open(sparse_checkout_info_file_path, "x")
             sparse_checkout_info_file.write(REMOTE_BENCH_ROOT_PATH)
             sparse_checkout_info_file.close()
-        except:
+        except Exception as e:
             print("Remote already set up.")
+            print(e)
 
         repo.remotes.origin.pull("master")
 
