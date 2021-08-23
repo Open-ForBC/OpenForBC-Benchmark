@@ -256,11 +256,18 @@ def run_benchmark(
                 settings = json.load(info)["default_settings"]
         elif settings not in os.listdir(os.path.join(benchmarkPath, "settings")):
             raise Exception("Setting not found.")
-        out = InterfaceSkeleton().startBenchmark(
-            bmark=benchmark, settings=settings, verbosity=verbose
-        )
+        try:
+            out = InterfaceSkeleton().startBenchmark(
+                bmark=benchmark, settings=settings, verbosity=verbose
+            )
+        except Exception as e:
+            raise Exception(f"{e}The benchmark run failed")
+
         if not isinstance(out, type(None)):
-            logIT(benchmark=benchmark, settings=settings, logs=out["output"])
+            try:
+                logIT(benchmark=benchmark, settings=settings, logs=out["output"])
+            except TypeError as e:
+                print(f"{e} Encountered while logging")
         else:
             logIT(
                 benchmark=benchmark,
@@ -282,9 +289,12 @@ def run_suite(suite: str = typer.Argument(..., help="Suite name")):
         )
         typer.Exit()
     suitePath = os.path.join(home_dir, "suites", suite)
-    benchmarkOutput = InterfaceSkeleton().startBenchmark(
-        runType="suite", suitePath=suitePath
-    )
+    try:
+        benchmarkOutput = InterfaceSkeleton().startBenchmark(
+            runType="suite", suitePath=suitePath
+        )
+    except Exception as e:
+        raise Exception(f"{e}The benchmark run failed")
     logIT(benchmark=suite[:-5], logs=benchmarkOutput)
 
 
