@@ -17,11 +17,13 @@ class TestPhoronixParser(unittest.TestCase):
         self.assertTrue(os.path.isdir(clone_dir))
 
     def test_list(self):
+        phoronix_init()
         phoronix_list("")
         phoronix_list("vpxenc")
         self.assertRaises(Exception, phoronix_list, "doesnt_exists")
 
     def test_exists(self):
+        phoronix_init()
         self.assertTrue(phoronix_exists("x11perf"))
         self.assertTrue(phoronix_exists("php", "1.0.0"))
         self.assertFalse(phoronix_exists("php", "5.5.5.5"))
@@ -29,6 +31,7 @@ class TestPhoronixParser(unittest.TestCase):
         self.assertRaises(Exception, phoronix_exists, "doesnt_exists", "1.0.0")
 
     def test_install(self):
+        phoronix_init()
         target_astcenc_dir = os.path.join(o4bc_benchmark_dir, "phoronix-astcenc-1.1.0")
         phoronix_install("astcenc", "1.1.0")
         self.assertTrue(os.path.isdir(target_astcenc_dir))
