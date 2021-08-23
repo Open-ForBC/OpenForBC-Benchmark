@@ -113,7 +113,7 @@ def logIT(benchmark, logs, settings=None, pathToLog="./logs"):
         path = Path.cwd().joinpath(pathToLog, benchmark, str(date) + "_" + str(time))
     path.mkdir(parents=True, exist_ok=True)
     with open(os.path.join(path, "output.log"), "a") as logFile:
-        logFile.write(json.dumps(logs, indent=4))
+        logFile.write(logs)
 
 
 def tablify(legend, data, sorting=False, col=0):
