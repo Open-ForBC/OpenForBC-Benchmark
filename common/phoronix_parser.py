@@ -117,7 +117,8 @@ def phoronix_install(benchmark_name, benchmark_v=None): # noqa: C901
         info_section = test_definition_xml.getElementsByTagName('TestInformation')[0]
         info_benchmark_name = info_section.getElementsByTagName('Title')[0].firstChild.nodeValue
         info_benchmark_description = info_section.getElementsByTagName('Description')[0].firstChild.nodeValue
-        settings_list = test_definition_xml.getElementsByTagName('TestSettings')[0].getElementsByTagName('Entry')
+
+        settings_list = test_definition_xml.getElementsByTagName('Entry')
 
         target_dir = os.path.join(o4bc_benchmark_dir, 'phoronix-{}-{}'.format(benchmark_name, benchmark_v))
 
@@ -195,15 +196,18 @@ def phoronix_install(benchmark_name, benchmark_v=None): # noqa: C901
                         if url == urls[-1]:
                             raise Exception("None of the provided URLs works.")
 
-        cmd = ["bash", installer_map[platform]]
+        if os.path.isfile(os.path.join(target_dir, installer_map[platform])):
+            cmd = ["bash", installer_map[platform]]
 
-        # from https://gist.github.com/phizaz/e81d3d362e89bc68055cfcd670d44e9b
-        with pipe() as (r, w):
-            with subprocess.Popen(cmd, stdout=w, stderr=w, cwd=target_dir) as p:
-                while p.poll() is None:
-                    while len(select([r], [], [], 0)[0]) > 0:
-                        buf = os.read(r, 1024)
-                        print(buf.decode('utf-8'), end='')
+            # from https://gist.github.com/phizaz/e81d3d362e89bc68055cfcd670d44e9b
+            with pipe() as (r, w):
+                with subprocess.Popen(cmd, stdout=w, stderr=w, cwd=target_dir) as p:
+                    while p.poll() is None:
+                        while len(select([r], [], [], 0)[0]) > 0:
+                            buf = os.read(r, 1024)
+                            print(buf.decode('utf-8'), end='')
+        else:
+            raise Exception(f"The current platform ({platform}) is not supported by this benchmark.")
     else:
         raise Exception("downloads.xml not found for {} benchmark.".format(benchmark_name))
 
