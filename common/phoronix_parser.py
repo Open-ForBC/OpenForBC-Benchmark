@@ -176,11 +176,12 @@ def phoronix_install(benchmark_name, benchmark_v=None): # noqa: C901
             should_download = True
 
             if os.path.isfile(target_file):
-                if hashlib.md5(open(target_file, 'rb').read()).hexdigest() == md5:
-                    print("Already downloaded. Skipping.")
-                    should_download = False
-                else:
-                    os.remove(target_file)
+                with open(target_file, 'rb') as f:
+                    if hashlib.md5(f.read()).hexdigest() == md5:
+                        print("Already downloaded. Skipping.")
+                        should_download = False
+                    else:
+                        os.remove(target_file)
 
             if should_download:
                 for url in urls:
@@ -209,7 +210,7 @@ def phoronix_install(benchmark_name, benchmark_v=None): # noqa: C901
         else:
             raise Exception(f"The current platform ({platform}) is not supported by this benchmark.")
     else:
-        raise Exception("downloads.xml not found for {} benchmark.".format(benchmark_name))
+        raise Exception(f"The required benchmark {benchmark_name} @ {benchmark_v} doesn't exist.")
 
 
 if __name__ == "__main__":
