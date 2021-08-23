@@ -1,0 +1,7 @@
+{
+    "name" : "PUT_NAME_HERE",
+    "description": "PUT_DESCRIPTION_HERE",
+    "implementation_file": "implementation.py",
+    "class_name": "PhoronixBenchmark",
+    "default_settings":"PUT_DEFAULT_SETTINGS_HERE"
+}

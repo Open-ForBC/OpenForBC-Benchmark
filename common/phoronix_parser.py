@@ -8,14 +8,32 @@ from shutil import copy2 as cp
 import stat
 from sys import platform
 import subprocess
+from select import select
+from contextlib import contextmanager
+import json
+import fileinput
 
 REMOTE_BENCH_ROOT_PATH = os.path.join("ob-cache", "test-profiles", "pts")
 file_dir = os.path.dirname(os.path.abspath(__file__))
 clone_dir = os.path.join(file_dir, "phoronix-benchs")
 bench_root_path = os.path.join(clone_dir, REMOTE_BENCH_ROOT_PATH)
 o4bc_benchmark_dir = os.path.join(os.path.dirname(file_dir), "benchmarks")
-installer_map = {"linux": "install.sh", "linux2": "install.sh", "darwin": "install_macosx.sh", "windows": "install_windows.sh"}
+implementation_template = os.path.join(file_dir, "phoronix_implementation.py.template")
+benchmark_info_template = os.path.join(file_dir, "phoronix_benchmark_info.json.template")
+
+installer_map = {"linux": "install.sh",
+                 "linux2": "install.sh",
+                 "darwin": "install_macosx.sh",
+                 "windows": "install_windows.sh"}
 bench_dict = {}
+
+
+@contextmanager
+def pipe():
+    r, w = os.pipe()
+    yield r, w
+    os.close(r)
+    os.close(w)
 
 
 def generate_dict():
@@ -31,20 +49,23 @@ def generate_dict():
 def phoronix_init():
     if not os.path.isdir(clone_dir):
         os.mkdir(clone_dir)
-    repo = git.Repo.init(clone_dir)
-    repo.create_remote("origin", "https://github.com/phoronix-test-suite/phoronix-test-suite")
-    repo.config_writer().set_value("core", "sparsecheckout", "true").release()
+        repo = git.Repo.init(clone_dir)
+        try:
+            repo.create_remote("origin", "https://github.com/phoronix-test-suite/phoronix-test-suite")
+            repo.config_writer().set_value("core", "sparsecheckout", "true").release()
 
-    sparse_checkout_info_file_path = os.path.join(clone_dir, ".git", "info", "sparse-checkout")
+            sparse_checkout_info_file_path = os.path.join(clone_dir, ".git", "info", "sparse-checkout")
 
-    if os.path.isfile(sparse_checkout_info_file_path):
-        sparse_checkout_info_file = open(sparse_checkout_info_file_path, "w")
-    else:
-        sparse_checkout_info_file = open(sparse_checkout_info_file_path, "x")
-    sparse_checkout_info_file.write(REMOTE_BENCH_ROOT_PATH)
-    sparse_checkout_info_file.close()
+            if os.path.isfile(sparse_checkout_info_file_path):
+                sparse_checkout_info_file = open(sparse_checkout_info_file_path, "w")
+            else:
+                sparse_checkout_info_file = open(sparse_checkout_info_file_path, "x")
+            sparse_checkout_info_file.write(REMOTE_BENCH_ROOT_PATH)
+            sparse_checkout_info_file.close()
+        except:
+            print("Remote already set up.")
 
-    repo.remotes.origin.pull("master")
+        repo.remotes.origin.pull("master")
 
 
 def phoronix_list(benchmark_name=None):
@@ -85,18 +106,62 @@ def phoronix_install(benchmark_name, benchmark_v=None): # noqa: C901
         if not benchmark_v:
             benchmark_v = bench_dict[benchmark_name][-1]
         bench_path = os.path.join(bench_root_path, "{}-{}".format(benchmark_name, benchmark_v))
+
         downloads_xml_path = os.path.join(bench_path, "downloads.xml")
         downloads_xml = minidom.parse(downloads_xml_path)
         packages_list = downloads_xml.getElementsByTagName('Package')
+
+        test_definition_xml_path = os.path.join(bench_path, "test-definition.xml")
+        test_definition_xml = minidom.parse(test_definition_xml_path)
+        info_section = test_definition_xml.getElementsByTagName('TestInformation')[0]
+        info_benchmark_name = info_section.getElementsByTagName('Title')[0].firstChild.nodeValue
+        info_benchmark_description = info_section.getElementsByTagName('Description')[0].firstChild.nodeValue
+        settings_list = test_definition_xml.getElementsByTagName('TestSettings')[0].getElementsByTagName('Entry')
+
         target_dir = os.path.join(o4bc_benchmark_dir, 'phoronix-{}-{}'.format(benchmark_name, benchmark_v))
 
         if not os.path.isdir(target_dir):
             os.mkdir(target_dir)
 
+        settings_dir = os.path.join(target_dir, "settings")
+        if not os.path.isdir(settings_dir):
+            os.mkdir(settings_dir)
+
+        default_settings_file = ''
+        save_default_settings = True
+
+        for setting in settings_list:
+            name = setting.getElementsByTagName('Name')[0].firstChild.nodeValue.lower()
+            cli_args = setting.getElementsByTagName('Value')[0].firstChild.nodeValue
+            dict = {"cli_args": cli_args}
+            with open(os.path.join(settings_dir, f"settings-{name}.json"), 'w+') as outfile:
+                json.dump(dict, outfile)
+                if save_default_settings:
+                    default_settings_file = f"settings-{name}.json"
+                    save_default_settings = False
+
         for installer in glob.glob(os.path.join(bench_path, "install*.sh")):
             cp(installer, target_dir)
             installer_path = os.path.join(target_dir, installer)
             os.chmod(installer_path, os.stat(installer_path).st_mode | stat.S_IEXEC)
+
+        target_implementation_file = os.path.join(target_dir, "implementation.py")
+        cp(implementation_template, target_implementation_file)
+        with fileinput.FileInput(target_implementation_file, inplace=True) as file:
+            for line in file:
+                print(line.replace("PUT_COMMAND_HERE", f"./{benchmark_name}"), end='')
+
+        target_benchmark_info_file = os.path.join(target_dir, "benchmark_info.json")
+        cp(benchmark_info_template, target_benchmark_info_file)
+        with fileinput.FileInput(target_benchmark_info_file, inplace=True) as file:
+            for line in file:
+                print(line.replace("PUT_NAME_HERE", info_benchmark_name), end='')
+        with fileinput.FileInput(target_benchmark_info_file, inplace=True) as file:
+            for line in file:
+                print(line.replace("PUT_DESCRIPTION_HERE", info_benchmark_description), end='')
+        with fileinput.FileInput(target_benchmark_info_file, inplace=True) as file:
+            for line in file:
+                print(line.replace("PUT_DEFAULT_SETTINGS_HERE", default_settings_file), end='')
 
         for package in packages_list:
             urls = package.getElementsByTagName('URL')[0].firstChild.nodeValue.split(',')
@@ -130,9 +195,14 @@ def phoronix_install(benchmark_name, benchmark_v=None): # noqa: C901
                             raise Exception("None of the provided URLs works.")
 
         cmd = ["bash", installer_map[platform]]
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, cwd=target_dir)
-        output, error = process.communicate()
-        print(output.decode('utf-8'))
+
+        # from https://gist.github.com/phizaz/e81d3d362e89bc68055cfcd670d44e9b
+        with pipe() as (r, w):
+            with subprocess.Popen(cmd, stdout=w, stderr=w, cwd=target_dir) as p:
+                while p.poll() is None:
+                    while len(select([r], [], [], 0)[0]) > 0:
+                        buf = os.read(r, 1024)
+                        print(buf.decode('utf-8'), end='')
     else:
         raise Exception("downloads.xml not found for {} benchmark.".format(benchmark_name))
 
