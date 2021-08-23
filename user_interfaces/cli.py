@@ -59,73 +59,35 @@ class InteractiveMenu:
                 ],
             }
         ]
+
         self.selectRunChoice = prompt(self.runChoice, style=custom_style_2)
 
         # If user chooses to make their own suite =>
         if self.selectRunChoice["runchoice"] == "Make your own suite":
-            suiteBuilder = [
-                {
-                    "type": "input",
-                    "name": "SuiteName",
-                    "message": "What would you like to call your suite?",
-                },
-                {
-                    "type": "input",
-                    "name": "SuiteDescription",
-                    "message": "Add description for your suite",
-                },
-                {
-                    "type": "checkbox",
-                    "message": "Select Benchmark(s) to add to the suite",
-                    "name": "benchInSuite",
-                    "choices": getBenchmarksToRun(),
-                },
-                {
-                    "type": "input",
-                    "name": "FileName",
-                    "message": "Filename for your created suite",
-                },
-            ]
-            suiteBuild = prompt(suiteBuilder, style=custom_style_2)
-            if len(suiteBuild["benchInSuite"]) <= 0:
-                raise Exception("Can't make a suite with no benchmarks.")
-            _suiteList = []
-            for bmark in suiteBuild["benchInSuite"]:
-                suite_settings = {
-                    "type": "list",
-                    "message": f"Select Settings to use for {bmark}",
-                    "name": "settings",
-                    "qmark": "->",
-                    "choices": getSettings(bmark, self.type),
-                    # "validate": lambda x: os.path.isfile(x),
-                }
-                suiteSettings = prompt(suite_settings, style=custom_style_2)
-                _suiteList.append(
-                    dict({"name": bmark, "settings": suiteSettings["settings"]})
-                )
-            suiteMaker(suiteBuild=suiteBuild, suiteList=_suiteList)
-            exit()
+            self.buildSuite()
 
         # Else if user chooses to execute a benchmark/suite =>
-        elif self.selectRunChoice["runchoice"] == "Benchmark Suite":
-            self.type = "Suite"
         else:
-            self.type = "Benchmark"
-        self.benchmarks = [
-            {
-                "type": "list",
-                "message": "Select Benchmark",
-                "name": "benchmark",
-                "qmark": "💻",
-                "choices": getSuitesToRun()
-                if self.type == "Suite"
-                else getBenchmarksToRun(),
-                "validate": lambda answer: ValueError("no input")
-                if len(answer) == 0
-                else True,
+            runChoices = {
+                "Benchmark Suite": "Suite",
+                "Stand Alone Benchmark": "Benchmark"
             }
-        ]
 
+            self.type = runChoices.get(self.selectRunChoice["runchoice"])
+            self.benchmarks = [
+                {
+                    "type": "list",
+                    "message": "Select Benchmark",
+                    "name": "benchmark",
+                    "qmark": "💻",
+                    "choices": getSuitesToRun()
+                    if self.type == "Suite"
+                    else getBenchmarksToRun(),
+                    "validate": lambda answer: ValueError("no input")
+                    if len(answer) == 0
+                    else True,
+                }
+            ]
         self.selectBenchmark = prompt(self.benchmarks, style=custom_style_2)
 
         # Check that user selected a benchmark atleast
@@ -134,48 +96,107 @@ class InteractiveMenu:
 
         # Benchmark driver=>
         if self.type == "Benchmark":
-            bmark = self.selectBenchmark["benchmark"]
-            benchmarkPath = os.path.join(Path.cwd(), "benchmarks", bmark)
-            if (
-                Path(os.path.join(benchmarkPath, "setup.py")).exists()
-                or Path(os.path.join(benchmarkPath, "setup.sh")).exists()
-            ):
-                setItUp(benchmarkPath)
-            self.pick_settings = [
-                {
-                    "type": "list",
-                    "message": f"Select Settings to use for {bmark}",
-                    "name": "settings",
-                    "qmark": "->",
-                    "choices": getSettings(bmark, self.type),
-                    "validate": lambda x: os.path.isfile(x),
-                }
-            ]
-            self.selectSettings = prompt(self.pick_settings)
-            out = InterfaceSkeleton().startBenchmark(
-                runType=self.type, bmark=bmark, settings=self.selectSettings["settings"]
-            )
-            if not isinstance(out, type(None)):
-                logIT(
-                    benchmark=bmark,
-                    settings=self.selectSettings["settings"],
-                    logs=out["output"],
-                )
-            else:
-                logIT(
-                    benchmark=bmark,
-                    settings=self.selectSettings["settings"],
-                    logs="The Benchmark doesn't return any log",
-                )
+            self.runBenchmark()
 
         # Suite driver=>
         elif self.type == "Suite":
-            suite = self.selectBenchmark["benchmark"]
-            suitePath = os.path.join(home_dir, "suites", suite)
-            out = InterfaceSkeleton().startBenchmark(
-                runType=self.type, suitePath=suitePath
+            self.runSuite()
+
+    def runBenchmark(self):
+        """
+            Method that is responsible for taking benchmark attribute and running it
+        """
+        bmark = self.selectBenchmark["benchmark"]
+        benchmarkPath = os.path.join(Path.cwd(), "benchmarks", bmark)
+        if (
+            Path(os.path.join(benchmarkPath, "setup.py")).exists()
+            or Path(os.path.join(benchmarkPath, "setup.sh")).exists()
+        ):
+            setItUp(benchmarkPath)
+        self.pick_settings = [
+            {
+                "type": "list",
+                "message": f"Select Settings to use for {bmark}",
+                "name": "settings",
+                "qmark": "->",
+                "choices": getSettings(bmark, self.type),
+                "validate": lambda x: os.path.isfile(x),
+            }
+        ]
+        self.selectSettings = prompt(self.pick_settings)
+        out = InterfaceSkeleton().startBenchmark(
+            runType=self.type, bmark=bmark, settings=self.selectSettings["settings"]
+        )
+        if not isinstance(out, type(None)):
+            logIT(
+                benchmark=bmark,
+                settings=self.selectSettings["settings"],
+                logs=out["output"],
             )
-            logIT(benchmark=suite[:-5], logs=out)
+        else:
+            logIT(
+                benchmark=bmark,
+                settings=self.selectSettings["settings"],
+                logs="The Benchmark doesn't return any log",
+            )
+
+    def runSuite(self):
+        """
+            Method responsible for running the suite
+        """
+        suite = self.selectBenchmark["benchmark"]
+        suitePath = os.path.join(home_dir, "suites", suite)
+        out = InterfaceSkeleton().startBenchmark(
+            runType=self.type, suitePath=suitePath
+        )
+        logIT(benchmark=suite[:-5], logs=out)
+
+    def buildSuite(self):
+        """
+            Method takes in attributes of suite and builds a suite for the specifications.
+        """
+        suiteBuilder = [
+            {
+                "type": "input",
+                "name": "SuiteName",
+                "message": "What would you like to call your suite?",
+            },
+            {
+                "type": "input",
+                "name": "SuiteDescription",
+                "message": "Add description for your suite",
+            },
+            {
+                "type": "checkbox",
+                "message": "Select Benchmark(s) to add to the suite",
+                "name": "benchInSuite",
+                "choices": getBenchmarksToRun(),
+            },
+            {
+                "type": "input",
+                "name": "FileName",
+                "message": "Filename for your created suite",
+            },
+        ]
+        suiteBuild = prompt(suiteBuilder, style=custom_style_2)
+        if len(suiteBuild["benchInSuite"]) <= 0:
+            raise Exception("Can't make a suite with no benchmarks.")
+        _suiteList = []
+        for bmark in suiteBuild["benchInSuite"]:
+            suite_settings = {
+                "type": "list",
+                "message": f"Select Settings to use for {bmark}",
+                "name": "settings",
+                "qmark": "->",
+                "choices": getSettings(bmark, self.type),
+                # "validate": lambda x: os.path.isfile(x),
+            }
+            suiteSettings = prompt(suite_settings, style=custom_style_2)
+            _suiteList.append(
+                dict({"name": bmark, "settings": suiteSettings["settings"]})
+            )
+        suiteMaker(suiteBuild=suiteBuild, suiteList=_suiteList)
+        exit()
 
     def benchmarkBanner(self):
         print("   ___                   _____          ____   ____ ")
