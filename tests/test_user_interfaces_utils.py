@@ -3,7 +3,6 @@ import sys
 import os
 from pathlib import Path
 import json
-from prettytable import PrettyTable
 from datetime import datetime
 import shutil
 
