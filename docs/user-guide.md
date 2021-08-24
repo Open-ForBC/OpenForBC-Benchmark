@@ -14,7 +14,19 @@ Benchmarks can be run interactively using the following command.
 The Interactive interface is quite intuitive to navigate around, with informative prompts to guide you. 
 
 
-For a textual CLI interface, you can use the following commands.
+For a textual CLI interface, a comprehensive list of arguments can be found using the following command:
+
+```shell
+python3 user_interfaces/cli.py --help
+```
+
+To get help for a particular command, use:
+
+```shell
+python3 user_interfaces/cli.py <command:str> --help
+```
+
+## Sample commands for the functionality offered by the CLI:
 
 **1. List Benchmarks/Suites:**  
 
@@ -64,16 +76,6 @@ for example:
 python3 user_interfaces/cli.py make-suite --name Mysuite -b dummy_benchmark -s settings1.json -f my_suite -d "This is demo description."  
 ```
 
-**5. Get help on CLI:**
-A reference to the above commands can be found using the following command.
-```shell
-python3 user_interfaces/cli.py --help
-```
-
-To get help for a particular command, use:
-```shell
-python3 user_interfaces/cli.py <command:str> --help
-```
 
 ## Logs for benchmarks/suites
 
@@ -91,3 +93,7 @@ Logs can be listed with the following command
 ```shell
 python3 user_interfaces/cli.py list-logs
 ```
+
+## View format
+
+Commands like ```list-logs``` , ```list-benchmarks``` , ```list-suites``` and  ```get-settings``` support viewing in pretty table format by default. To view as a csv use --csv flags with the command.
