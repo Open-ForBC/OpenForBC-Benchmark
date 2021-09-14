@@ -1,0 +1,44 @@
+from common.benchmark_wrapper import BenchmarkWrapper
+import json
+import os
+import subprocess
+
+
+class PhoronixBenchmark(BenchmarkWrapper):
+
+    """
+    This is a dummy benchmark class to demonstrate how to construct code for benchmark implementation.
+    """
+
+    def __init__(self):
+        self.base_cmd = "PUT_COMMAND_HERE"
+        self.cli_args = ""
+        pass
+
+    def setSettings(self, settings_file):
+        settings = os.path.join(os.path.dirname(__file__), "settings", settings_file)
+        self.cli_args = json.load(open(settings, "r"))["cli_args"]
+
+    def startBenchmark(self, verbosity=None):
+        cmd = f"{self.base_cmd} {self.cli_args}".split(' ')
+        log_file_path = os.path.join(os.path.dirname(__file__), "/dev/stdout")
+        my_env = os.environ.copy()
+        my_env["LOG_FILE"] = log_file_path
+        with subprocess.Popen(cmd,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE,
+                              cwd=os.path.dirname(__file__),
+                              env=my_env) as p:
+            output, _ = p.communicate()
+            print(output.decode('utf-8'))
+            return {"output": output.decode('utf-8')}
+        return None
+
+    def benchmarkStatus():
+        pass
+
+    def getSettings(self):
+        pass
+
+    def stopBenchmark():
+        pass

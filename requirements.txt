@@ -10,3 +10,4 @@ regex
 six
 typer
 wcwidth
+GitPython

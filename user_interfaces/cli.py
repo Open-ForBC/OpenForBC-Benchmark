@@ -19,6 +19,8 @@ from user_interfaces.utils import (  # noqa: E402
     logIT,
     tablify,
 )
+from common.phoronix_parser import phoronix_init, phoronix_install  # noqa: E402
+
 home_dir = Path.cwd()
 
 
@@ -455,6 +457,18 @@ def list_logs(csv: bool = typer.Option(False, "--csv", help="show as csv")):
         typer.echo(table)
     else:
         typer.echo(tableOutput)
+
+
+@app.command()
+def install_phoronix(
+    benchmark: str = typer.Option(..., "-b", "--benchmark", help="benchmark name"),
+    version: str = typer.Option(None, "-v", "--version", help="benchmark version"),
+):
+    """
+    Install a benchmark from Phoronix repository
+    """
+    phoronix_init()
+    phoronix_install(benchmark_name=benchmark, benchmark_v=version)
 
 
 if __name__ == "__main__":
