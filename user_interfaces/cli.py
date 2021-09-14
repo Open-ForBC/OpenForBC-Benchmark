@@ -19,7 +19,7 @@ from user_interfaces.utils import (  # noqa: E402
     logIT,
     tablify,
 )
-from common.phoronix_parser import phoronix_init, phoronix_install
+from common.phoronix_parser import phoronix_init, phoronix_install  # noqa: E402
 
 home_dir = Path.cwd()
 
@@ -447,7 +447,6 @@ def install_phoronix(
     """
     phoronix_init()
     phoronix_install(benchmark_name=benchmark, benchmark_v=version)
-
 
 
 if __name__ == "__main__":
