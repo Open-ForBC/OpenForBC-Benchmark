@@ -214,10 +214,12 @@ def phoronix_install(benchmark_name, benchmark_v=None): # noqa: C901
 
         if os.path.isfile(os.path.join(target_dir, installer_map[platform])):
             cmd = ["bash", installer_map[platform]]
+            my_env = os.environ.copy()
+            my_env["HOME"] = target_dir
 
             # from https://gist.github.com/phizaz/e81d3d362e89bc68055cfcd670d44e9b
             with pipe() as (r, w):
-                with subprocess.Popen(cmd, stdout=w, stderr=w, cwd=target_dir) as p:
+                with subprocess.Popen(cmd, stdout=w, stderr=w, cwd=target_dir, env=my_env) as p:
                     while p.poll() is None:
                         while len(select([r], [], [], 0)[0]) > 0:
                             buf = os.read(r, 1024)
