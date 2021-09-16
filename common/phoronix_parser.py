@@ -56,7 +56,6 @@ def phoronix_init():
         repo.create_remote("origin", "https://github.com/phoronix-test-suite/phoronix-test-suite")
     except git.exc.GitCommandError as e:
         print("Origin already set up.")
-        print(e)
 
     repo.config_writer().set_value("core", "sparsecheckout", "true").release()
 
