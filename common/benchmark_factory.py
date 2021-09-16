@@ -22,11 +22,5 @@ def BenchmarkFactory(benchmark_name, benchmark_settings_file=None):
     ).load_module()
     benchmark = eval("module.{}()".format(class_name))
     if benchmark_settings_file is not None:
-        benchmark.setSettings(
-            os.path.join(
-                os.path.dirname(benchmark_info_path),
-                "settings",
-                benchmark_settings_file,
-            )
-        )
+        benchmark.setSettings(benchmark_settings_file)
     return benchmark

@@ -20,9 +20,9 @@ class BlenderBenchmark(BenchmarkWrapper):
             _fileName = json.load(
                 open(os.path.join(self.filePath, "benchmark_info.json"), "r")
             )["default_settings"]
-            settings_file = _fileName
+            settings_file = os.path.join(self.filePath, "settings", _fileName)
         self._settings = json.load(
-            open(settings_file, "r")
+            open(os.path.join(self.filePath, "settings", settings_file), "r")
         )
         try:
             subprocess.run(  # Downloads blender version listed in benchmark_info.json
