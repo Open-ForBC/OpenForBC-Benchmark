@@ -3,7 +3,7 @@ astunparse
 click
 prettytable
 progressbar
-prompt-toolkit
+prompt_toolkit==1.0.15
 Pygments
 PyInquirer
 regex

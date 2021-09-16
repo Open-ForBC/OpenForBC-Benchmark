@@ -68,12 +68,14 @@ def phoronix_init():
     sparse_checkout_info_file.write(REMOTE_BENCH_ROOT_PATH)
     sparse_checkout_info_file.close()
 
+    rebase = False
     try:
         repo.git.reset('--hard', 'origin/master')
+        rebase = True
     except Exception:
         print("Nothing to reset")
 
-    repo.remotes.origin.pull("master", rebase=True)
+    repo.remotes.origin.pull("master", rebase=rebase)
 
 
 def phoronix_list(benchmark_name=None):
