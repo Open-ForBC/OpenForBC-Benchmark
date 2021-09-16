@@ -16,7 +16,7 @@ class PhoronixBenchmark(BenchmarkWrapper):
         pass
 
     def setSettings(self, settings_file):
-        settings = os.path.join(os.path.dirname(__file__), "settings", settings_file)
+        settings = os.path.join("settings", settings_file)
         self.cli_args = json.load(open(settings, "r"))["cli_args"]
 
     def startBenchmark(self, verbosity=None):
