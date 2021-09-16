@@ -58,11 +58,16 @@ class InteractiveMenu:
                     "Benchmark Suite",
                     "Stand Alone Benchmark",
                     "Make your own suite",
+                    "Quit"
                 ],
             }
         ]
 
         self.selectRunChoice = prompt(self.runChoice, style=custom_style_2)
+
+        #If user chooses to quit the cli
+        if self.selectRunChoice["runchoice"] == "Quit":
+            exit()
 
         # If user chooses to make their own suite =>
         if self.selectRunChoice["runchoice"] == "Make your own suite":
@@ -76,21 +81,28 @@ class InteractiveMenu:
             }
 
             self.type = runChoices.get(self.selectRunChoice["runchoice"])
+            if self.type == "Suite":
+                choices = getSuitesToRun()
+            elif self.type == "Benchmark":
+                choices = getBenchmarksToRun()
+            choices.append({"name": "Quit"})
             self.benchmarks = [
                 {
                     "type": "list",
                     "message": "Select Benchmark",
                     "name": "benchmark",
                     "qmark": "💻",
-                    "choices": getSuitesToRun()
-                    if self.type == "Suite"
-                    else getBenchmarksToRun(),
+                    "choices": choices,
                     "validate": lambda answer: ValueError("no input")
                     if len(answer) == 0
                     else True,
                 }
             ]
         self.selectBenchmark = prompt(self.benchmarks, style=custom_style_2)
+
+        #If user quit
+        if self.selectBenchmark["benchmark"] == "Quit":
+            exit()
 
         # Check that user selected a benchmark atleast
         if not self.selectBenchmark["benchmark"]:
@@ -258,11 +270,18 @@ def run_benchmark(
                 settings = json.load(info)["default_settings"]
         elif settings not in os.listdir(os.path.join(benchmarkPath, "settings")):
             raise Exception("Setting not found.")
-        out = InterfaceSkeleton().startBenchmark(
-            bmark=benchmark, settings=settings, verbosity=verbose
-        )
+        try:
+            out = InterfaceSkeleton().startBenchmark(
+                bmark=benchmark, settings=settings, verbosity=verbose
+            )
+        except Exception as e:
+            raise Exception(f"{e}The benchmark run failed")
+
         if not isinstance(out, type(None)):
-            logIT(benchmark=benchmark, settings=settings, logs=out["output"])
+            try:
+                logIT(benchmark=benchmark, settings=settings, logs=out["output"])
+            except TypeError as e:
+                print(f"{e} Encountered while logging")
         else:
             logIT(
                 benchmark=benchmark,
@@ -284,9 +303,12 @@ def run_suite(suite: str = typer.Argument(..., help="Suite name")):
         )
         typer.Exit()
     suitePath = os.path.join(home_dir, "suites", suite)
-    benchmarkOutput = InterfaceSkeleton().startBenchmark(
-        runType="suite", suitePath=suitePath
-    )
+    try:
+        benchmarkOutput = InterfaceSkeleton().startBenchmark(
+            runType="suite", suitePath=suitePath
+        )
+    except Exception as e:
+        raise Exception(f"{e}The benchmark run failed")
     logIT(benchmark=suite[:-5], logs=benchmarkOutput)
 
 
