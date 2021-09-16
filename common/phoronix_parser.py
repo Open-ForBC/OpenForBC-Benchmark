@@ -49,24 +49,32 @@ def generate_dict():
 def phoronix_init():
     if not os.path.isdir(clone_dir):
         os.mkdir(clone_dir)
-        repo = git.Repo.init(clone_dir)
-        try:
-            repo.create_remote("origin", "https://github.com/phoronix-test-suite/phoronix-test-suite")
-            repo.config_writer().set_value("core", "sparsecheckout", "true").release()
 
-            sparse_checkout_info_file_path = os.path.join(clone_dir, ".git", "info", "sparse-checkout")
+    repo = git.Repo.init(clone_dir)
 
-            if os.path.isfile(sparse_checkout_info_file_path):
-                sparse_checkout_info_file = open(sparse_checkout_info_file_path, "w")
-            else:
-                sparse_checkout_info_file = open(sparse_checkout_info_file_path, "x")
-            sparse_checkout_info_file.write(REMOTE_BENCH_ROOT_PATH)
-            sparse_checkout_info_file.close()
-        except Exception as e:
-            print("Remote already set up.")
-            print(e)
+    try:
+        repo.create_remote("origin", "https://github.com/phoronix-test-suite/phoronix-test-suite")
+    except git.exc.GitCommandError as e:
+        print("Origin already set up.")
+        print(e)
 
-        repo.remotes.origin.pull("master")
+    repo.config_writer().set_value("core", "sparsecheckout", "true").release()
+
+    sparse_checkout_info_file_path = os.path.join(clone_dir, ".git", "info", "sparse-checkout")
+
+    if os.path.isfile(sparse_checkout_info_file_path):
+        sparse_checkout_info_file = open(sparse_checkout_info_file_path, "w")
+    else:
+        sparse_checkout_info_file = open(sparse_checkout_info_file_path, "x")
+    sparse_checkout_info_file.write(REMOTE_BENCH_ROOT_PATH)
+    sparse_checkout_info_file.close()
+
+    try:
+        repo.git.reset('--hard', 'origin/master')
+    except Exception:
+        print("Nothing to reset")
+    
+    repo.remotes.origin.pull("master", rebase=True)
 
 
 def phoronix_list(benchmark_name=None):
@@ -246,4 +254,4 @@ if __name__ == "__main__":
     # print(phoronix_exists("doesnt_exists", "1.0.0"))
 
     phoronix_init()
-    phoronix_install("astcenc", "1.1.0")
+    # phoronix_install("astcenc", "1.1.0")
