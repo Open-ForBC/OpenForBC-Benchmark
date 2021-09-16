@@ -16,7 +16,7 @@ class DummyBenchmark(BenchmarkWrapper):
     def setSettings(self, settings_file):
         print(settings_file)
         print(__file__)
-        settings = os.path.join(os.path.dirname(__file__), settings_file)
+        settings = settings_file
         self.to_print = json.load(open(settings, "r"))["to_print"]
 
     def startBenchmark(self, verbosity=None):
