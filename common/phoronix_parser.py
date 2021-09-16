@@ -73,7 +73,7 @@ def phoronix_init():
         repo.git.reset('--hard', 'origin/master')
     except Exception:
         print("Nothing to reset")
-    
+
     repo.remotes.origin.pull("master", rebase=True)
 
 
@@ -157,9 +157,15 @@ def phoronix_install(benchmark_name, benchmark_v=None): # noqa: C901
 
         target_implementation_file = os.path.join(target_dir, "implementation.py")
         cp(implementation_template, target_implementation_file)
+        benchmark_command = benchmark_name
+        with open(os.path.join(bench_path, installer_map[platform])) as f:
+            for line in f.readlines():
+                if "chmod +x" in line:
+                    benchmark_command = line.replace("chmod +x", '').rstrip().lstrip()
+                    print("Executable found in {} as {}".format(installer_map[platform], benchmark_command))
         with fileinput.FileInput(target_implementation_file, inplace=True) as file:
             for line in file:
-                print(line.replace("PUT_COMMAND_HERE", f"./{benchmark_name}"), end='')
+                print(line.replace("PUT_COMMAND_HERE", f"./{benchmark_command}"), end='')
 
         target_benchmark_info_file = os.path.join(target_dir, "benchmark_info.json")
         cp(benchmark_info_template, target_benchmark_info_file)
