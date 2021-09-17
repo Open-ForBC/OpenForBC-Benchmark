@@ -182,23 +182,27 @@ def phoronix_install(benchmark_name, benchmark_v=None): # noqa: C901
 
         for package in packages_list:
             urls = package.getElementsByTagName('URL')[0].firstChild.nodeValue.split(',')
-            
+
+            filename = package.getElementsByTagName('FileName')[0].firstChild.nodeValue
+
             try:
                 md5 = package.getElementsByTagName('MD5')[0].firstChild.nodeValue
+                print("Downloading {} (md5:{})".format(filename, md5))
             except Exception:
                 md5 = None
-            
+
             try:
                 sha256 = package.getElementsByTagName('SHA256')[0].firstChild.nodeValue
+                print("Downloading {} (sha256:{})".format(filename, sha256))
             except Exception:
                 sha256 = None
 
             try:
                 size = package.getElementsByTagName('FileSize')[0].firstChild.nodeValue
+                print("Downloading {} (size:{})".format(filename, size))
             except Exception:
                 size = None
-            filename = package.getElementsByTagName('FileName')[0].firstChild.nodeValue
-            print("Downloading {} (md5:{})".format(filename, md5))
+
             target_file = os.path.join(target_dir, filename)
             should_download = True
 
