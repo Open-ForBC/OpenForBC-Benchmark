@@ -12,6 +12,7 @@ from select import select
 from contextlib import contextmanager
 import json
 import fileinput
+import progressbar
 
 REMOTE_BENCH_ROOT_PATH = os.path.join("ob-cache", "test-profiles", "pts")
 file_dir = os.path.dirname(os.path.abspath(__file__))
@@ -26,6 +27,22 @@ installer_map = {"linux": "install.sh",
                  "darwin": "install_macosx.sh",
                  "windows": "install_windows.sh"}
 bench_dict = {}
+
+
+class ProgressBar():
+    def __init__(self):
+        self.pbar = None
+
+    def __call__(self, block_num, block_size, total_size):
+        if not self.pbar:
+            self.pbar=progressbar.ProgressBar(maxval=total_size)
+            self.pbar.start()
+
+        downloaded = block_num * block_size
+        if downloaded < total_size:
+            self.pbar.update(downloaded)
+        else:
+            self.pbar.finish()
 
 
 @contextmanager
@@ -227,7 +244,7 @@ def phoronix_install(benchmark_name, benchmark_v=None): # noqa: C901
                 for url in urls:
                     print(url)
                     try:
-                        urllib.request.urlretrieve(url, filename=target_file)
+                        urllib.request.urlretrieve(url, target_file, ProgressBar())
                         verified = False
                         if md5:
                             if hashlib.md5(open(target_file, 'rb').read()).hexdigest() == md5:
