@@ -182,19 +182,40 @@ def phoronix_install(benchmark_name, benchmark_v=None): # noqa: C901
 
         for package in packages_list:
             urls = package.getElementsByTagName('URL')[0].firstChild.nodeValue.split(',')
-            md5 = package.getElementsByTagName('MD5')[0].firstChild.nodeValue
-            # sha256 = package.getElementsByTagName('SHA256')[0].firstChild.nodeValue
+            
+            try:
+                md5 = package.getElementsByTagName('MD5')[0].firstChild.nodeValue
+            except Exception:
+                md5 = None
+            
+            try:
+                sha256 = package.getElementsByTagName('SHA256')[0].firstChild.nodeValue
+            except Exception:
+                sha256 = None
+
+            try:
+                size = package.getElementsByTagName('FileSize')[0].firstChild.nodeValue
+            except Exception:
+                size = None
             filename = package.getElementsByTagName('FileName')[0].firstChild.nodeValue
-            # size = package.getElementsByTagName('FileSize')[0].firstChild.nodeValue
             print("Downloading {} (md5:{})".format(filename, md5))
             target_file = os.path.join(target_dir, filename)
             should_download = True
 
             if os.path.isfile(target_file):
                 with open(target_file, 'rb') as f:
-                    if hashlib.md5(f.read()).hexdigest() == md5:
-                        print("Already downloaded. Skipping.")
-                        should_download = False
+                    if md5:
+                        if hashlib.md5(f.read()).hexdigest() == md5:
+                            print("Already downloaded. Skipping.")
+                            should_download = False
+                    elif sha256:
+                        if hashlib.sha256(f.read()).hexdigest() == sha256:
+                            print("Already downloaded. Skipping.")
+                            should_download = False
+                    elif size:
+                        if os.path.getsize(target_file) == size:
+                            print("Already downloaded. Skipping.")
+                            should_download = False
                     else:
                         os.remove(target_file)
 
@@ -203,7 +224,20 @@ def phoronix_install(benchmark_name, benchmark_v=None): # noqa: C901
                     print(url)
                     try:
                         urllib.request.urlretrieve(url, filename=target_file)
-                        if hashlib.md5(open(target_file, 'rb').read()).hexdigest() == md5:
+                        verified = False
+                        if md5:
+                            if hashlib.md5(open(target_file, 'rb').read()).hexdigest() == md5:
+                                verified = True
+                        elif sha256:
+                            if hashlib.sha256(open(target_file, 'rb').read()).hexdigest() == sha256:
+                                verified = True
+                        elif size:
+                            if os.path.getsize(target_file) == size:
+                                verified = True
+                        else:
+                            verified = False
+
+                        if verified:
                             break
                         else:
                             print("Wrong checksum. Trying again.")
