@@ -191,17 +191,17 @@ def phoronix_install(benchmark_name, benchmark_v=None): # noqa: C901
             except Exception:
                 md5 = None
 
-            try:
-                sha256 = package.getElementsByTagName('SHA256')[0].firstChild.nodeValue
-                print("Downloading {} (sha256:{})".format(filename, sha256))
-            except Exception:
-                sha256 = None
+                try:
+                    sha256 = package.getElementsByTagName('SHA256')[0].firstChild.nodeValue
+                    print("Downloading {} (sha256:{})".format(filename, sha256))
+                except Exception:
+                    sha256 = None
 
-            try:
-                size = package.getElementsByTagName('FileSize')[0].firstChild.nodeValue
-                print("Downloading {} (size:{})".format(filename, size))
-            except Exception:
-                size = None
+                    try:
+                        size = package.getElementsByTagName('FileSize')[0].firstChild.nodeValue
+                        print("Downloading {} (size:{})".format(filename, size))
+                    except Exception:
+                        size = None
 
             target_file = os.path.join(target_dir, filename)
             should_download = True
