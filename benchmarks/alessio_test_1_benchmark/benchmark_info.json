@@ -1,7 +1,7 @@
 {
-    "name" : "",
-    "description" : "",
+    "name" : "alessio test 1 benchmark",
+    "description" : "Some test with tensorflow",
     "implementation_file" : "",
-    "class_name" : ""
-    "default_settings" : "",
+    "class_name" : "Alessio1Benchmark"
+    "default_settings" : "settings1.json",
 }
