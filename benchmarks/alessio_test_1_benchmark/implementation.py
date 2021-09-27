@@ -30,7 +30,7 @@ class Alessio1Benchmark(BenchmarkWrapper): #it's the same class inside benchmark
 
         product = torch.tensordot(matrix_1, matrix_2)
 
-        print("The shape of the product matrix is", product.shape())
+        print("The shape of the product matrix is", product.size())
     
         return {"output": product} #Where does this output go?
 
