@@ -30,7 +30,7 @@ class Alessio1Benchmark(BenchmarkWrapper): #it's the same class inside benchmark
         pass
 
 
-    def getSetting(self):
+    def getSettings(self):
         pass
 
     def stopBenchmark():
