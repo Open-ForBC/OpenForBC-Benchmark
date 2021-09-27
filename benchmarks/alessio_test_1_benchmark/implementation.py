@@ -22,7 +22,8 @@ class Alessio1Benchmark(benchmarkWrapper): #it's the same class inside benchmark
         
         print("The first dimension of the matrix is equal to", self.dimension1)
 
-        return {"output": #something to put out} #Where does this output go?
+    
+        return {"output": """something to put out"""} #Where does this output go?
 
     
     def benchmarkStatus():
