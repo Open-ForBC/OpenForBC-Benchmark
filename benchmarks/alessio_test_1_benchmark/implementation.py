@@ -2,7 +2,7 @@ from common.benchmark_wrapper import BenchmarkWrapper
 import json
 import os
 
-class Alessio1Benchmark(benchmarkWrapper): #it's the same class inside benchmark_info.json
+class Alessio1Benchmark(BenchmarkWrapper): #it's the same class inside benchmark_info.json
 
     def __init__(self):
         self.filePath = os.path.dirname(__file__) #os.path.dirname(__file__) returns the path of this file
