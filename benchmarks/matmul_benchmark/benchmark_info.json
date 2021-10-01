@@ -1,0 +1,7 @@
+{
+    "name" : "matrix multiplication benchmark",
+    "description" : "Some test of matrices operations",
+    "implementation_file" : "implementation.py",
+    "class_name" : "MatmulBenchmark",
+    "default_settings" : "settings1.json"
+}
