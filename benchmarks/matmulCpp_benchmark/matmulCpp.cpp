@@ -64,9 +64,9 @@ void matmul(int dim1, int dim2)
                  cout <<"error allocating col"<<endl;
         }
     }
-    cout <<"matrixes allocated"<<endl;
+    //cout <<"matrixes allocated"<<endl;
     //Matrices filling
-    cout <<"sto per riempire la matrice"<<endl;
+    //cout <<"sto per riempire la matrice"<<endl;
     for(int i=0; i<dim1; i++)
     {
         for(int j=0; j<dim2; j++)
@@ -81,7 +81,7 @@ void matmul(int dim1, int dim2)
     for (int i = 0; i < dim1; i++) {
         mul[i] = new double[dim1]; 
     }
-    cout <<"matrix mul allocated"<<endl;
+    //cout <<"matrix mul allocated"<<endl;
 
     //Matrices multiplication
 
@@ -92,7 +92,8 @@ void matmul(int dim1, int dim2)
         }
     }
 
-    cout <<"mul matrix initialization done"<<endl;
+    //Matrices initialization
+    //cout <<"mul matrix initialization done"<<endl;
     for(int i=0; i<dim1; i++)
     {
         for(int j=0; j<dim1; j++)
@@ -104,8 +105,9 @@ void matmul(int dim1, int dim2)
             
         }
     }
-    /*free memory*/
-    cout <<"tutto ok, ora libero memoria"<<endl;
+
+    //Free memory
+    //cout <<"tutto ok, ora libero memoria"<<endl;
     if (dim1) {
         delete [] m1[0];
     }
@@ -125,7 +127,7 @@ void matmul(int dim1, int dim2)
 int main(int argc, char* argv[])
 {
     srand(time(0));
-    //Matrices dimensions take from command line
+    //Matrices dimensions taken from command line
     int dim1 = atoi(argv[1]);
     int dim2 = atoi(argv[2]);
 
