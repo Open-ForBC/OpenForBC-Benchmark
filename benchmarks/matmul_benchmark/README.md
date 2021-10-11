@@ -10,4 +10,4 @@ Through the settings json file it's possible to choose the size of the two matri
 
 ## Devices supported:
 
-The computation is performed both in CPU and GPU. The benchmark output reports the execution time of both the devices.
+The computation is performed both on CPU and GPU. The benchmark output reports the execution time of both the devices.
