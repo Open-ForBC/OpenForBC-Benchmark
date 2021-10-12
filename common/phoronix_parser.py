@@ -12,6 +12,7 @@ from select import select
 from contextlib import contextmanager
 import json
 import fileinput
+import progressbar
 
 REMOTE_BENCH_ROOT_PATH = os.path.join("ob-cache", "test-profiles", "pts")
 file_dir = os.path.dirname(os.path.abspath(__file__))
@@ -26,6 +27,22 @@ installer_map = {"linux": "install.sh",
                  "darwin": "install_macosx.sh",
                  "windows": "install_windows.sh"}
 bench_dict = {}
+
+
+class ProgressBar():
+    def __init__(self):
+        self.pbar = None
+
+    def __call__(self, block_num, block_size, total_size):
+        if not self.pbar:
+            self.pbar=progressbar.ProgressBar(maxval=total_size)
+            self.pbar.start()
+
+        downloaded = block_num * block_size
+        if downloaded < total_size:
+            self.pbar.update(downloaded)
+        else:
+            self.pbar.finish()
 
 
 @contextmanager
@@ -182,19 +199,44 @@ def phoronix_install(benchmark_name, benchmark_v=None): # noqa: C901
 
         for package in packages_list:
             urls = package.getElementsByTagName('URL')[0].firstChild.nodeValue.split(',')
-            md5 = package.getElementsByTagName('MD5')[0].firstChild.nodeValue
-            # sha256 = package.getElementsByTagName('SHA256')[0].firstChild.nodeValue
+
             filename = package.getElementsByTagName('FileName')[0].firstChild.nodeValue
-            # size = package.getElementsByTagName('FileSize')[0].firstChild.nodeValue
-            print("Downloading {} (md5:{})".format(filename, md5))
+
+            try:
+                md5 = package.getElementsByTagName('MD5')[0].firstChild.nodeValue
+                print("Downloading {} (md5:{})".format(filename, md5))
+            except Exception:
+                md5 = None
+
+                try:
+                    sha256 = package.getElementsByTagName('SHA256')[0].firstChild.nodeValue
+                    print("Downloading {} (sha256:{})".format(filename, sha256))
+                except Exception:
+                    sha256 = None
+
+                    try:
+                        size = package.getElementsByTagName('FileSize')[0].firstChild.nodeValue
+                        print("Downloading {} (size:{})".format(filename, size))
+                    except Exception:
+                        size = None
+
             target_file = os.path.join(target_dir, filename)
             should_download = True
 
             if os.path.isfile(target_file):
                 with open(target_file, 'rb') as f:
-                    if hashlib.md5(f.read()).hexdigest() == md5:
-                        print("Already downloaded. Skipping.")
-                        should_download = False
+                    if md5:
+                        if hashlib.md5(f.read()).hexdigest() == md5:
+                            print("Already downloaded. Skipping.")
+                            should_download = False
+                    elif sha256:
+                        if hashlib.sha256(f.read()).hexdigest() == sha256:
+                            print("Already downloaded. Skipping.")
+                            should_download = False
+                    elif size:
+                        if os.path.getsize(target_file) == size:
+                            print("Already downloaded. Skipping.")
+                            should_download = False
                     else:
                         os.remove(target_file)
 
@@ -202,8 +244,21 @@ def phoronix_install(benchmark_name, benchmark_v=None): # noqa: C901
                 for url in urls:
                     print(url)
                     try:
-                        urllib.request.urlretrieve(url, filename=target_file)
-                        if hashlib.md5(open(target_file, 'rb').read()).hexdigest() == md5:
+                        urllib.request.urlretrieve(url, target_file, ProgressBar())
+                        verified = False
+                        if md5:
+                            if hashlib.md5(open(target_file, 'rb').read()).hexdigest() == md5:
+                                verified = True
+                        elif sha256:
+                            if hashlib.sha256(open(target_file, 'rb').read()).hexdigest() == sha256:
+                                verified = True
+                        elif size:
+                            if os.path.getsize(target_file) == size:
+                                verified = True
+                        else:
+                            verified = False
+
+                        if verified:
                             break
                         else:
                             print("Wrong checksum. Trying again.")
