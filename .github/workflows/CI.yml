@@ -33,6 +33,6 @@ jobs:
       - name: Run CLI bash tests
         run: |
           bash ./bin/test_cli.sh
-      - name: Run blender test
+      - name: Run astcenc test
         run: |
-          bash ./bin/test_blender.sh
+          bash ./bin/test_astcenc.sh
