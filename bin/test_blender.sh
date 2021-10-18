@@ -11,9 +11,14 @@ echo "list logs"
 python3 user_interfaces/cli.py list-logs
 
 echo ""
-echo "Running blender benchmark settings 1"
+echo "Installing atscenc benchmark"
 echo ""
-python3 user_interfaces/cli.py run-benchmark -b blender_benchmark -s settings1.json -v 1
+python3 user_interfaces/cli.py install-phoronix -b astcenc -v 1.2.0
+
+echo ""
+echo "Running atscenc benchmark"
+echo ""
+python3 user_interfaces/cli.py run-benchmark -b phoronix-astcenc-1.2.0
 
 echo ""
 echo "list logs"
