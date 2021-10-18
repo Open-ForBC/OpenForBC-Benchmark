@@ -13,6 +13,7 @@ from contextlib import contextmanager
 import json
 import fileinput
 import progressbar
+import traceback
 
 REMOTE_BENCH_ROOT_PATH = os.path.join("ob-cache", "test-profiles", "pts")
 file_dir = os.path.dirname(os.path.abspath(__file__))
@@ -263,8 +264,8 @@ def phoronix_install(benchmark_name, benchmark_v=None): # noqa: C901
                         else:
                             print("Wrong checksum. Trying again.")
                             os.remove(target_file)
-                    except Exception as e:
-                        print(e)
+                    except Exception:
+                        traceback.print_exc()
                         if url == urls[-1]:
                             raise Exception("None of the provided URLs works.")
 
