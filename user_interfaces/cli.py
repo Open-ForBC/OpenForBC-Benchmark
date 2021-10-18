@@ -1,12 +1,23 @@
 from PyInquirer import prompt
 import os
 from pathlib import Path
-from examples import custom_style_2
 import typer
 import json
 import sys
 import re
 from typing import List
+
+from PyInquirer import style_from_dict, Token
+custom_style_2 = style_from_dict({
+    Token.Separator: '#6C6C6C',
+    Token.QuestionMark: '#FF9D00 bold',
+    #Token.Selected: '',  # default
+    Token.Selected: '#5F819D',
+    Token.Pointer: '#FF9D00 bold',
+    Token.Instruction: '',  # default
+    Token.Answer: '#5F819D bold',
+    Token.Question: '',
+})
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from user_interfaces.interface_skeleton import InterfaceSkeleton  # noqa: E402
