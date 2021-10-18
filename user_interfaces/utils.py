@@ -48,7 +48,16 @@ def setItUp(benchmarkPath):
         if process.returncode != 0:
             raise process.stderr
     elif "setup.sh" in os.listdir(benchmarkPath):
-        pass  # TODO: call setup.sh from here
+        try:
+            process = subprocess.run(
+                os.path.join(benchmarkPath, "setup.sh"),
+                shell=True,
+                check=True,
+            )
+        except subprocess.CalledProcessError as e:
+            print(e.output)
+        if process.returncode != 0:
+            raise process.stderr
     else:
         raise Exception(
             "Setup file extension not supported please use a .py file or bash script."
