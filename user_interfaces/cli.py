@@ -249,7 +249,7 @@ def interactive(interactive: bool = typer.Argument(True)):
 
 # Run benchmark with python user_interfaces/cli.py run-benchmark
 @app.command()
-def run_benchmark(
+def run_benchmark(  # noqa: C901
     input: List[str] = typer.Option(..., "-b", "--benchmark", help="benchmark name"),
     settings: str = typer.Option(None, "-s", "--settings", help="benchmark settings"),
     verbose: int = typer.Option(None, "--verbose", "-v", help="modify verbosity"),
