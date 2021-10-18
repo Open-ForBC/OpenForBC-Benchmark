@@ -263,7 +263,8 @@ def phoronix_install(benchmark_name, benchmark_v=None): # noqa: C901
                         else:
                             print("Wrong checksum. Trying again.")
                             os.remove(target_file)
-                    except Exception:
+                    except Exception as e:
+                        print(e)
                         if url == urls[-1]:
                             raise Exception("None of the provided URLs works.")
 
