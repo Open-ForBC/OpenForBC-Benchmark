@@ -7,3 +7,4 @@ benchmarks/blender_benchmark/benchmark-launcher-cli
 logs/*
 common/phoronix-benchs/
 benchmarks/phoronix-*
+benchmark/*/bin
