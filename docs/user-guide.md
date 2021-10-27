@@ -11,19 +11,22 @@ Benchmarks can be run interactively using the following command.
  python3 user_interfaces/cli.py interactive
 ```
 
+On supported systems (supporting symlinks) one can opt to replace `python3 user_interfaces/cli.py` with `o4bc-bench`.
+The following documentation will rely on the symlink.
+
 The Interactive interface is quite intuitive to navigate around, with informative prompts to guide you. 
 
 
 For a textual CLI interface, a comprehensive list of arguments can be found using the following command:
 
 ```shell
-python3 user_interfaces/cli.py --help
+./o4bc-bench --help
 ```
 
 To get help for a particular command, use:
 
 ```shell
-python3 user_interfaces/cli.py <command:str> --help
+./o4bc-bench <command:str> --help
 ```
 
 ## Sample commands for the functionality offered by the CLI:
@@ -31,25 +34,25 @@ python3 user_interfaces/cli.py <command:str> --help
 **1. List Benchmarks/Suites:**  
 
 ```shell
-python3 user_interfaces/cli.py list-benchmarks
-python3 user_interfaces/cli.py list-suites
+./o4bc-bench list-benchmarks
+./o4bc-bench list-suites
 ```
 
 **2. Get settings from a particular benchmark:**
 
 
 ```shell
-python3 user_interfaces/cli.py get-settings -b <benchmark-name:str> -s <benchmark-settings:str>
+./o4bc-bench get-settings -b <benchmark-name:str> -s <benchmark-settings:str>
 ```
 for example:
 
 ```shell
-python3 user_interfaces/cli.py get-settings -b dummy_benchmark -s settings1.json
+./o4bc-bench get-settings -b dummy_benchmark -s settings1.json
 ```
 or if you'd like to list all settings for a benchmark, you can check them using the following command
 
 ```shell
-python3 user_interfaces/cli.py get-settings -b dummy_benchmark 
+./o4bc-bench get-settings -b dummy_benchmark 
 ```
 
 
@@ -57,23 +60,23 @@ python3 user_interfaces/cli.py get-settings -b dummy_benchmark
 
 
 ```shell 
-python3 user_interfaces/cli.py run-benchmark -b <benchmark-name:str> -s <settings:str> -v <verbosity:int> 
-python3 user_interfaces/cli.py run-suite <suite-name:str> 
+./o4bc-bench run-benchmark -b <benchmark-name:str> -s <settings:str> -v <verbosity:int> 
+./o4bc-bench run-suite <suite-name:str> 
 ```
 for example:
 
 ```shell
-python3 user_interfaces/cli.py run-benchmark -b dummy_benchmark -s settings1.json -v 1 
+./o4bc-bench run-benchmark -b dummy_benchmark -s settings1.json -v 1 
 ```
 
 **4. Build a suite:**
 ```shell
-python3 user_interfaces/cli.py make-suite --name <suite-name:str> -b <benchmark-name:str> -s <settings:str> -f <file-name:str> -d <description(optional):str>
+./o4bc-bench make-suite --name <suite-name:str> -b <benchmark-name:str> -s <settings:str> -f <file-name:str> -d <description(optional):str>
 ```
 for example:
 
 ```shell
-python3 user_interfaces/cli.py make-suite --name Mysuite -b dummy_benchmark -s settings1.json -f my_suite -d "This is demo description."  
+./o4bc-bench make-suite --name Mysuite -b dummy_benchmark -s settings1.json -f my_suite -d "This is demo description."  
 ```
 
 
@@ -91,7 +94,7 @@ Logs for each run can be found in ```/logs``` directory. Each run is saved by th
 Logs can be listed with the following command
 
 ```shell
-python3 user_interfaces/cli.py list-logs
+./o4bc-bench list-logs
 ```
 
 ## View format
