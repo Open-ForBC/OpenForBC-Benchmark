@@ -12,7 +12,11 @@ Benchmarks can be run interactively using the following command.
 ```
 
 On supported systems (supporting symlinks) one can opt to replace `python3 user_interfaces/cli.py` with `o4bc-bench`.
-The following documentation will rely on the symlink.
+The following documentation will rely on the symlink. You might need to make the symlink executable:
+
+```shell
+chmod u+x o4bc-bench
+```
 
 The Interactive interface is quite intuitive to navigate around, with informative prompts to guide you. 
 
