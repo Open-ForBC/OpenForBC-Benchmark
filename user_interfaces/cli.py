@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from PyInquirer import prompt
 import os
 from pathlib import Path
