@@ -36,3 +36,9 @@ jobs:
       - name: Run astcenc test
         run: |
           bash ./bin/test_astcenc.sh
+      - name: Run matmul test
+        run: |
+          bash ./bin/test_matmul.sh
+      - name: Run matmulCpp test
+        run: |
+          bash ./bin/test_matmulCpp.sh
