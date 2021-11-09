@@ -66,6 +66,10 @@
         { "type": "string" },
         { "type": "object", "additionalProperties": { "$ref": "#/$defs/match" } }
       ]
+    },
+    "virtualenv": {
+      "description": "Whether to create and activate a virtualenv for this benchmark commands",
+      "type": "boolean"
     }
   },
   "additionalProperties": false,

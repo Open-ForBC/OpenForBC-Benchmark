@@ -67,7 +67,8 @@ Here's an example of a benchmark definition:
     "mult_time_ms": {
       "regex": "Matrix multiplication time: (\\d+)ms"
     }
-  }
+  },
+  "virtualenv": true
 }
 ```
 
@@ -79,6 +80,7 @@ Here's an example of a benchmark definition:
 | `run_command`     | *commands*        | x        |
 | `cleanup_command` | *commands*        |          |
 | `stats`           | `string\|`*match* | x        |
+| `virtualenv`      | `boolean`         |          |
 
 All the metadata fields are __required__: you need to specify the benchmark's
 *name* and *description*.
@@ -123,6 +125,11 @@ executed against a file, which __must__ contain a group which will match the
 value of this data field) and `file` (an optional *string* which is the file on
 whose content the regex will be executed). If no `file` is specified the one
 containing output from the *run* command is used.
+
+##### Python virtualenv
+
+The `virtualenv` field specifies whether to create a virtualenv for this
+benchmark, which will always be activated before running every command.
 
 ### Benchmark presets
 
