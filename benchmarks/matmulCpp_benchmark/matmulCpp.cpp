@@ -1,10 +1,12 @@
-#include <stdlib.h>
-#include <time.h>
-
 #include <chrono>
+#include <cstdlib>
+#include <ctime>
 #include <iostream>
 
-using namespace std;
+#define TIME_MS_TO_S 0.001
+
+using std::cout;
+using std::endl;
 
 class Timer {
  public:
@@ -13,12 +15,6 @@ class Timer {
         std::chrono::high_resolution_clock::now();  // gets the current time at
                                                     // a specific time point
   }
-
-  // when the object is destroied the timer stops
-  // ~Timer()
-  // {
-  //     Stop();
-  // }
 
   void Stop() {
     auto endTimepoint = std::chrono::high_resolution_clock::now();
@@ -33,9 +29,9 @@ class Timer {
             .count();
 
     auto duration = stop - start;
-    double s = duration * 0.001;
+    double s = static_cast<double>(duration) * TIME_MS_TO_S;
 
-    std::cout << duration << "ms(" << s << "s)\n";
+    cout << duration << "ms(" << s << "s)\n";
   }
 
  private:
@@ -45,19 +41,19 @@ class Timer {
 void mat_alloc(int dim1, int dim2, double **m1, double **m2) {
   /*dynamic allocation of matrices*/
 
-  if (m1 == NULL || m2 == NULL) {
+  if (m1 == nullptr || m2 == nullptr) {
     cout << "error allocating rows" << endl;
   }
   for (int i = 0; i < dim1; i++) {
     m1[i] = new double[dim2];
-    if (m1[i] == NULL) {
+    if (m1[i] == nullptr) {
       cout << "error allocating col" << endl;
     }
   }
 
   for (int i = 0; i < dim2; i++) {
     m2[i] = new double[dim1];
-    if (m2[i] == NULL) {
+    if (m2[i] == nullptr) {
       cout << "error allocating col" << endl;
     }
   }
@@ -71,7 +67,7 @@ void mat_alloc(int dim1, int dim2, double **m1, double **m2) {
 }
 
 void matmul(int dim1, int dim2, double **m1, double **m2) {
-  double **mul = new double *[dim1];
+  auto **mul = new double *[dim1];
   for (int i = 0; i < dim1; i++) {
     mul[i] = new double[dim1];
   }
@@ -102,20 +98,28 @@ void matmul(int dim1, int dim2, double **m1, double **m2) {
 }
 
 int main(int argc, char *argv[]) {
-  srand(time(0));
+  if (argc < 2) {
+    cout << "Usage: matmulCpp dim0 dim2" << endl
+         << "Arguments:" << endl
+         << "\tdim0: First (square) matrix dimension" << endl
+         << "\tdim1: Second (square) matrix dimension" << endl;
+    exit(0);
+  }
+
+  srand(time(nullptr));
   // Matrices dimensions taken from command line
   int dim1 = atoi(argv[1]);
   int dim2 = atoi(argv[2]);
   // Matrices declaration
-  double **m1 = new double *[dim1];
-  double **m2 = new double *[dim2];
+  auto **m1 = new double *[dim1];
+  auto **m2 = new double *[dim2];
 
   mat_alloc(dim1, dim2, m1, m2);
 
   Timer timer;
   matmul(dim1, dim2, m1, m2);
   timer.Stop();
-  std::cout << "Product computation time: ";
+  cout << "Product computation time: ";
 
   // Free memory
   if (dim1) {
