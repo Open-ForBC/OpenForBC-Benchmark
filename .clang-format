@@ -1,0 +1,6 @@
+---
+BasedOnStyle: Google
+Standard: Cpp11
+SortIncludes: true
+PointerAlignment: Left
+IncludeBlocks: Regroup
