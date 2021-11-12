@@ -5,60 +5,201 @@
 
 ## Before opening a PR
 
-Continuous integration is setup [here](../.github/workflows/CI.yml). It currently runs the CLI test and blender with one setting file.
+Continuous integration is setup [here](../.github/workflows/CI.yml). It
+currently runs the CLI test and blender with one setting file.
 
-Before opening a PR, please check that your changes do not break anything by executing ./test_PR.sh.
-This executes full tests: CLI, blender with various settings, suites.
+Before opening a PR, please check that your changes do not break anything by
+executing ./test_PR.sh.  This executes full tests: CLI, blender with various
+settings, suites.
 
 ## Adding a benchmark 
 
 Following is the file hierarchy for the benchmarks folder.
+
 ```
 .
-├── benchmarks
-│   ├── Sample Benchmark A
-│   │   ├── README.md                               
-│   │   ├── benchmark_info.json                     *
-│   │   ├── bin <contains executables/docs etc>
-│   │   ├── implementation.py                       *
-│   │   ├── settings                                *
-│   │   │   ├── settings1.json
-│   │   └── setup.py
-│   └── Sample Benchmark B
-|   |   ├── README.md                               
-│       ├── benchmark_info.json                     *
-│       ├── implementation.py                       *
-│       └── settings                                *
-│       |   ├── settings1.json
-│       |   └── settings2.json
-        └── setup.sh
++-- benchmarks
+    |-- Sample Benchmark A
+    |   |-- benchmark.json                        *
+    |   |-- presets                               *
+    |   |   +-- preset<#>.json
+    |   +-- <benchmark executables/scripts/docs>
+    |
+    +-- Sample Benchmark B
+        |-- benchmark.json                        *
+        |-- presets                               *
+        |   |-- preset_1.json
+        |   +-- preset_1.json
+        |-- example_bench
+        |-- setup.sh
+        +-- cleanup.sh
 
 * Essential for executing benchmark
 ```
-To add a benchmark, create a directory in the benchmarks folder similar to the Sample Benchmark directory as shown above. An example can be found in the dummy benchmark [implementation](../benchmarks/dummy_benchmark/). 
 
--  The Benchmark implementation goes into ```implementation.py```. 
+To add a benchmark, create a directory in the benchmarks folder similar to the
+sample benchmarks shown above. An example can be found in the dummy benchmark
+[implementation](../benchmarks/dummy_benchmark/). 
 
-- Information about the benchmark is stored in ```benchmark_info.json``` with keys labeled as ```name```, ```description```,```implementation file``` and ```class name``` next to their corresponding values. Declaring file and class name allows for an easier file search while maintaining uniformity. You can choose to give it any name as long as it ends with a python extension(.py).
+### Benchmark definition
 
-- Settings associated with the benchmark are placed in the settings folder, to be saved as a JSON file. You can save more than one setting and select the one you want to run the benchmark with later when running the benchmark. 
+The benchmark definition is a file named `benchmark.json`, which is validated
+against the [benchmark definition schema](../jsonschema/benchmark.schema.json)
+stored in the *jsonschema* folder in this repository. 
 
-- To properly propagate the execution logs, return the logs as a dictionary with the format ```{"output":<logging data>}``` from the method responsible for running the benchmark, ie. ```startBenchmark()``` in usual cases.
+#### Benchmark definition schema
 
-- *Documentation.* As a bare minimum, add a README.md file that documents what the benchmark does and the settings. For more comprehensive documentation, you can create an additional doc/ folder and place there additional files.
+Here's an example of a benchmark definition:
 
-- *Continuous integration* (CI). Please consider adding tests for your benchmark in bin/, and also if appropriate add them to CI or test_PR.sh 
+```json
+{
+  "name": "Sample Benchmark A",
+  "description": "A sample benchmark",
+  "setup_command": "setup.sh --prepare",
+  "run_command": {
+    "path": "example_bench --gpu",   
+    "env": {
+      "CPU": "0"
+    }
+  },
+  "cleanup_command": "setup.sh --clean",
+  "stats": {
+    "mult_time_ms": {
+      "regex": "Matrix multiplication time: (\\d+)ms"
+    }
+  },
+  "virtualenv": true
+}
+```
+
+| Field             | Type              | Required |
+|-------------------|-------------------|----------|
+| `name`            | `string`          | x        |
+| `description`     | `string`          | x        |
+| `setup_command`   | *commands*        |          |
+| `run_command`     | *commands*        | x        |
+| `cleanup_command` | *commands*        |          |
+| `stats`           | `string\|`*match* | x        |
+| `virtualenv`      | `boolean`         |          |
+
+All the metadata fields are __required__: you need to specify the benchmark's
+*name* and *description*.
+
+##### Commands
+
+There are three main commands used to interface with the benchmark: the
+`setup_command` is run before any other command and should be used, for
+instance, to install benchmark dependencies or build its binary, the
+`run_command` (__required__) is the actual benchmark command, and
+`cleanup_command` is used after the benchmark is no longer needed to cleanup.
+
+Every *command* field can be a single instance or an array of `command` type.
+The `command` type can be a *string* (the path of the executable to be run) or
+an object with the following fields:
+
+| Field     | Type     | Required |
+|-----------|----------|----------|
+| `path`    | `string` | x        |
+| `env`     | `object` |          |
+| `workdir` | `string` |          |
+
+The `path` field specifies the path of the command and is __required__. Other
+fields in the `command` type may be used to configure the process environment (a
+JSON *object* with values of type *string*) and its workdir.
+
+##### Benchmark output
+
+The `stats` field is used to specify how to obtain resulting benchmark data, it
+can be a *string* containing the path of an executable which will output
+benchmark data to *stdout* when run, or a `match` type object.
+
+Benchmark data written to *stdout* must be a JSON object (its
+[schema](../jsonschema/benchmark_stats.schema.json) is stored in the
+*jsonschema* folder in this repository) with the name of the
+data as key and its value as the actual value.
+
+The `match` type is an object, its keys are the benchmark's output data field
+names, while the values are an object specifying how to match the data: it has
+two fields: `regex` (a __required__ *string* which contains a regex that is
+executed against a file, which __must__ contain a group which will match the
+value of this data field) and `file` (an optional *string* which is the file on
+whose content the regex will be executed). If no `file` is specified the one
+containing output from the *run* command is used.
+
+##### Python virtualenv
+
+The `virtualenv` field specifies whether to create a virtualenv for this
+benchmark, which will always be activated before running every command.
+
+### Benchmark presets
+
+Presets associated with the benchmark are placed in the *presets* folder, and
+represented by a JSON file (its
+[schema](../josnschema/benchmark_preset.schema.json) is stored in the
+*jsonschema* folder in this repository).
+
+You can define more than one preset and select the one you want to run the
+benchmark with later when running the benchmark. 
+
+#### Benchmark preset schema
+
+Here's an example of a valid benchmark preset JSON file:
+
+```json
+{
+  "args": "--config=preset_57.conf",
+  "init_command": "setup_preset.sh preset_57.conf",
+  "post_command": "setup_preset.sh --teardown"
+}
+```
+
+The object schema is:
+
+| Field          | Type                    | Required |
+|----------------|-------------------------|----------|
+| `args`         | `string\|Array<string>` | x        |
+| `init_command` | *commands*              | x        |
+| `post_command` | *commands*              |          |
+
+Only one of `args` and `init_command` is required, you do not need (but can if
+needed) to specify both.
+
+The *command* fields use the same schema that the [main benchmark definition
+commands](#commands) use.
+
+`args` is a `string` containing arguments to be passed to the benchmark's *run*
+command. You can also specify an array of strings as the `args` field if you
+need to use spaces inside arguments or you want to be directly specify *argv*
+components.
+
+### Benchmark documentation
+
+As a bare minimum, add a README.md file that documents what the benchmark does
+and the settings. For more comprehensive documentation, you can create an
+additional doc/ folder and place there additional files.
+
+### Benchmark tests
+
+Please consider adding tests for your benchmark in bin/, and also if appropriate
+add them to CI or test_PR.sh 
 
 ## How the tool works
 
-Essentially, there are two modules at work, ie. Benchmark Suite and Benchmark Factory which extends the interface defined in Benchmark Wrapper.
+Essentially, there are two modules at work, ie. Benchmark Suite and Benchmark
+Factory which extends the interface defined in Benchmark Wrapper.
 
-The Benchmark Factory is a factory method that takes in the benchmark name and optionally a settings file and returns the benchmark object.
+The Benchmark Factory is a factory method that takes in the benchmark name and
+optionally a settings file and returns the benchmark object.
 
-The Benchmark Suite looks for a JSON configuration of benchmark to run as a combo in ```benchmark_info.json``` and runs all the benchmarks in a loop.
+The Benchmark Suite looks for a JSON configuration of benchmark to run as a
+combo in ```benchmark_info.json``` and runs all the benchmarks in a loop.
 
-To communicate the above to end-user, there are three outlets: GUI, CLI and daemon defined in the ```user_interfaces``` directory. Channeled by the interface skeleton which also uses the benchmark wrapper interface.
+To communicate the above to end-user, there are three outlets: GUI, CLI and
+daemon defined in the ```user_interfaces``` directory. Channeled by the
+interface skeleton which also uses the benchmark wrapper interface.
 
-Further, the benchmark implementations also adhere to the Benchmark Wrapper interface.
+Further, the benchmark implementations also adhere to the Benchmark Wrapper
+interface.
 
-The class diagram for the project can be found [here](../assets/class_diagram.svg).
+The class diagram for the project can be found
+[here](../assets/class_diagram.svg).
