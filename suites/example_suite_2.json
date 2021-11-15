@@ -1,0 +1,22 @@
+{
+    "name": "Dummy benchmark suite",
+    "description": "A preconfigured suite running 4 time the same benchmark with different settings",
+    "benchmarks": [
+        {
+            "name": "dummy_benchmark",
+            "settings": "settings1.json"
+        },
+        {
+            "name": "dummy_benchmark",
+            "settings": "settings1.json"
+        },
+        {
+            "name": "dummy_benchmark",
+            "settings": "settings2.json"
+        },
+        {
+            "name": "dummy_benchmark",
+            "settings": "settings2.json"
+        }
+    ]
+}

@@ -1,0 +1,13 @@
+args
+astunparse
+click
+prettytable
+progressbar
+prompt_toolkit==1.0.15
+Pygments
+PyInquirer
+regex
+six
+typer
+wcwidth
+GitPython

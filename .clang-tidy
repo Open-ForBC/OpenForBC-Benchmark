@@ -1,0 +1,19 @@
+---
+Checks: >
+  -*,
+  bugprone-*,
+
+  clang-diagnostic-*,
+
+  google-*,
+
+  misc-*,
+
+  modernize-*,
+  -modernize-use-trailing-return-type,
+
+  performance-*,
+  readability-*,
+  -readability-implicit-bool-conversion
+
+FormatStyle: file
