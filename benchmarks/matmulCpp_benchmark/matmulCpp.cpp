@@ -3,40 +3,8 @@
 #include <ctime>
 #include <iostream>
 
-#define TIME_MS_TO_S 0.001
-
 using std::cout;
 using std::endl;
-
-class Timer {
- public:
-  Timer() {
-    m_StartTimepoint =
-        std::chrono::high_resolution_clock::now();  // gets the current time at
-                                                    // a specific time point
-  }
-
-  void Stop() {
-    auto endTimepoint = std::chrono::high_resolution_clock::now();
-
-    auto start = std::chrono::time_point_cast<std::chrono::milliseconds>(
-                     m_StartTimepoint)
-                     .time_since_epoch()
-                     .count();
-    auto stop =
-        std::chrono::time_point_cast<std::chrono::milliseconds>(endTimepoint)
-            .time_since_epoch()
-            .count();
-
-    auto duration = stop - start;
-    double s = static_cast<double>(duration) * TIME_MS_TO_S;
-
-    cout << duration << "ms(" << s << "s)\n";
-  }
-
- private:
-  std::chrono::time_point<std::chrono::high_resolution_clock> m_StartTimepoint;
-};
 
 void mat_alloc(int dim1, int dim2, double **m1, double **m2) {
   /*dynamic allocation of matrices*/
@@ -98,6 +66,9 @@ void matmul(int dim1, int dim2, double **m1, double **m2) {
 }
 
 int main(int argc, char *argv[]) {
+  using std::chrono::duration;
+  using std::chrono::high_resolution_clock;
+
   if (argc < 2) {
     cout << "Usage: matmulCpp dim0 dim2" << endl
          << "Arguments:" << endl
@@ -116,10 +87,12 @@ int main(int argc, char *argv[]) {
 
   mat_alloc(dim1, dim2, m1, m2);
 
-  Timer timer;
+  auto time_start = high_resolution_clock::now();
   matmul(dim1, dim2, m1, m2);
-  timer.Stop();
-  cout << "Product computation time: ";
+  auto time_end = high_resolution_clock::now();
+
+  duration<double> time = time_end - time_start;
+  cout << "Product computation time: " << time.count() << "s" << endl;
 
   // Free memory
   if (dim1) {
