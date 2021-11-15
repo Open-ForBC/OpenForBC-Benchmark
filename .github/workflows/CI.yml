@@ -39,8 +39,8 @@ jobs:
       - name: Run matmul c++ test
         run: |
           bash ./bin/test_matmulCpp.sh
-      - uses: actions/checkout@v2
-      - uses: shenxianpeng/cpp-linter-action@master
+      - name: Run clang-tidy
+        uses: shenxianpeng/cpp-linter-action@master
         id: linter
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
