@@ -1,144 +1,108 @@
-#include <iostream>
-#include <stdlib.h>
-#include <time.h>
 #include <chrono>
+#include <cstdlib>
+#include <ctime>
+#include <iostream>
 
-using namespace std;
+using std::cout;
+using std::endl;
 
-class Timer
-{
-public:
-    Timer()
-    {
-        m_StartTimepoint = std::chrono::high_resolution_clock::now(); //gets the current time at a specific time point
+void mat_alloc(int dim1, int dim2, double **m1, double **m2) {
+  /*dynamic allocation of matrices*/
+
+  if (m1 == nullptr || m2 == nullptr) {
+    cout << "error allocating rows" << endl;
+  }
+  for (int i = 0; i < dim1; i++) {
+    m1[i] = new double[dim2];
+    if (m1[i] == nullptr) {
+      cout << "error allocating col" << endl;
     }
+  }
 
-    //when the object is destroied the timer stops
-    // ~Timer()
-    // {
-    //     Stop();
-    // }
-
-    void Stop()
-    {
-        auto endTimepoint = std::chrono::high_resolution_clock::now();
-
-        auto start = std::chrono::time_point_cast<std::chrono::milliseconds>(m_StartTimepoint).time_since_epoch().count();
-        auto stop = std::chrono::time_point_cast<std::chrono::milliseconds>(endTimepoint).time_since_epoch().count();
-
-        auto duration = stop - start;
-        double s = duration * 0.001;
-
-        std::cout << duration << "ms(" << s << "s)\n";
+  for (int i = 0; i < dim2; i++) {
+    m2[i] = new double[dim1];
+    if (m2[i] == nullptr) {
+      cout << "error allocating col" << endl;
     }
+  }
 
-private:
-    std::chrono::time_point<std::chrono::high_resolution_clock> m_StartTimepoint;
-};
-
-void mat_alloc(int dim1, int dim2, double **m1, double **m2)
-{
-    /*dynamic allocation of matrices*/
-
-    if (m1 == NULL || m2 == NULL)
-    {
-        cout << "error allocating rows" << endl;
+  for (int i = 0; i < dim1; i++) {
+    for (int j = 0; j < dim2; j++) {
+      m1[i][j] = rand();
+      m2[j][i] = rand();
     }
-    for (int i = 0; i < dim1; i++)
-    {
-        m1[i] = new double[dim2];
-        if (m1[i] == NULL)
-        {
-            cout << "error allocating col" << endl;
-        }
-    }
-
-    for (int i = 0; i < dim2; i++)
-    {
-        m2[i] = new double[dim1];
-        if (m2[i] == NULL)
-        {
-            cout << "error allocating col" << endl;
-        }
-    }
-
-    for (int i = 0; i < dim1; i++)
-    {
-        for (int j = 0; j < dim2; j++)
-        {
-            m1[i][j] = rand();
-            m2[j][i] = rand();
-        }
-    }
+  }
 }
 
-void matmul(int dim1, int dim2, double **m1, double **m2)
-{
-    double **mul = new double *[dim1];
-    for (int i = 0; i < dim1; i++)
-    {
-        mul[i] = new double[dim1];
-    }
+void matmul(int dim1, int dim2, double **m1, double **m2) {
+  auto **mul = new double *[dim1];
+  for (int i = 0; i < dim1; i++) {
+    mul[i] = new double[dim1];
+  }
 
-    //Matrices multiplication
+  // Matrices multiplication
 
-    /*mul initialization to 0*/
-    for (int i = 0; i < dim1; i++)
-    {
-        for (int j = 0; j < dim1; j++)
-        {
-            mul[i][j] = 0;
-        }
+  /*mul initialization to 0*/
+  for (int i = 0; i < dim1; i++) {
+    for (int j = 0; j < dim1; j++) {
+      mul[i][j] = 0;
     }
+  }
 
-    // This matrix multiplication algorithm is not so efficient
-    for (int i = 0; i < dim1; i++)
-    {
-        for (int j = 0; j < dim1; j++)
-        {
-            for (int k = 0; k < dim2; k++)
-            {
-                mul[i][j] += m1[i][k] * m2[k][j];
-            }
-        }
+  // This matrix multiplication algorithm is not so efficient
+  for (int i = 0; i < dim1; i++) {
+    for (int j = 0; j < dim1; j++) {
+      for (int k = 0; k < dim2; k++) {
+        mul[i][j] += m1[i][k] * m2[k][j];
+      }
     }
+  }
 
-    //Free memory
-    if (dim1)
-    {
-        delete[] mul[0];
-    }
-    delete[] mul;
+  // Free memory
+  if (dim1) {
+    delete[] mul[0];
+  }
+  delete[] mul;
 }
 
-int main(int argc, char *argv[])
-{
-    srand(time(0));
-    //Matrices dimensions taken from command line
-    int dim1 = atoi(argv[1]);
-    int dim2 = atoi(argv[2]);
-    //Matrices declaration
-    double **m1 = new double *[dim1];
-    double **m2 = new double *[dim2];
+int main(int argc, char *argv[]) {
+  using std::chrono::duration;
+  using std::chrono::high_resolution_clock;
 
-    mat_alloc(dim1, dim2, m1, m2);
+  if (argc < 2) {
+    cout << "Usage: matmulCpp dim0 dim2" << endl
+         << "Arguments:" << endl
+         << "\tdim0: First (square) matrix dimension" << endl
+         << "\tdim1: Second (square) matrix dimension" << endl;
+    exit(0);
+  }
 
-    Timer timer;
-    matmul(dim1, dim2, m1, m2);
-    timer.Stop();
-    std::cout << "Product computation time: ";
+  srand(time(nullptr));
+  // Matrices dimensions taken from command line
+  int dim1 = atoi(argv[1]);
+  int dim2 = atoi(argv[2]);
+  // Matrices declaration
+  auto **m1 = new double *[dim1];
+  auto **m2 = new double *[dim2];
 
-    //Free memory
-    if (dim1)
-    {
-        delete[] m1[0];
-    }
-    delete[] m1;
-    if (dim2)
-    {
-        delete[] m2[0];
-    }
-    delete[] m2;
+  mat_alloc(dim1, dim2, m1, m2);
 
-    return 0;
+  auto time_start = high_resolution_clock::now();
+  matmul(dim1, dim2, m1, m2);
+  auto time_end = high_resolution_clock::now();
+
+  duration<double> time = time_end - time_start;
+  cout << "Product computation time: " << time.count() << "s" << endl;
+
+  // Free memory
+  if (dim1) {
+    delete[] m1[0];
+  }
+  delete[] m1;
+  if (dim2) {
+    delete[] m2[0];
+  }
+  delete[] m2;
+
+  return 0;
 }
