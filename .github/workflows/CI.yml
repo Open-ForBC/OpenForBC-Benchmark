@@ -12,6 +12,21 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
+      - name: Run clang-tidy
+        uses: shenxianpeng/cpp-linter-action@master
+        id: linter
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          style: file
+          tidy-checks: ""
+      - name: Fail fast?!
+        if: steps.linter.outputs.checks-failed > 0
+        run: |
+          echo "Some files failed the linting checks!"
+          exit 1
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
@@ -30,24 +45,14 @@ jobs:
       - name: Test with pytest
         run: |
           pytest
+
       - name: Run CLI bash tests
         run: |
           bash ./bin/test_cli.sh
+
       - name: Run astcenc test
         run: |
           bash ./bin/test_astcenc.sh
       - name: Run matmul c++ test
         run: |
           bash ./bin/test_matmulCpp.sh
-      - name: Run clang-tidy
-        uses: shenxianpeng/cpp-linter-action@master
-        id: linter
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          style: file
-
-      - name: Fail fast?!
-        if: steps.linter.outputs.checks-failed > 0
-        run: |
-          echo "Some files failed the linting checks!"
