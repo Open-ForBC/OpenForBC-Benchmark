@@ -12,8 +12,18 @@
         {
           "type": "object",
           "properties": {
-            "path": {
-              "type": "string"
+            "command": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
             },
             "env": {
               "type": "object",
@@ -27,7 +37,7 @@
           },
           "additionalProperties": false,
           "required": [
-            "path"
+            "command"
           ]
         }
       ]

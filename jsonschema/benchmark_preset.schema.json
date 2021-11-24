@@ -1,41 +1,75 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.com/openforbc_preset.schema.json",
-
   "title": "Open-ForBC benchmark preset schema",
   "description": "A benchmark's preset JSON definition schema",
-
   "$defs": {
     "command": {
-      "oneOf": [ { "type": "string" }, {
-        "type": "object",
-        "properties": {
-          "path": { "type": "string" },
-          "env": {
-            "type": "object",
-            "additionalProperties": { "type": "string" }
-          },
-          "workdir": { "type": "string" }
+      "oneOf": [
+        {
+          "type": "string"
         },
-        "additionalProperties": false,
-        "required": [ "path" ]
-      } ]
+        {
+          "type": "object",
+          "properties": {
+            "command": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "env": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "workdir": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "command"
+          ]
+        }
+      ]
     },
     "commands": {
       "oneOf": [
-        { "$ref": "#/$defs/command" },
-        { "type": "array", "items": { "$ref": "#/$defs/command" } }
+        {
+          "$ref": "#/$defs/command"
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/command"
+          }
+        }
       ]
     }
   },
-
   "type": "object",
   "properties": {
     "args": {
       "description": "Command-line arguments to be passed to the benchmark run command",
       "oneOf": [
-        { "type": "string" },
-        { "type": "array", "items": { "type": "string" } }
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
       ]
     },
     "init_command": {
@@ -47,7 +81,17 @@
       "$ref": "#/$defs/commands"
     }
   },
-
   "additionalProperties": false,
-  "oneOf": [ { "required": [ "args" ] }, { "required": [ "init_command" ] } ]
+  "oneOf": [
+    {
+      "required": [
+        "args"
+      ]
+    },
+    {
+      "required": [
+        "init_command"
+      ]
+    }
+  ]
 }

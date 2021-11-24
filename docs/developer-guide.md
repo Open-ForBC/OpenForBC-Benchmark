@@ -12,7 +12,7 @@ Before opening a PR, please check that your changes do not break anything by
 executing ./test_PR.sh.  This executes full tests: CLI, blender with various
 settings, suites.
 
-## Adding a benchmark 
+## Adding a benchmark
 
 Following is the file hierarchy for the benchmarks folder.
 
@@ -39,13 +39,13 @@ Following is the file hierarchy for the benchmarks folder.
 
 To add a benchmark, create a directory in the benchmarks folder similar to the
 sample benchmarks shown above. An example can be found in the dummy benchmark
-[implementation](../benchmarks/dummy_benchmark/). 
+[implementation](../benchmarks/dummy_benchmark/).
 
 ### Benchmark definition
 
 The benchmark definition is a file named `benchmark.json`, which is validated
 against the [benchmark definition schema](../jsonschema/benchmark.schema.json)
-stored in the *jsonschema* folder in this repository. 
+stored in the *jsonschema* folder in this repository.
 
 #### Benchmark definition schema
 
@@ -57,7 +57,7 @@ Here's an example of a benchmark definition:
   "description": "A sample benchmark",
   "setup_command": "setup.sh --prepare",
   "run_command": {
-    "path": "example_bench --gpu",   
+    "command": "example_bench --gpu",
     "env": {
       "CPU": "0"
     }
@@ -101,13 +101,15 @@ Every *command* field can be a single instance or an array of `command` type.
 The `command` type can be a *string* (the path of the executable to be run) or
 an object with the following fields:
 
-| Field     | Type     | Required |
-| --------- | -------- | -------- |
-| `path`    | `string` | x        |
-| `env`     | `object` |          |
-| `workdir` | `string` |          |
+| Field     | Type                    | Required |
+|-----------|-------------------------|----------|
+| `command` | `string\|Array<string>` | x        |
+| `env`     | `object`                |          |
+| `workdir` | `string`                |          |
 
-The `path` field specifies the path of the command and is __required__. Other
+The `command` field specifies the command to be executed and is __required__.
+You can specify both a string, which will be split according to UNIX standard,
+or an array of strings consisting of the executable and its arguments. Other
 fields in the `command` type may be used to configure the process environment (a
 JSON *object* with values of type *string*) and its workdir.
 
@@ -188,7 +190,7 @@ additional doc/ folder and place there additional files.
 ### Benchmark tests
 
 Please consider adding tests for your benchmark in bin/, and also if appropriate
-add them to CI or test_PR.sh 
+add them to CI or test_PR.sh
 
 
 ## Adding a benchmark suite
