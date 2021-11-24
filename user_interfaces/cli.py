@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from __future__ import annotations
 from PyInquirer import prompt
 import os
 from pathlib import Path
@@ -7,19 +8,25 @@ import typer
 import json
 import sys
 import re
-from typing import List
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import List
 
 from PyInquirer import style_from_dict, Token
-custom_style_2 = style_from_dict({
-    Token.Separator: '#6C6C6C',
-    Token.QuestionMark: '#FF9D00 bold',
-    #Token.Selected: '',  # default
-    Token.Selected: '#5F819D',
-    Token.Pointer: '#FF9D00 bold',
-    Token.Instruction: '',  # default
-    Token.Answer: '#5F819D bold',
-    Token.Question: '',
-})
+
+custom_style_2 = style_from_dict(
+    {
+        Token.Separator: "#6C6C6C",
+        Token.QuestionMark: "#FF9D00 bold",
+        # Token.Selected: '',  # default
+        Token.Selected: "#5F819D",
+        Token.Pointer: "#FF9D00 bold",
+        Token.Instruction: "",  # default
+        Token.Answer: "#5F819D bold",
+        Token.Question: "",
+    }
+)
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from user_interfaces.interface_skeleton import InterfaceSkeleton  # noqa: E402
@@ -37,29 +44,27 @@ from common.phoronix_parser import phoronix_init, phoronix_install  # noqa: E402
 home_dir = Path.cwd()
 
 
-"""
-This CLI interface makes use of Typer (https://typer.tiangolo.com/)
-which has an extensible functionality.
-"""
+# This CLI interface makes use of Typer (https://typer.tiangolo.com/)
+# which has an extensible functionality.
 
 
 app = typer.Typer()
 
 
 class InteractiveMenu:
-    def __init__(self):
+    def __init__(self) -> None:
         self.selectBenchmark: dict = {}
         self.selectSettings: dict = {}
         self.home_dir = Path.cwd()
         self.runnerDict: dict = {}
         self.type = None
 
-    def runner(self):
+    def runner(self) -> None:
         """
-        Function responsible for running interactive prompts in the benchmark.
+        Run interactive prompts.
+
         Questions are put as a list of dictionary which are shown to user as prompts.
         """
-
         self.benchmarkBanner()
         self.runChoice = [
             {
@@ -71,14 +76,14 @@ class InteractiveMenu:
                     "Benchmark Suite",
                     "Stand Alone Benchmark",
                     "Make your own suite",
-                    "Quit"
+                    "Quit",
                 ],
             }
         ]
 
         self.selectRunChoice = prompt(self.runChoice, style=custom_style_2)
 
-        #If user chooses to quit the cli
+        # If user chooses to quit the cli
         if self.selectRunChoice["runchoice"] == "Quit":
             exit()
 
@@ -90,7 +95,7 @@ class InteractiveMenu:
         else:
             runChoices = {
                 "Benchmark Suite": "Suite",
-                "Stand Alone Benchmark": "Benchmark"
+                "Stand Alone Benchmark": "Benchmark",
             }
 
             self.type = runChoices.get(self.selectRunChoice["runchoice"])
@@ -113,7 +118,7 @@ class InteractiveMenu:
             ]
         self.selectBenchmark = prompt(self.benchmarks, style=custom_style_2)
 
-        #If user quit
+        # If user quit
         if self.selectBenchmark["benchmark"] == "Quit":
             exit()
 
@@ -129,10 +134,8 @@ class InteractiveMenu:
         elif self.type == "Suite":
             self.runSuite()
 
-    def runBenchmark(self):
-        """
-            Method that is responsible for taking benchmark attribute and running it
-        """
+    def runBenchmark(self) -> None:
+        """Run benchmark."""
         bmark = self.selectBenchmark["benchmark"]
         benchmarkPath = os.path.join(Path.cwd(), "benchmarks", bmark)
         if (
@@ -167,21 +170,15 @@ class InteractiveMenu:
                 logs="The Benchmark doesn't return any log",
             )
 
-    def runSuite(self):
-        """
-            Method responsible for running the suite
-        """
+    def runSuite(self) -> None:
+        """Run the suite."""
         suite = self.selectBenchmark["benchmark"]
         suitePath = os.path.join(home_dir, "suites", suite)
-        out = InterfaceSkeleton().startBenchmark(
-            runType=self.type, suitePath=suitePath
-        )
+        out = InterfaceSkeleton().startBenchmark(runType=self.type, suitePath=suitePath)
         logIT(benchmark=suite[:-5], logs=out)
 
-    def buildSuite(self):
-        """
-            Method takes in attributes of suite and builds a suite for the specifications.
-        """
+    def buildSuite(self) -> None:
+        """Take in attributes of suite and build a suite for the specifications."""
         suiteBuilder = [
             {
                 "type": "input",
@@ -225,24 +222,24 @@ class InteractiveMenu:
         suiteMaker(suiteBuild=suiteBuild, suiteList=_suiteList)
         exit()
 
-    def benchmarkBanner(self):
-        print("   ___                   _____          ____   ____ ")
-        print("  / _ \ _ __   ___ _ __ |  ___|__  _ __| __ ) / ___|")
-        print(" | | | | '_ \ / _ \ '_ \| |_ / _ \| '__|  _ \| |    ")
-        print(" | |_| | |_) |  __/ | | |  _| (_) | |  | |_) | |___ ")
-        print("  \___/| .__/ \___|_| |_|_|  \___/|_|  |____/ \____|")
-        print("       |_|                                          ")
-        print(" ====Welcome to the OpenForBC Benchmarking Tool==== ")
+    def benchmarkBanner(self) -> None:
+        print(
+            r"   ___                   _____          ____   ____ "
+            r"  / _ \ _ __   ___ _ __ |  ___|__  _ __| __ ) / ___|"
+            r" | | | | '_ \ / _ \ '_ \| |_ / _ \| '__|  _ \| |    "
+            r" | |_| | |_) |  __/ | | |  _| (_) | |  | |_) | |___ "
+            r"  \___/| .__/ \___|_| |_|_|  \___/|_|  |____/ \____|"
+            r"       |_|                                          "
+            r" ====Welcome to the OpenForBC Benchmarking Tool==== "
+        )
 
 
 # Non interactive menu =>
 
 
 @app.command()
-def interactive(interactive: bool = typer.Argument(True)):
-    """
-    Interactive/Non interactive router
-    """
+def interactive(interactive: bool = typer.Argument(True)) -> None:
+    """Interactive/Non interactive router."""
     if interactive:
         InteractiveMenu().runner()
     else:
@@ -255,17 +252,16 @@ def run_benchmark(  # noqa: C901
     input: List[str] = typer.Option(..., "-b", "--benchmark", help="benchmark name"),
     settings: str = typer.Option(None, "-s", "--settings", help="benchmark settings"),
     verbose: int = typer.Option(None, "--verbose", "-v", help="modify verbosity"),
-):
-    """
-    Runs the given benchmarks
-    """
+) -> None:
+    """Run the given benchmarks."""
     _availableBench = [
         x["name"] for x in getBenchmarksToRun()
     ]  # List of all available benchmarks
     for benchmark in input:
         if benchmark not in _availableBench:
             typer.echo(
-                f"{benchmark} implementation doesn't exist. To list available benchmarks use list-benchmarks command"
+                f"{benchmark} implementation doesn't exist. To list available benchmarks"
+                " use list-benchmarks command"
             )
             continue
         benchmarkPath = os.path.join(Path.cwd(), "benchmarks", benchmark)
@@ -305,14 +301,13 @@ def run_benchmark(  # noqa: C901
 
 # Run suite with python user_interfaces/cli.py run-suite
 @app.command()
-def run_suite(suite: str = typer.Argument(..., help="Suite name")):
-    """
-    Runs the given Suite
-    """
+def run_suite(suite: str = typer.Argument(..., help="Suite name")) -> None:
+    """Run the given Suite."""
     _availableSuites = [x["name"] for x in getSuitesToRun()]
     if suite not in _availableSuites:
         typer.echo(
-            f"{suite} implementation doesn't exist. Please check available benchmarks using list-suites command"
+            f"{suite} implementation doesn't exist. Please check available "
+            "benchmarks using list-suites command"
         )
         typer.Exit()
     suitePath = os.path.join(home_dir, "suites", suite)
@@ -335,10 +330,8 @@ def make_suite(
     ),
     filename: str = typer.Option(..., "-f", help="filename"),
     description: str = typer.Option("No description", "-d", help="description"),
-):
-    """
-    Makes a suite out of given benchmarks
-    """
+) -> None:
+    """Make a suite out of given benchmarks."""
     # TODO: Make a check to ensure settings and benchmarks exist.
     if len(settings) != len(benchmarks):
         typer.echo("Unequal number of settings for benchmarks")
@@ -357,10 +350,8 @@ def make_suite(
 
 # List all suites with python user_interfaces/cli.py list-suites
 @app.command()
-def list_suites(csv: bool = typer.Option(False, "--csv", help="show as csv")):
-    """
-    Lists available suites
-    """
+def list_suites(csv: bool = typer.Option(False, "--csv", help="show as csv")) -> None:
+    """List available suites."""
     suites_list = [list(i.values()) for i in getSuitesToRun()]
     if not csv:
         table = tablify(legend=["suites"], data=suites_list)
@@ -371,10 +362,10 @@ def list_suites(csv: bool = typer.Option(False, "--csv", help="show as csv")):
 
 # List all benchmarks with python user_interfaces/cli.py list-benchmarks
 @app.command()
-def list_benchmarks(csv: bool = typer.Option(False, "--csv", help="show as csv")):
-    """
-    Lists available benchmarks
-    """
+def list_benchmarks(
+    csv: bool = typer.Option(False, "--csv", help="show as csv")
+) -> None:
+    """List available benchmarks."""
     benchmark_list = [list(i.values()) for i in getBenchmarksToRun()]
     if not csv:
         table = tablify(legend=["benchmarks"], data=benchmark_list)
@@ -389,10 +380,8 @@ def get_settings(
     benchmark: str = typer.Option(..., "-b", "--benchmark", help="benchmark name"),
     settings: str = typer.Option(None, "-s", "--settings", help="settings file"),
     csv: bool = typer.Option(False, "--csv", help="show as csv"),
-):
-    """
-    Gets the settings for the benchmark
-    """
+) -> None:
+    """Get the settings for the benchmark."""
     # If user wants to read the contents of a setting in a benchmark
     if settings is not None:
         try:
@@ -433,10 +422,8 @@ def get_settings(
 
 # List all logs with python user_interfaces/cli.py list-logs
 @app.command()
-def list_logs(csv: bool = typer.Option(False, "--csv", help="show as csv")):
-    """
-    Lists all previous logs
-    """
+def list_logs(csv: bool = typer.Option(False, "--csv", help="show as csv")) -> None:
+    """List all previous logs."""
     logPath = os.path.join(home_dir, "logs")
     index = 0
     tableOutput = []
@@ -456,17 +443,20 @@ def list_logs(csv: bool = typer.Option(False, "--csv", help="show as csv")):
                     )  # Format it to add hypens for printing
                     for i in range(len(root)):
                         if root[i] == "logs":
-                            bmark = root[i + 1]     # root[i+1] is the benchmark name
-                            settings = root[i + 2]  #root[i+2] is the settings name
+                            bmark = root[i + 1]  # root[i+1] is the benchmark name
+                            settings = root[i + 2]  # root[i+2] is the settings name
                             index += 1
                             break
-                    #Check settings != date (ie. not a suite) and benchmark name doesn't have 'suite' in it
-                    #TODO: make a stronger check
+                    # Check settings != date (ie. not a suite) and benchmark name doesn't
+                    # have 'suite' in it
+                    # TODO: make a stronger check
                     if not settings.find(date) and bmark.find("suite"):
                         settings = "-"
                     tableOutput.append([index, formatted_date, bmark, settings])
     if not csv:
-        table = tablify(legend=["Index", "Date", "Benchmark", "settings"], data=tableOutput)
+        table = tablify(
+            legend=["Index", "Date", "Benchmark", "settings"], data=tableOutput
+        )
         typer.echo(table)
     else:
         typer.echo(tableOutput)
@@ -476,10 +466,8 @@ def list_logs(csv: bool = typer.Option(False, "--csv", help="show as csv")):
 def install_phoronix(
     benchmark: str = typer.Option(..., "-b", "--benchmark", help="benchmark name"),
     version: str = typer.Option(None, "-v", "--version", help="benchmark version"),
-):
-    """
-    Install a benchmark from Phoronix repository
-    """
+) -> None:
+    """Install a benchmark from Phoronix repository."""
     phoronix_init()
     phoronix_install(benchmark_name=benchmark, benchmark_v=version)
 

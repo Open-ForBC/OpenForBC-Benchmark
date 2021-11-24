@@ -1,11 +1,11 @@
 [flake8]
-exclude = __init__.py
-ignore =
-    # Comments
-    E26,
-    # Lines starting / ending with binary operators
-    W503,
-    W504,
-    #Banner for CLI
-    W605,
-max-line-length = 120
+ban-relative-imports = true
+enable-extensions = TC, TC1
+extend-ignore =
+    # ANN101 Missing type annotation for self in method
+    ANN101,
+    # ANN102 Missing type annotation for cls in classmethod
+    ANN102,
+    # D1xx Missing docstrings
+    D100, D101, D102, D103, D104, D107
+max-line-length = 89
