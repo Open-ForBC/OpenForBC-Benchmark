@@ -80,6 +80,50 @@ class Benchmark(Serializable):
             validate(json, schema)
 
 
+class Preset(Serializable):
+    """
+    Benchmark settings preset.
+
+    Contains information on a single preset of benchmark settings.
+    """
+
+    def __init__(
+        self,
+        args: list[str] | str | None,
+        init_commands: list[Command] | None,
+        post_commands: list[Command] | None,
+    ) -> None:
+        """Create a benchmark Preset object."""
+        from shlex import split
+
+        if args is not None:
+            self.args = args if isinstance(args, list) else split(args)
+        elif init_commands is None:
+            raise TypeError("Either args or init_command have to be specified")
+
+        self.init_commands = init_commands
+        self.post_commands = post_commands
+
+    @classmethod
+    def deserialize(cls, json: Any) -> Self:
+        if "args" not in json and "init_command" not in json:
+            raise KeyError
+
+        init_commands = (
+            Command.deserialize_commands(json["init_command"])
+            if "init_command" in json
+            else None
+        )
+
+        post_commands = (
+            Command.deserialize_commands(json["post_command"])
+            if "post_command" in json
+            else None
+        )
+
+        return cls(json.get("args", None), init_commands, post_commands)
+
+
 class StatMatchInfo(Serializable):
     """Benchmark statistical data match info."""
 
