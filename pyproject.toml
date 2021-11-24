@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "openforbc-benchmark"
+version = "0.1.0"
+description = ""
+authors = ["Daniele Monteleone <daniele.monteleone.it@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+jsonschema = "^4.2.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+black = "^21.11b1"
+flake8 = "^4.0.1"
+flake8-annotations = "^2.7.0"
+flake8-type-checking = "^1.1.0"
+flake8-docstrings = "^1.6.0"
+flake8-simplify = "^0.14.2"
+flake8-comprehensions = "^3.7.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
