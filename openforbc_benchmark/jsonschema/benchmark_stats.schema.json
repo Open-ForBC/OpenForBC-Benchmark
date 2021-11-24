@@ -1,11 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.com/openforbc.benchmark_stats.schema.json",
-
   "title": "Open For-BC benchmark stats schema",
   "description": "A benchmark's output stats data schema",
-
   "type": "object",
-  "additionalProperties": { "type": "number" },
+  "additionalProperties": {
+    "type": "number"
+  },
   "minProperties": 1
 }
