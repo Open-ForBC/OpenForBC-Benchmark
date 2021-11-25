@@ -17,6 +17,8 @@ flake8-type-checking = "^1.1.0"
 flake8-docstrings = "^1.6.0"
 flake8-simplify = "^0.14.2"
 flake8-comprehensions = "^3.7.0"
+mypy = "^0.910"
+types-jsonschema = "^3.2.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

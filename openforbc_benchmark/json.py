@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from typing import Any
-    from typing_extensions import Self
 
 
 class Serializable(ABC):
@@ -23,7 +22,7 @@ class Serializable(ABC):
 
     @classmethod
     @abstractmethod
-    def deserialize(cls, json: Any) -> Self:
+    def deserialize(cls, json: Any) -> Serializable:
         """Deserialize instance from a JSON object."""
         pass
 
@@ -39,7 +38,7 @@ class Serializable(ABC):
             )
 
     @classmethod
-    def from_file(cls, filename: str) -> Self:
+    def from_file(cls, filename: str) -> Serializable:
         """Deserialize object as JSON from a file."""
         from json import load
 

@@ -7,7 +7,6 @@ from openforbc_benchmark.json import Serializable
 
 if TYPE_CHECKING:
     from typing import Any, Optional
-    from typing_extensions import Self
 
 
 class Command(Serializable):
@@ -31,12 +30,11 @@ class Command(Serializable):
         else:
             self.command = command
 
-        self.command = command
         self.env = env
         self.workdir = workdir
 
     @classmethod
-    def deserialize(cls, json: Any) -> Self:
+    def deserialize(cls, json: Any) -> Command:
         if isinstance(json, str):
             return cls(json)
         elif isinstance(json, dict):
@@ -45,7 +43,7 @@ class Command(Serializable):
             assert False
 
     @classmethod
-    def deserialize_commands(cls, json: Any) -> list[Self]:
+    def deserialize_commands(cls, json: Any) -> list[Command]:
         commands = [json] if not isinstance(json, list) else json
 
         return [Command.deserialize(c) for c in commands]

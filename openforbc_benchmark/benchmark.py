@@ -6,7 +6,6 @@ from openforbc_benchmark.json import Serializable
 
 if TYPE_CHECKING:
     from typing import Any
-    from typing_extensions import Self
 
 
 class Benchmark(Serializable):
@@ -32,7 +31,7 @@ class Benchmark(Serializable):
         self.virtualenv = virtualenv
 
     @classmethod
-    def deserialize(cls, json: Any) -> Self:
+    def deserialize(cls, json: Any) -> Benchmark:
         cls.validate(json)
 
         setup_commands = (
@@ -49,12 +48,13 @@ class Benchmark(Serializable):
             else None
         )
 
-        stats = None
-        if isinstance(json["stats"], str) or "command" in json["stats"]:
-            stats = Command.deserialize(json["stats"])
-        else:
-            stats = json["stats"]
-            stats = {str(k): StatMatchInfo.deserialize(v) for k, v in stats.items()}
+        stats: Command | dict[str, StatMatchInfo] = (
+            Command.deserialize(json["stats"])
+            if isinstance(json["stats"], str) or "command" in json["stats"]
+            else {
+                str(k): StatMatchInfo.deserialize(v) for k, v in json["stats"].items()
+            }
+        )
 
         return cls(
             json["name"],
@@ -90,8 +90,8 @@ class Preset(Serializable):
     def __init__(
         self,
         args: list[str] | str | None,
-        init_commands: list[Command] | None,
-        post_commands: list[Command] | None,
+        init_commands: list[Command] | None = None,
+        post_commands: list[Command] | None = None,
     ) -> None:
         """Create a benchmark Preset object."""
         from shlex import split
@@ -105,7 +105,7 @@ class Preset(Serializable):
         self.post_commands = post_commands
 
     @classmethod
-    def deserialize(cls, json: Any) -> Self:
+    def deserialize(cls, json: Any) -> Preset:
         if "args" not in json and "init_command" not in json:
             raise KeyError
 
@@ -133,5 +133,5 @@ class StatMatchInfo(Serializable):
         self.file = file
 
     @classmethod
-    def deserialize(cls, json: Any) -> Self:
+    def deserialize(cls, json: Any) -> StatMatchInfo:
         return cls(**json)
