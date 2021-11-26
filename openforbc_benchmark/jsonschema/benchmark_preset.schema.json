@@ -82,7 +82,7 @@
     }
   },
   "additionalProperties": false,
-  "oneOf": [
+  "anyOf": [
     {
       "required": [
         "args"
