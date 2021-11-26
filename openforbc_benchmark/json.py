@@ -1,7 +1,7 @@
 """JSON module contains classes used for JSON (de)serialization."""
 
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Generic, TypeVar
 
 if TYPE_CHECKING:
     from typing import Any
@@ -12,8 +12,10 @@ from jsonschema import validate
 from json import load
 from openforbc_benchmark.utils import Runnable
 
+T = TypeVar("T", bound="Serializable")
 
-class Serializable(ABC):
+
+class Serializable(ABC, Generic[T]):
     """
     A Serializable class can be serialized/deserialized into/from a JSON document.
 
@@ -27,7 +29,7 @@ class Serializable(ABC):
 
     @classmethod
     @abstractmethod
-    def deserialize(cls, json: Any) -> Serializable:
+    def deserialize(cls, json: Any) -> T:
         """Deserialize instance from a JSON object."""
         pass
 
@@ -43,7 +45,7 @@ class Serializable(ABC):
             )
 
     @classmethod
-    def from_file(cls, filename: str) -> Serializable:
+    def from_file(cls, filename: str) -> T:
         """Deserialize object as JSON from a file."""
         from json import load
 
@@ -51,7 +53,7 @@ class Serializable(ABC):
             return cls.deserialize(load(file))
 
 
-class BenchmarkInfo(Serializable):
+class BenchmarkInfo(Serializable["BenchmarkInfo"]):
     """A benchmark definition."""
 
     def __init__(
@@ -119,7 +121,7 @@ class BenchmarkInfo(Serializable):
             validate(json, schema)
 
 
-class PresetInfo(Serializable):
+class PresetInfo(Serializable["PresetInfo"]):
     """
     Benchmark settings preset.
 
@@ -175,7 +177,7 @@ class PresetInfo(Serializable):
             validate(json, schema)
 
 
-class CommandInfo(Serializable):
+class CommandInfo(Serializable["CommandInfo"]):
     """
     A benchmark command which can be executed.
 
@@ -199,21 +201,22 @@ class CommandInfo(Serializable):
         self.env = env
         self.workdir = workdir
 
-    def update(
+    def extend(
         self,
         args: list[str] | None = None,
         env: dict[str, str] | None = None,
         workdir: str | None = None,
-    ) -> None:
-        """Update command info."""
-        if args is not None:
-            self.command += args
-
+    ) -> CommandInfo:
+        """Create an extended version of this command."""
+        new_env = self.env.copy()
         if env is not None:
-            self.env.update(env)
+            new_env.update(env)
 
-        if workdir is not None:
-            self.workdir = workdir
+        return CommandInfo(
+            self.command + args if args is not None else self.command,
+            new_env,
+            workdir if workdir is not None else self.workdir,
+        )
 
     def into_runnable(self) -> Runnable:
         """Create a Runnable object from this CommandInfo."""
@@ -235,7 +238,7 @@ class CommandInfo(Serializable):
         return [CommandInfo.deserialize(c) for c in commands]
 
 
-class StatMatchInfo(Serializable):
+class StatMatchInfo(Serializable["StatMatchInfo"]):
     """Benchmark statistical data match info."""
 
     def __init__(self, regex: str, file: str | None = None) -> None:
@@ -248,7 +251,7 @@ class StatMatchInfo(Serializable):
         return cls(**json)
 
 
-class BenchmarkStats(Serializable):
+class BenchmarkStats(Serializable["BenchmarkStats"]):
     """Benchmark statistical data."""
 
     def __init__(self, stats: dict[str, int | float]) -> None:

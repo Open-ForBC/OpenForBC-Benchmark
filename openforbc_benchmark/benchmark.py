@@ -1,137 +1,232 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from openforbc_benchmark.common import Command
-from openforbc_benchmark.json import Serializable
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Iterator
+    from openforbc_benchmark.json import StatMatchInfo
+
+from dataclasses import dataclass
+from typing import TextIO
+
+from openforbc_benchmark.json import (
+    BenchmarkInfo,
+    BenchmarkStats,
+    CommandInfo,
+    PresetInfo,
+)
+from openforbc_benchmark.utils import Runnable
 
 
-class Benchmark(Serializable):
+class Benchmark(BenchmarkInfo):
     """A benchmark."""
 
     def __init__(
         self,
         name: str,
         description: str,
-        setup_commands: list[Command] | None,
-        run_commands: list[Command],
-        cleanup_commands: list[Command] | None,
-        stats: Command | dict[str, StatMatchInfo],
+        setup_commands: list[CommandInfo] | None,
+        run_commands: list[CommandInfo],
+        cleanup_commands: list[CommandInfo] | None,
+        stats: CommandInfo | dict[str, StatMatchInfo],
         virtualenv: bool,
+        dir: str,
     ) -> None:
         """Create a Benchmark object."""
-        self.name = name
-        self.description = description
-        self.setup_commands = setup_commands
-        self.run_commands = run_commands
-        self.cleanup_commands = cleanup_commands
-        self.stats = stats
-        self.virtualenv = virtualenv
-
-    @classmethod
-    def deserialize(cls, json: Any) -> Benchmark:
-        cls.validate(json)
-
-        setup_commands = (
-            Command.deserialize_commands(json["setup_command"])
-            if "setup_command" in json
-            else None
-        )
-
-        run_commands = Command.deserialize_commands(json["run_command"])
-
-        cleanup_commands = (
-            Command.deserialize_commands(json["cleanup_command"])
-            if "cleanup_command" in json
-            else None
-        )
-
-        stats: Command | dict[str, StatMatchInfo] = (
-            Command.deserialize(json["stats"])
-            if isinstance(json["stats"], str) or "command" in json["stats"]
-            else {
-                str(k): StatMatchInfo.deserialize(v) for k, v in json["stats"].items()
-            }
-        )
-
-        return cls(
-            json["name"],
-            json["description"],
+        super().__init__(
+            name,
+            description,
             setup_commands,
             run_commands,
             cleanup_commands,
             stats,
-            json.get("virtualenv", False),
+            virtualenv,
         )
+        self.dir = dir
 
     @classmethod
-    def validate(cls, json: Any) -> None:
-        """Validate a benchmark's json object."""
-        from os.path import dirname, join
+    def from_definition(cls, definition: BenchmarkInfo, dir: str) -> Benchmark:
+        return cls(**definition.__dict__, dir=dir)
+
+    @classmethod
+    def from_definition_file(cls, path: str) -> Benchmark:
+        """Build a Benchmark object from the definiton path."""
+        from os.path import dirname
+
+        return cls.from_definition(BenchmarkInfo.from_file(path), dirname(path))
+
+    def get_id(self) -> str:
+        """Get benchmark ID (folder basename)."""
+        from os.path import basename
+
+        return basename(self.dir)
+
+    def get_presets(self) -> list[Preset]:
+        """Get benchmark preset names."""
+        from os import listdir
+        from os.path import basename, join
+
+        presets_dir = join(self.dir, "presets")
+        return [
+            Preset(basename(file)[:-5], PresetInfo.from_file(join(presets_dir, file)))
+            for file in listdir(presets_dir)
+            if file.endswith(".json")
+        ]
+
+    def get_preset(self, name: str) -> Preset | None:
+        """Retrieve benchmark preset."""
+        from os.path import exists, join
+
+        presets_dir = join(self.dir, "presets")
+
+        filename = name if name.endswith(".json") else name + ".json"
+        if not exists(join(presets_dir, filename)):
+            return None
+
+        return Preset(
+            name[:-5] if name.endswith(".json") else name,
+            PresetInfo.from_file(join(presets_dir, filename)),
+        )
+
+    def run(self, presets: list[Preset]) -> BenchmarkRun:
+        """Create a `BenchmarkRun` for this benchmark."""
+        return BenchmarkRun(self, presets)
+
+
+@dataclass
+class Preset:
+    name: str
+    definition: PresetInfo
+
+
+class BenchmarkRun:
+    """
+    A single Benchmark run session.
+
+    Contains multiple presets.
+    """
+
+    def __init__(self, benchmark: Benchmark, presets: list[Preset]) -> None:
+        self.benchmark = benchmark
+        self.presets = presets
+        self.virtualenv: str | None = None
+
+    def setup(self) -> Iterator[Runnable]:
+        """Get tasks for this benchmark run setup commands."""
+        from os.path import join
+
+        if self.benchmark.virtualenv:
+            yield self._add_context(Runnable(["python3", "-m", "venv", ".venv"]))
+            self.virtualenv = join(self.benchmark.dir, ".venv")
+
+        if self.benchmark.setup_commands is not None:
+            for command in self.benchmark.setup_commands:
+                yield self._add_context(command.into_runnable())
+
+    def run(self) -> Iterator[tuple[Preset, Iterator[Runnable]]]:
+        """
+        Get tasks for each selected preset.
+
+        Returns an Iterator into tuples containing:
+        - a Preset: the current preset
+        - a Iterator into `Runnable`s: the preset's tasks
+        """
+        for preset in self.presets:
+            yield preset, self._run_preset(preset)
+
+    def get_stats(self, stdout: str | TextIO) -> dict[str, int | float]:
+        from json import load, loads
         from jsonschema import validate
-        from json import load
+        from os.path import dirname, join
+        from re import compile
+        from subprocess import run
 
-        with open(
-            join(dirname(__file__), "jsonschema", "benchmark.schema.json")
-        ) as file:
-            schema = load(file)
-            validate(json, schema)
+        if isinstance(self.benchmark.stats, CommandInfo):
+            p = run(
+                **self._add_context(
+                    self.benchmark.stats.into_runnable()
+                ).into_popen_args(),
+                capture_output=True
+            )
+            json = loads(p.stdout.decode())
+            schema_path = join(dirname(__file__), "jsonschema", "benchmark.schema.json")
+            with open(schema_path, "r") as schema_file:
+                schema = load(schema_file)
+                validate(json, schema)
+            return BenchmarkStats.deserialize(json).stats
 
+        stats: dict[str, int | float] = {}
+        for name, match in self.benchmark.stats.items():
+            file = stdout
+            if match.file is not None:
+                file = open(join(self.benchmark.dir, match.file), "r")  # noqa: SIM115
 
-class Preset(Serializable):
-    """
-    Benchmark settings preset.
+            regex = compile(match.regex)
+            for line in file if not isinstance(file, str) else file.splitlines():
+                m = regex.search(line)
+                if m is not None:
+                    number = m.group(1)
+                    stats[name] = float(number) if "." in number else int(number)
+                    break
 
-    Contains information on a single preset of benchmark settings.
-    """
+            if match.file is not None and isinstance(file, TextIO):
+                file.close()
 
-    def __init__(
-        self,
-        args: list[str] | str | None,
-        init_commands: list[Command] | None = None,
-        post_commands: list[Command] | None = None,
-    ) -> None:
-        """Create a benchmark Preset object."""
-        from shlex import split
+        return stats
 
-        if args is not None:
-            self.args = args if isinstance(args, list) else split(args)
-        elif init_commands is None:
-            raise TypeError("Either args or init_command have to be specified")
+    def cleanup(self) -> Iterator[Runnable]:
+        """Get cleanup tasks for this benchmark."""
+        if self.benchmark.cleanup_commands is not None:
+            for command in self.benchmark.cleanup_commands:
+                yield self._add_context(command.into_runnable())
 
-        self.init_commands = init_commands
-        self.post_commands = post_commands
+    def _run_preset(self, preset: Preset) -> Iterator[Runnable]:
+        """Get tasks for the selected preset."""
+        definition = preset.definition
+        if definition.init_commands is not None:
+            for command in definition.init_commands:
+                yield self._add_context(command.into_runnable())
 
-    @classmethod
-    def deserialize(cls, json: Any) -> Preset:
-        if "args" not in json and "init_command" not in json:
-            raise KeyError
+        for command in self.benchmark.run_commands:
+            yield self._add_context(
+                (
+                    command.extend(definition.args)
+                    if definition.args is not None
+                    else command
+                ).into_runnable()
+            )
 
-        init_commands = (
-            Command.deserialize_commands(json["init_command"])
-            if "init_command" in json
-            else None
+        if definition.post_commands is not None:
+            for command in definition.post_commands:
+                yield self._add_context(command.into_runnable())
+
+    def _add_context(self, runnable: Runnable) -> Runnable:
+        from os.path import isabs, join
+
+        run_env = runnable.env.copy() if runnable.env is not None else None
+        if self.virtualenv is not None:
+            new_env = {
+                "VIRTUALENV": self.virtualenv,
+            }
+
+            if run_env is not None:
+                run_env.update(new_env)
+            else:
+                run_env = new_env
+
+        cwd = (
+            (
+                runnable.cwd
+                if isabs(runnable.cwd)
+                else join(self.benchmark.dir, runnable.cwd)
+            )
+            if runnable.cwd is not None
+            else self.benchmark.dir
         )
 
-        post_commands = (
-            Command.deserialize_commands(json["post_command"])
-            if "post_command" in json
-            else None
+        return Runnable(
+            runnable.args,
+            cwd,
+            run_env,
+            [join(self.virtualenv, "bin")] if self.virtualenv is not None else [],
         )
-
-        return cls(json.get("args", None), init_commands, post_commands)
-
-
-class StatMatchInfo(Serializable):
-    """Benchmark statistical data match info."""
-
-    def __init__(self, regex: str, file: str | None = None) -> None:
-        """Create a BenchmarkStat object."""
-        self.regex = regex
-        self.file = file
-
-    @classmethod
-    def deserialize(cls, json: Any) -> StatMatchInfo:
-        return cls(**json)

@@ -32,4 +32,5 @@ repos:
       - id: mypy
         pass_filenames: false
         additional_dependencies:
-          - types-jsonschema
+          - types-jsonschema==3.2.1
+          - types-tabulate==0.8.3
