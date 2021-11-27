@@ -7,6 +7,9 @@ authors = ["Daniele Monteleone <daniele.monteleone.it@gmail.com>"]
 [tool.poetry.dependencies]
 python = "^3.9"
 jsonschema = "^4.2.1"
+typer = "^0.4.0"
+tabulate = "^0.8.9"
+yaspin = "^2.1.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
@@ -19,6 +22,10 @@ flake8-simplify = "^0.14.2"
 flake8-comprehensions = "^3.7.0"
 mypy = "^0.910"
 types-jsonschema = "^3.2.1"
+types-tabulate = "^0.8.3"
+
+[tool.poetry.scripts]
+o4bc-bench = "openforbc_benchmark.cli.app:run"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
