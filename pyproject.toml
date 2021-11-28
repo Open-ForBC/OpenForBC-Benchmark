@@ -10,6 +10,7 @@ jsonschema = "^4.2.1"
 typer = "^0.4.0"
 tabulate = "^0.8.9"
 yaspin = "^2.1.0"
+inquirer = "^2.8.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
