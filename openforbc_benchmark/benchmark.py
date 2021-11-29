@@ -45,15 +45,15 @@ class Benchmark(BenchmarkInfo):
         self.dir = dir
 
     @classmethod
-    def from_definition(cls, definition: BenchmarkInfo, dir: str) -> Benchmark:
-        return cls(**definition.__dict__, dir=dir)
+    def from_definition(self_class, definition: BenchmarkInfo, dir: str) -> Benchmark:
+        return self_class(**definition.__dict__, dir=dir)
 
     @classmethod
-    def from_definition_file(cls, path: str) -> Benchmark:
+    def from_definition_file(self_class, path: str) -> Benchmark:
         """Build a Benchmark object from the definiton path."""
         from os.path import dirname
 
-        return cls.from_definition(BenchmarkInfo.from_file(path), dirname(path))
+        return self_class.from_definition(BenchmarkInfo.from_file(path), dirname(path))
 
     def get_id(self) -> str:
         """Get benchmark ID (folder basename)."""

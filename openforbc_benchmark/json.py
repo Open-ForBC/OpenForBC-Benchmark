@@ -23,13 +23,13 @@ class Serializable(ABC, Generic[T]):
     """
 
     @classmethod
-    def serialize(cls, obj: Any) -> Any:
+    def serialize(self_class, obj: Any) -> Any:
         """Serialize `obj` into a JSON object."""
         return obj.__dict__
 
     @classmethod
     @abstractmethod
-    def deserialize(cls, json: Any) -> T:
+    def deserialize(self_class, json: Any) -> T:
         """Deserialize instance from a JSON object."""
         pass
 
@@ -45,12 +45,12 @@ class Serializable(ABC, Generic[T]):
             )
 
     @classmethod
-    def from_file(cls, filename: str) -> T:
+    def from_file(self_class, filename: str) -> T:
         """Deserialize object as JSON from a file."""
         from json import load
 
         with open(filename, "r") as file:
-            return cls.deserialize(load(file))
+            return self_class.deserialize(load(file))
 
 
 class BenchmarkInfo(Serializable["BenchmarkInfo"]):
@@ -76,8 +76,8 @@ class BenchmarkInfo(Serializable["BenchmarkInfo"]):
         self.virtualenv = virtualenv
 
     @classmethod
-    def deserialize(cls, json: Any) -> BenchmarkInfo:
-        cls.validate(json)
+    def deserialize(self_class, json: Any) -> BenchmarkInfo:
+        self_class.validate(json)
 
         setup_commands = (
             CommandInfo.deserialize_commands(json["setup_command"])
@@ -101,7 +101,7 @@ class BenchmarkInfo(Serializable["BenchmarkInfo"]):
             }
         )
 
-        return cls(
+        return self_class(
             json["name"],
             json["description"],
             setup_commands,
@@ -112,7 +112,7 @@ class BenchmarkInfo(Serializable["BenchmarkInfo"]):
         )
 
     @classmethod
-    def validate(cls, json: Any) -> None:
+    def validate(self_class, json: Any) -> None:
         """Validate a benchmark definition json object."""
         with open(
             join(dirname(__file__), "jsonschema", "benchmark.schema.json")
@@ -147,8 +147,8 @@ class PresetInfo(Serializable["PresetInfo"]):
         self.post_commands = post_commands
 
     @classmethod
-    def deserialize(cls, json: Any) -> PresetInfo:
-        cls.validate(json)
+    def deserialize(self_class, json: Any) -> PresetInfo:
+        self_class.validate(json)
 
         if "args" not in json and "init_command" not in json:
             raise KeyError
@@ -165,10 +165,10 @@ class PresetInfo(Serializable["PresetInfo"]):
             else None
         )
 
-        return cls(json.get("args", None), init_commands, post_commands)
+        return self_class(json.get("args", None), init_commands, post_commands)
 
     @classmethod
-    def validate(cls, json: Any) -> None:
+    def validate(self_class, json: Any) -> None:
         """Validate a preset definition json object."""
         with open(
             join(dirname(__file__), "jsonschema", "benchmark_preset.schema.json")
@@ -223,16 +223,16 @@ class CommandInfo(Serializable["CommandInfo"]):
         return Runnable(self.command, self.workdir, self.env)
 
     @classmethod
-    def deserialize(cls, json: Any) -> CommandInfo:
+    def deserialize(self_class, json: Any) -> CommandInfo:
         if isinstance(json, str):
-            return cls(json)
+            return self_class(json)
         elif isinstance(json, dict):
-            return cls(**json)
+            return self_class(**json)
         else:
             assert False
 
     @classmethod
-    def deserialize_commands(cls, json: Any) -> list[CommandInfo]:
+    def deserialize_commands(self_class, json: Any) -> list[CommandInfo]:
         commands = [json] if not isinstance(json, list) else json
 
         return [CommandInfo.deserialize(c) for c in commands]
@@ -247,8 +247,8 @@ class StatMatchInfo(Serializable["StatMatchInfo"]):
         self.file = file
 
     @classmethod
-    def deserialize(cls, json: Any) -> StatMatchInfo:
-        return cls(**json)
+    def deserialize(self_class, json: Any) -> StatMatchInfo:
+        return self_class(**json)
 
 
 class BenchmarkStats(Serializable["BenchmarkStats"]):
@@ -259,11 +259,11 @@ class BenchmarkStats(Serializable["BenchmarkStats"]):
         self.stats = stats
 
     @classmethod
-    def deserialize(cls, json: Any) -> BenchmarkStats:
-        cls.validate(json)
+    def deserialize(self_class, json: Any) -> BenchmarkStats:
+        self_class.validate(json)
 
         if isinstance(json, dict):
-            return cls(
+            return self_class(
                 {
                     str(k): v
                     for k, v in filter(
@@ -273,10 +273,10 @@ class BenchmarkStats(Serializable["BenchmarkStats"]):
                 }
             )
 
-        return cls({})
+        return self_class({})
 
     @classmethod
-    def validate(cls, json: Any) -> None:
+    def validate(self_class, json: Any) -> None:
         """Validate a benchmark stats output json object."""
         with open(
             join(dirname(__file__), "jsonschema", "benchmark_preset.schema.json")
