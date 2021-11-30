@@ -1,5 +1,5 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$schema": "http://json-schema.org/draft-07/schema",
   "$id": "https://example.com/openforbc.benchmark_stats.schema.json",
   "title": "Open For-BC benchmark stats schema",
   "description": "A benchmark's output stats data schema",

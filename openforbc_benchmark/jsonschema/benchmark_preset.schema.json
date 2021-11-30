@@ -1,5 +1,5 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$schema": "http://json-schema.org/draft-07/schema",
   "$id": "https://example.com/openforbc_preset.schema.json",
   "title": "Open-ForBC benchmark preset schema",
   "description": "A benchmark's preset JSON definition schema",

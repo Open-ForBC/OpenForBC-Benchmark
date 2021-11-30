@@ -1,6 +1,31 @@
 {
+  "json.schemas": [
+    {
+      "fileMatch": [
+        "benchmark.json"
+      ],
+      "url": "./openforbc_benchmark/jsonschema/benchmark.schema.json"
+    },
+    {
+      "fileMatch": [
+        "presets/*.json"
+      ],
+      "url": "./openforbc_benchmark/jsonschema/benchmark_preset.schema.json"
+    },
+    {
+      "fileMatch": [
+        "suites/*.json"
+      ],
+      "url": "./openforbc_benchmark/jsonschema/benchmark_suite.schema.json"
+    }
+  ],
   "python.formatting.provider": "black",
   "python.linting.enabled": true,
   "python.linting.flake8Enabled": true,
-  "python.linting.mypyEnabled": true
+  "python.linting.mypyEnabled": true,
+  "python.testing.pytestArgs": [
+    "tests"
+  ],
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true
 }

@@ -1,9 +1,8 @@
-from __future__ import annotations
 from typing import TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from typing import Any, Iterator
+    from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
     from openforbc_benchmark.benchmark import BenchmarkRun
     from openforbc_benchmark.utils import Runnable
 
@@ -12,6 +11,7 @@ from yaspin.core import Yaspin
 
 from openforbc_benchmark.benchmark import Benchmark
 from openforbc_benchmark.cli.state import state
+from openforbc_benchmark.utils import argv_join
 
 
 class BenchmarkRunException(Exception):
@@ -39,7 +39,7 @@ class BenchmarkValidationError(BenchmarkRunException):
 class CliBenchmarkRun:
     """A benchmark run in the CLI interface."""
 
-    def __init__(self, benchmark_run: BenchmarkRun) -> None:
+    def __init__(self, benchmark_run: "BenchmarkRun") -> None:
         from datetime import datetime
         from os import mkdir
         from os.path import dirname, exists, join
@@ -57,24 +57,24 @@ class CliBenchmarkRun:
 
         mkdir(self.log_dir)
 
-    def start(self) -> dict[str, dict[str, int | float]]:
+    def start(self) -> "Dict[str, Dict[str, Union[int, float]]]":
         with self.spinner:
             return self._start()
 
-    def _start(self) -> dict[str, dict[str, int | float]]:
+    def _start(self) -> "Dict[str, Dict[str, Union[int, float]]]":
         from json.decoder import JSONDecodeError
         from jsonschema import ValidationError
-        from shlex import join
 
         benchmark_id = self.benchmark_run.benchmark.get_id()
 
         self.spinner.write(f'Running "{benchmark_id}" setup commands')
         for task in self.benchmark_run.setup():
-            self.spinner.text = f"{benchmark_id}(setup): {join(task.args)}"
+            self.spinner.text = f"{benchmark_id}(setup): {argv_join(task.args)}"
             self._run_task_or_err(
                 task,
                 self._get_log_path("setup"),
-                f'Benchmark "{benchmark_id}" setup command "{join(task.args)}" failed',
+                f'Benchmark "{benchmark_id}" setup command "{argv_join(task.args)}" '
+                "failed",
             )
 
         stats = {}
@@ -82,13 +82,13 @@ class CliBenchmarkRun:
             self.spinner.write(f'Running "{benchmark_id}" preset "{preset.name}"')
             for task in tasks:
                 self.spinner.text = (
-                    f"{benchmark_id}(run:{preset.name}): {join(task.args)}"
+                    f"{benchmark_id}(run:{preset.name}): {argv_join(task.args)}"
                 )
                 self._run_task_or_err(
                     task,
                     self._get_log_path(f"run_{preset.name}"),
                     f'Benchmark "{benchmark_id}" preset "{preset.name}" command '
-                    f'"{join(task.args)}" failed',
+                    f'"{argv_join(task.args)}" failed',
                 )
 
             with open(self._get_log_path(f"run_{preset.name}"), "r") as output:
@@ -119,11 +119,13 @@ class CliBenchmarkRun:
 
         return join(self.log_dir, f"{identifier}.log")
 
-    def _print(self, message: Any, err: bool = False) -> None:
+    def _print(self, message: "Any", err: bool = False) -> None:
         with self.spinner.hidden():
             echo(message, err=err)
 
-    def _run_task_or_err(self, task: Runnable, log_path: str, err_message: Any) -> None:
+    def _run_task_or_err(
+        self, task: "Runnable", log_path: str, err_message: "Any"
+    ) -> None:
         try:
             ret = self._run_task(task, log_path)
         except Exception as e:
@@ -136,14 +138,13 @@ class CliBenchmarkRun:
                 BenchmarkTaskFailed(f"Task {task} failed with return code {ret}")
             )
 
-    def _run_task(self, task: Runnable, log_path: str) -> int:
+    def _run_task(self, task: "Runnable", log_path: str) -> int:
         from selectors import DefaultSelector, EVENT_READ
-        from shlex import join
         from subprocess import PIPE, Popen
         from time import sleep
         from typing import cast, IO
 
-        self.spinner.write(f"$ {join(task.args)}")
+        self.spinner.write(f"$ {argv_join(task.args)}")
 
         proc = Popen(**task.into_popen_args(), stderr=PIPE, stdout=PIPE)
         assert proc.stdout is not None
@@ -179,7 +180,7 @@ class CliBenchmarkRun:
         return proc.returncode
 
 
-def search_benchmarks() -> Iterator[Benchmark]:
+def search_benchmarks() -> "Iterator[Benchmark]":
     """Search benchmarks in the search path."""
     from os import listdir
     from os.path import exists, join
@@ -195,7 +196,7 @@ def search_benchmarks() -> Iterator[Benchmark]:
             echo(f'ERROR: Path "{path}" in search path is not a directory', err=True)
 
 
-def find_benchmark(id: str) -> Benchmark | None:
+def find_benchmark(id: str) -> "Optional[Benchmark]":
     """Find a benchmark by ID in the search path."""
     return next((x for x in search_benchmarks() if x.get_id() == id), None)
 
@@ -214,14 +215,16 @@ def get_benchmark_log_dir(benchmark: Benchmark) -> str:
     return join(getcwd(), "logs", benchmark.get_id())
 
 
-def print_stats(stats: dict[str, dict[str, int | float]], json: bool = True) -> None:
+def print_stats(
+    stats: "Dict[str, Dict[str, Union[int, float]]]", json: bool = True
+) -> None:
     from json import dumps
     from tabulate import tabulate
 
     if json:
         return echo(dumps(stats))
 
-    table: list[tuple[str, str, int | float]] = []
+    table: "List[Tuple[str, str, Union[int, float]]]" = []
     for preset, preset_stats in stats.items():
         table.extend((preset, stat, value) for stat, value in preset_stats.items())
 
@@ -270,7 +273,7 @@ def list_presets(benchmark_id: str) -> None:
 @app.command("run")
 def run_benchmark(
     benchmark_id: str,
-    preset_names: list[str],
+    preset_names: "List[str]",
     table: bool = Option(False, "--table", "-t"),
 ) -> None:
     preset_names = list(preset_names)  # https://github.com/tiangolo/typer/issues/127

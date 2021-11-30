@@ -1,31 +1,35 @@
-from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from typing import Optional
+    from typing import Dict, Iterable, List, Optional
 
 
-from dataclasses import dataclass, field
 from os import environ
 from typing_extensions import TypedDict
 
 
 class PopenArgs(TypedDict):
-    args: list[str]
-    cwd: Optional[str]
-    env: Optional[dict[str, str]]
+    args: "List[str]"
+    cwd: "Optional[str]"
+    env: "Optional[Dict[str, str]]"
 
 
-@dataclass
 class Runnable:
     """A process which can be run."""
 
-    args: list[str]
-    cwd: Optional[str] = None
-    env: Optional[dict[str, str]] = None
-    path: list[str] = field(default_factory=list)
+    def __init__(
+        self,
+        args: "List[str]",
+        cwd: "Optional[str]" = None,
+        env: "Optional[Dict[str, str]]" = None,
+        path: "List[str]" = [],
+    ) -> None:
+        self.args = args
+        self.cwd = cwd
+        self.env = env
+        self.path = path
 
-    def into_popen_args(self, env: dict[str, str] = environ.copy()) -> PopenArgs:
+    def into_popen_args(self, env: "Dict[str, str]" = environ.copy()) -> PopenArgs:
         """Transform into subprocess.Popen init args."""
         from os.path import abspath
 
@@ -46,3 +50,9 @@ class Runnable:
             "cwd": self.cwd,
             "env": env if self.path or self.env is not None else None,
         }
+
+
+def argv_join(argv: "Iterable[str]") -> str:
+    from shlex import quote
+
+    return " ".join(quote(x) for x in argv)

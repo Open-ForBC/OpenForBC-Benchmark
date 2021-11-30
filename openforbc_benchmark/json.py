@@ -1,10 +1,9 @@
 """JSON module contains classes used for JSON (de)serialization."""
 
-from __future__ import annotations
 from typing import TYPE_CHECKING, Generic, TypeVar
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, Dict, List, Optional, Union
 
 from abc import ABC, abstractmethod
 from os.path import dirname, join
@@ -23,13 +22,13 @@ class Serializable(ABC, Generic[T]):
     """
 
     @classmethod
-    def serialize(self_class, obj: Any) -> Any:
+    def serialize(self_class, obj: "Any") -> "Any":
         """Serialize `obj` into a JSON object."""
         return obj.__dict__
 
     @classmethod
     @abstractmethod
-    def deserialize(self_class, json: Any) -> T:
+    def deserialize(self_class, json: "Any") -> T:
         """Deserialize instance from a JSON object."""
         pass
 
@@ -60,10 +59,10 @@ class BenchmarkInfo(Serializable["BenchmarkInfo"]):
         self,
         name: str,
         description: str,
-        setup_commands: list[CommandInfo] | None,
-        run_commands: list[CommandInfo],
-        cleanup_commands: list[CommandInfo] | None,
-        stats: CommandInfo | dict[str, StatMatchInfo],
+        setup_commands: "Optional[List[CommandInfo]]",
+        run_commands: "List[CommandInfo]",
+        cleanup_commands: "Optional[List[CommandInfo]]",
+        stats: "Union[CommandInfo, Dict[str, StatMatchInfo]]",
         virtualenv: bool,
     ) -> None:
         """Create a BenchmarkDefinition object."""
@@ -76,7 +75,7 @@ class BenchmarkInfo(Serializable["BenchmarkInfo"]):
         self.virtualenv = virtualenv
 
     @classmethod
-    def deserialize(self_class, json: Any) -> BenchmarkInfo:
+    def deserialize(self_class, json: "Any") -> "BenchmarkInfo":
         self_class.validate(json)
 
         setup_commands = (
@@ -93,7 +92,7 @@ class BenchmarkInfo(Serializable["BenchmarkInfo"]):
             else None
         )
 
-        stats: CommandInfo | dict[str, StatMatchInfo] = (
+        stats: "Union[CommandInfo , Dict[str, StatMatchInfo]]" = (
             CommandInfo.deserialize(json["stats"])
             if isinstance(json["stats"], str) or "command" in json["stats"]
             else {
@@ -112,7 +111,7 @@ class BenchmarkInfo(Serializable["BenchmarkInfo"]):
         )
 
     @classmethod
-    def validate(self_class, json: Any) -> None:
+    def validate(self_class, json: "Any") -> None:
         """Validate a benchmark definition json object."""
         with open(
             join(dirname(__file__), "jsonschema", "benchmark.schema.json")
@@ -130,9 +129,9 @@ class PresetInfo(Serializable["PresetInfo"]):
 
     def __init__(
         self,
-        args: list[str] | str | None,
-        init_commands: list[CommandInfo] | None = None,
-        post_commands: list[CommandInfo] | None = None,
+        args: "Optional[Union[List[str], str]]",
+        init_commands: "Optional[List[CommandInfo]]" = None,
+        post_commands: "Optional[List[CommandInfo]]" = None,
     ) -> None:
         """Create a benchmark Preset object."""
         from shlex import split
@@ -147,7 +146,7 @@ class PresetInfo(Serializable["PresetInfo"]):
         self.post_commands = post_commands
 
     @classmethod
-    def deserialize(self_class, json: Any) -> PresetInfo:
+    def deserialize(self_class, json: "Any") -> "PresetInfo":
         self_class.validate(json)
 
         if "args" not in json and "init_command" not in json:
@@ -168,7 +167,7 @@ class PresetInfo(Serializable["PresetInfo"]):
         return self_class(json.get("args", None), init_commands, post_commands)
 
     @classmethod
-    def validate(self_class, json: Any) -> None:
+    def validate(self_class, json: "Any") -> None:
         """Validate a preset definition json object."""
         with open(
             join(dirname(__file__), "jsonschema", "benchmark_preset.schema.json")
@@ -186,9 +185,9 @@ class CommandInfo(Serializable["CommandInfo"]):
 
     def __init__(
         self,
-        command: str | list[str],
-        env: dict[str, str] = {},
-        workdir: str | None = None,
+        command: "Union[List[str], str]",
+        env: "Dict[str, str]" = {},
+        workdir: "Optional[str]" = None,
     ) -> None:
         """Create a new command object."""
         from shlex import split
@@ -203,10 +202,10 @@ class CommandInfo(Serializable["CommandInfo"]):
 
     def extend(
         self,
-        args: list[str] | None = None,
-        env: dict[str, str] | None = None,
-        workdir: str | None = None,
-    ) -> CommandInfo:
+        args: "Optional[List[str]]" = None,
+        env: "Optional[Dict[str, str]]" = None,
+        workdir: "Optional[str]" = None,
+    ) -> "CommandInfo":
         """Create an extended version of this command."""
         new_env = self.env.copy()
         if env is not None:
@@ -223,7 +222,7 @@ class CommandInfo(Serializable["CommandInfo"]):
         return Runnable(self.command, self.workdir, self.env)
 
     @classmethod
-    def deserialize(self_class, json: Any) -> CommandInfo:
+    def deserialize(self_class, json: "Any") -> "CommandInfo":
         if isinstance(json, str):
             return self_class(json)
         elif isinstance(json, dict):
@@ -232,7 +231,7 @@ class CommandInfo(Serializable["CommandInfo"]):
             assert False
 
     @classmethod
-    def deserialize_commands(self_class, json: Any) -> list[CommandInfo]:
+    def deserialize_commands(self_class, json: "Any") -> "List[CommandInfo]":
         commands = [json] if not isinstance(json, list) else json
 
         return [CommandInfo.deserialize(c) for c in commands]
@@ -241,25 +240,25 @@ class CommandInfo(Serializable["CommandInfo"]):
 class StatMatchInfo(Serializable["StatMatchInfo"]):
     """Benchmark statistical data match info."""
 
-    def __init__(self, regex: str, file: str | None = None) -> None:
+    def __init__(self, regex: str, file: "Optional[str]" = None) -> None:
         """Create a StatMatchInfo object."""
         self.regex = regex
         self.file = file
 
     @classmethod
-    def deserialize(self_class, json: Any) -> StatMatchInfo:
+    def deserialize(self_class, json: "Any") -> "StatMatchInfo":
         return self_class(**json)
 
 
 class BenchmarkStats(Serializable["BenchmarkStats"]):
     """Benchmark statistical data."""
 
-    def __init__(self, stats: dict[str, int | float]) -> None:
+    def __init__(self, stats: "Dict[str, Union[int, float]]") -> None:
         """Create a BenchmarkStats object."""
         self.stats = stats
 
     @classmethod
-    def deserialize(self_class, json: Any) -> BenchmarkStats:
+    def deserialize(self_class, json: "Any") -> "BenchmarkStats":
         self_class.validate(json)
 
         if isinstance(json, dict):
@@ -276,7 +275,7 @@ class BenchmarkStats(Serializable["BenchmarkStats"]):
         return self_class({})
 
     @classmethod
-    def validate(self_class, json: Any) -> None:
+    def validate(self_class, json: "Any") -> None:
         """Validate a benchmark stats output json object."""
         with open(
             join(dirname(__file__), "jsonschema", "benchmark_preset.schema.json")

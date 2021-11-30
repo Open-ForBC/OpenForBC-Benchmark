@@ -1,12 +1,10 @@
-from __future__ import annotations
 from typing import TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from typing import Iterator
+    from typing import Dict, Iterator, List, Optional, Tuple, Union
     from openforbc_benchmark.json import StatMatchInfo
 
-from dataclasses import dataclass
 from typing import TextIO
 
 from openforbc_benchmark.json import (
@@ -25,10 +23,10 @@ class Benchmark(BenchmarkInfo):
         self,
         name: str,
         description: str,
-        setup_commands: list[CommandInfo] | None,
-        run_commands: list[CommandInfo],
-        cleanup_commands: list[CommandInfo] | None,
-        stats: CommandInfo | dict[str, StatMatchInfo],
+        setup_commands: "Optional[List[CommandInfo]]",
+        run_commands: "List[CommandInfo]",
+        cleanup_commands: "Optional[List[CommandInfo]]",
+        stats: "Union[CommandInfo, Dict[str, StatMatchInfo]]",
         virtualenv: bool,
         dir: str,
     ) -> None:
@@ -45,11 +43,11 @@ class Benchmark(BenchmarkInfo):
         self.dir = dir
 
     @classmethod
-    def from_definition(self_class, definition: BenchmarkInfo, dir: str) -> Benchmark:
+    def from_definition(self_class, definition: BenchmarkInfo, dir: str) -> "Benchmark":
         return self_class(**definition.__dict__, dir=dir)
 
     @classmethod
-    def from_definition_file(self_class, path: str) -> Benchmark:
+    def from_definition_file(self_class, path: str) -> "Benchmark":
         """Build a Benchmark object from the definiton path."""
         from os.path import dirname
 
@@ -61,7 +59,7 @@ class Benchmark(BenchmarkInfo):
 
         return basename(self.dir)
 
-    def get_presets(self) -> list[Preset]:
+    def get_presets(self) -> "List[Preset]":
         """Get benchmark preset names."""
         from os import listdir
         from os.path import basename, join
@@ -73,7 +71,7 @@ class Benchmark(BenchmarkInfo):
             if file.endswith(".json")
         ]
 
-    def get_preset(self, name: str) -> Preset | None:
+    def get_preset(self, name: str) -> "Optional[Preset]":
         """Retrieve benchmark preset."""
         from os.path import exists, join
 
@@ -88,15 +86,15 @@ class Benchmark(BenchmarkInfo):
             PresetInfo.from_file(join(presets_dir, filename)),
         )
 
-    def run(self, presets: list[Preset]) -> BenchmarkRun:
+    def run(self, presets: "List[Preset]") -> "BenchmarkRun":
         """Create a `BenchmarkRun` for this benchmark."""
         return BenchmarkRun(self, presets)
 
 
-@dataclass
-class Preset:
-    name: str
-    definition: PresetInfo
+class Preset:  # noqa: SIM119
+    def __init__(self, name: str, definition: PresetInfo) -> None:
+        self.name = name
+        self.definition = definition
 
 
 class BenchmarkRun:
@@ -106,12 +104,12 @@ class BenchmarkRun:
     Contains multiple presets.
     """
 
-    def __init__(self, benchmark: Benchmark, presets: list[Preset]) -> None:
+    def __init__(self, benchmark: "Benchmark", presets: "List[Preset]") -> None:
         self.benchmark = benchmark
         self.presets = presets
-        self.virtualenv: str | None = None
+        self.virtualenv: "Optional[str]" = None
 
-    def setup(self) -> Iterator[Runnable]:
+    def setup(self) -> "Iterator[Runnable]":
         """Get tasks for this benchmark run setup commands."""
         from os.path import join
 
@@ -123,7 +121,7 @@ class BenchmarkRun:
             for command in self.benchmark.setup_commands:
                 yield self._add_context(command.into_runnable())
 
-    def run(self) -> Iterator[tuple[Preset, Iterator[Runnable]]]:
+    def run(self) -> "Iterator[Tuple[Preset, Iterator[Runnable]]]":
         """
         Get tasks for each selected preset.
 
@@ -134,19 +132,20 @@ class BenchmarkRun:
         for preset in self.presets:
             yield preset, self._run_preset(preset)
 
-    def get_stats(self, stdout: str | TextIO) -> dict[str, int | float]:
+    def get_stats(self, stdout: "Union[str, TextIO]") -> "Dict[str, Union[int, float]]":
         from json import load, loads
         from jsonschema import validate
         from os.path import dirname, join
         from re import compile
-        from subprocess import run
+        from subprocess import PIPE, run
 
         if isinstance(self.benchmark.stats, CommandInfo):
             p = run(
                 **self._add_context(
                     self.benchmark.stats.into_runnable()
                 ).into_popen_args(),
-                capture_output=True
+                stderr=PIPE,
+                stdout=PIPE
             )
             json = loads(p.stdout.decode())
             schema_path = join(dirname(__file__), "jsonschema", "benchmark.schema.json")
@@ -155,7 +154,7 @@ class BenchmarkRun:
                 validate(json, schema)
             return BenchmarkStats.deserialize(json).stats
 
-        stats: dict[str, int | float] = {}
+        stats: "Dict[str, Union[int, float]]" = {}
         for name, match in self.benchmark.stats.items():
             file = stdout
             if match.file is not None:
@@ -174,13 +173,13 @@ class BenchmarkRun:
 
         return stats
 
-    def cleanup(self) -> Iterator[Runnable]:
+    def cleanup(self) -> "Iterator[Runnable]":
         """Get cleanup tasks for this benchmark."""
         if self.benchmark.cleanup_commands is not None:
             for command in self.benchmark.cleanup_commands:
                 yield self._add_context(command.into_runnable())
 
-    def _run_preset(self, preset: Preset) -> Iterator[Runnable]:
+    def _run_preset(self, preset: "Preset") -> "Iterator[Runnable]":
         """Get tasks for the selected preset."""
         definition = preset.definition
         if definition.init_commands is not None:
