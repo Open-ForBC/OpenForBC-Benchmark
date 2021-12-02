@@ -2,11 +2,12 @@ from typing import TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
+    from typing import Any, Dict, Iterator, Optional, Tuple, Union
     from openforbc_benchmark.benchmark import BenchmarkRun
     from openforbc_benchmark.utils import Runnable
 
 from typer import Context, echo, Exit, Typer, Option  # noqa: TC002
+from typing import List  # noqa: TC002
 from yaspin.core import Yaspin
 
 from openforbc_benchmark.benchmark import Benchmark
@@ -62,17 +63,18 @@ class CliBenchmarkRun:
             return self._start()
 
     def _start(self) -> "Dict[str, Dict[str, Union[int, float]]]":
+        from os.path import join
         from json.decoder import JSONDecodeError
         from jsonschema import ValidationError
 
         benchmark_id = self.benchmark_run.benchmark.get_id()
 
         self.spinner.write(f'Running "{benchmark_id}" setup commands')
-        for task in self.benchmark_run.setup():
+        for i, task in enumerate(self.benchmark_run.setup()):
             self.spinner.text = f"{benchmark_id}(setup): {argv_join(task.args)}"
             self._run_task_or_err(
                 task,
-                self._get_log_path("setup"),
+                join(self.log_dir, f"setup.{i + 1}"),
                 f'Benchmark "{benchmark_id}" setup command "{argv_join(task.args)}" '
                 "failed",
             )
@@ -80,18 +82,23 @@ class CliBenchmarkRun:
         stats = {}
         for preset, tasks in self.benchmark_run.run():
             self.spinner.write(f'Running "{benchmark_id}" preset "{preset.name}"')
-            for task in tasks:
+            for i, task in enumerate(tasks):
                 self.spinner.text = (
                     f"{benchmark_id}(run:{preset.name}): {argv_join(task.args)}"
                 )
                 self._run_task_or_err(
                     task,
-                    self._get_log_path(f"run_{preset.name}"),
+                    join(self.log_dir, f"run_{preset.name}.{i + 1}"),
                     f'Benchmark "{benchmark_id}" preset "{preset.name}" command '
                     f'"{argv_join(task.args)}" failed',
                 )
+                last_task_i = i
 
-            with open(self._get_log_path(f"run_{preset.name}"), "r") as output:
+            with open(
+                join(self.log_dir, f"run_{preset.name}.{last_task_i + 1}.out.log"), "r"
+            ) as output:
+                next(output)
+
                 try:
                     stats[preset.name] = self.benchmark_run.get_stats(output)
                 except (JSONDecodeError, ValidationError) as e:
@@ -114,20 +121,15 @@ class CliBenchmarkRun:
         echo(f'ERROR: Benchmark "{self.benchmark_run.benchmark.get_id()}" failed')
         raise Exit(1)
 
-    def _get_log_path(self, identifier: str) -> str:
-        from os.path import join
-
-        return join(self.log_dir, f"{identifier}.log")
-
     def _print(self, message: "Any", err: bool = False) -> None:
         with self.spinner.hidden():
             echo(message, err=err)
 
     def _run_task_or_err(
-        self, task: "Runnable", log_path: str, err_message: "Any"
+        self, task: "Runnable", log_prefix: str, err_message: "Any"
     ) -> None:
         try:
-            ret = self._run_task(task, log_path)
+            ret = self._run_task(task, log_prefix)
         except Exception as e:
             self._print(err_message, True)
             self._fail(BenchmarkTaskError(f"Task {task} did not start because of {e}"))
@@ -138,7 +140,7 @@ class CliBenchmarkRun:
                 BenchmarkTaskFailed(f"Task {task} failed with return code {ret}")
             )
 
-    def _run_task(self, task: "Runnable", log_path: str) -> int:
+    def _run_task(self, task: "Runnable", log_prefix: str) -> int:
         from selectors import DefaultSelector, EVENT_READ
         from subprocess import PIPE, Popen
         from time import sleep
@@ -154,7 +156,12 @@ class CliBenchmarkRun:
         outsel.register(proc.stdout, EVENT_READ)
         outsel.register(proc.stderr, EVENT_READ)
 
-        with outsel, open(log_path, "a") as log_file:
+        with outsel, open(f"{log_prefix}.err.log", "w") as err_log, open(
+            f"{log_prefix}.out.log", "w"
+        ) as out_log:
+            err_log.write(f"$ {argv_join(task.args)}\n")
+            out_log.write(f"$ {argv_join(task.args)}\n")
+
             reading = True
             while reading:
                 for k, _ in outsel.select():
@@ -167,12 +174,10 @@ class CliBenchmarkRun:
 
                     self.spinner.write(line.rstrip().decode())
 
-                    if k.fileobj is proc.stdout:
-                        log_file.write(
-                            line.decode()
-                            if line.endswith(b"\n")
-                            else line.decode() + "\n"
-                        )
+                    log_file = err_log if k.fileobj is proc.stderr else out_log
+                    log_file.write(
+                        line.decode() if line.endswith(b"\n") else line.decode() + "\n"
+                    )
 
         while proc.poll() is None:
             sleep(0.05)
@@ -273,7 +278,7 @@ def list_presets(benchmark_id: str) -> None:
 @app.command("run")
 def run_benchmark(
     benchmark_id: str,
-    preset_names: "List[str]",
+    preset_names: "List[str]",  # noqa: TC201
     table: bool = Option(False, "--table", "-t"),
 ) -> None:
     preset_names = list(preset_names)  # https://github.com/tiangolo/typer/issues/127
