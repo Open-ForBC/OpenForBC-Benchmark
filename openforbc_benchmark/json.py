@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Generic, TypeVar
 if TYPE_CHECKING:
     from typing import Any, Dict, List, Optional, Union
 
-from abc import ABC, abstractmethod
+from abc import ABC as AbstractClass, abstractmethod
 from os.path import dirname, join
 from jsonschema import validate
 from json import load
@@ -14,7 +14,7 @@ from openforbc_benchmark.utils import Runnable
 T = TypeVar("T", bound="Serializable")
 
 
-class Serializable(ABC, Generic[T]):
+class Serializable(AbstractClass, Generic[T]):
     """
     A Serializable class can be serialized/deserialized into/from a JSON document.
 
