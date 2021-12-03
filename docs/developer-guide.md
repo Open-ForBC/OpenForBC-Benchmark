@@ -166,6 +166,7 @@ The object schema is:
 | Field          | Type                    | Required |
 | -------------- | ----------------------- | -------- |
 | `args`         | `string\|Array<string>` | x        |
+| `env`          | `object`                |          |
 | `init_command` | *commands*              | x        |
 | `post_command` | *commands*              |          |
 
@@ -179,6 +180,10 @@ commands](#commands) use.
 command. You can also specify an array of strings as the `args` field if you
 need to use spaces inside arguments or you want to be directly specify *argv*
 components.
+
+The `env` field is an optional object, with values of type `string`, which
+specifies additional environment variables which will me merged with the
+`run_command` environment.
 
 ### Benchmark documentation
 

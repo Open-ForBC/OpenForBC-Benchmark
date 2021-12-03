@@ -189,7 +189,7 @@ class BenchmarkRun:
         for command in self.benchmark.run_commands:
             yield self._add_context(
                 (
-                    command.extend(definition.args)
+                    command.extend(definition.args, definition.env)
                     if definition.args is not None
                     else command
                 ).into_runnable()

@@ -131,6 +131,7 @@ class PresetInfo(Serializable["PresetInfo"]):
         self,
         args: "Optional[Union[List[str], str]]",
         init_commands: "Optional[List[CommandInfo]]" = None,
+        env: "Dict[str, str]" = {},
         post_commands: "Optional[List[CommandInfo]]" = None,
     ) -> None:
         """Create a benchmark Preset object."""
@@ -141,6 +142,8 @@ class PresetInfo(Serializable["PresetInfo"]):
             self.args = args if isinstance(args, list) else split(args)
         elif init_commands is None:
             raise TypeError("Either args or init_command have to be specified")
+
+        self.env = env
 
         self.init_commands = init_commands
         self.post_commands = post_commands
@@ -164,7 +167,9 @@ class PresetInfo(Serializable["PresetInfo"]):
             else None
         )
 
-        return self_class(json.get("args", None), init_commands, post_commands)
+        return self_class(
+            json.get("args", None), init_commands, json.get("env", {}), post_commands
+        )
 
     @classmethod
     def validate(self_class, json: "Any") -> None:

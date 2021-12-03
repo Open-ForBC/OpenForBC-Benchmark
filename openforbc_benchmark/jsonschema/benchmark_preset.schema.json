@@ -72,6 +72,13 @@
         }
       ]
     },
+    "env": {
+      "description": "Additional environment variables for benchmark's run command",
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
     "init_command": {
       "description": "Command to be executed in order to configure the benchmark to use this preset",
       "$ref": "#/$defs/commands"
