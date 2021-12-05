@@ -52,7 +52,7 @@ class Serializable(AbstractClass, Generic[T]):
             return self_class.deserialize(load(file))
 
 
-class BenchmarkInfo(Serializable["BenchmarkInfo"]):
+class BenchmarkDefinition(Serializable["BenchmarkDefinition"]):
     """A benchmark definition."""
 
     def __init__(
@@ -75,7 +75,7 @@ class BenchmarkInfo(Serializable["BenchmarkInfo"]):
         self.virtualenv = virtualenv
 
     @classmethod
-    def deserialize(self_class, json: "Any") -> "BenchmarkInfo":
+    def deserialize(self_class, json: "Any") -> "BenchmarkDefinition":
         self_class.validate(json)
 
         setup_commands = (
@@ -120,7 +120,7 @@ class BenchmarkInfo(Serializable["BenchmarkInfo"]):
             validate(json, schema)
 
 
-class PresetInfo(Serializable["PresetInfo"]):
+class PresetDefinition(Serializable["PresetDefinition"]):
     """
     Benchmark settings preset.
 
@@ -149,7 +149,7 @@ class PresetInfo(Serializable["PresetInfo"]):
         self.post_commands = post_commands
 
     @classmethod
-    def deserialize(self_class, json: "Any") -> "PresetInfo":
+    def deserialize(self_class, json: "Any") -> "PresetDefinition":
         self_class.validate(json)
 
         if "args" not in json and "init_command" not in json:

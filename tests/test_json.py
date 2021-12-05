@@ -1,8 +1,8 @@
-from openforbc_benchmark.json import BenchmarkInfo, CommandInfo, PresetInfo
+from openforbc_benchmark.json import BenchmarkDefinition, CommandInfo, PresetDefinition
 
 
 def test_benchmark_serialization() -> None:
-    benchmark = BenchmarkInfo(
+    benchmark = BenchmarkDefinition(
         "name",
         "desc",
         None,
@@ -11,7 +11,7 @@ def test_benchmark_serialization() -> None:
         CommandInfo("echo {}"),
         False,
     )
-    assert isinstance(benchmark, BenchmarkInfo)
+    assert isinstance(benchmark, BenchmarkDefinition)
 
 
 def test_benchmark_deserialization() -> None:
@@ -44,15 +44,15 @@ def test_benchmark_deserialization() -> None:
         }
     }
     """
-    benchmark = BenchmarkInfo.deserialize(loads(json))
-    assert isinstance(benchmark, BenchmarkInfo)
+    benchmark = BenchmarkDefinition.deserialize(loads(json))
+    assert isinstance(benchmark, BenchmarkDefinition)
 
 
 def test_benchmark_preset() -> None:
-    preset = PresetInfo(
+    preset = PresetDefinition(
         "--config=gpu_48x48.json", [CommandInfo("init.sh --preset=gpu_48x48.json")]
     )
-    assert isinstance(preset, PresetInfo)
+    assert isinstance(preset, PresetDefinition)
 
 
 def test_benchmark_preset_deserialization() -> None:
@@ -65,8 +65,8 @@ def test_benchmark_preset_deserialization() -> None:
         "post_command": "setup_preset.sh --teardown"
     }
     """
-    preset = PresetInfo.deserialize(loads(json))
-    assert isinstance(preset, PresetInfo)
+    preset = PresetDefinition.deserialize(loads(json))
+    assert isinstance(preset, PresetDefinition)
 
 
 def test_command() -> None:

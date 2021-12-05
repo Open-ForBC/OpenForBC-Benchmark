@@ -8,15 +8,15 @@ if TYPE_CHECKING:
 from typing import TextIO
 
 from openforbc_benchmark.json import (
-    BenchmarkInfo,
+    BenchmarkDefinition,
     BenchmarkStats,
     CommandInfo,
-    PresetInfo,
+    PresetDefinition,
 )
 from openforbc_benchmark.utils import Runnable
 
 
-class Benchmark(BenchmarkInfo):
+class Benchmark(BenchmarkDefinition):
     """A benchmark."""
 
     def __init__(
@@ -43,7 +43,9 @@ class Benchmark(BenchmarkInfo):
         self.dir = dir
 
     @classmethod
-    def from_definition(self_class, definition: BenchmarkInfo, dir: str) -> "Benchmark":
+    def from_definition(
+        self_class, definition: BenchmarkDefinition, dir: str
+    ) -> "Benchmark":
         return self_class(**definition.__dict__, dir=dir)
 
     @classmethod
@@ -51,7 +53,9 @@ class Benchmark(BenchmarkInfo):
         """Build a Benchmark object from the definiton path."""
         from os.path import dirname
 
-        return self_class.from_definition(BenchmarkInfo.from_file(path), dirname(path))
+        return self_class.from_definition(
+            BenchmarkDefinition.from_file(path), dirname(path)
+        )
 
     def get_id(self) -> str:
         """Get benchmark ID (folder basename)."""
@@ -62,11 +66,11 @@ class Benchmark(BenchmarkInfo):
     def get_presets(self) -> "List[Preset]":
         """Get benchmark preset names."""
         from os import listdir
-        from os.path import basename, join
+        from os.path import join
 
         presets_dir = join(self.dir, "presets")
         return [
-            Preset(basename(file)[:-5], PresetInfo.from_file(join(presets_dir, file)))
+            Preset.from_definition_file(join(presets_dir, file))
             for file in listdir(presets_dir)
             if file.endswith(".json")
         ]
@@ -81,20 +85,39 @@ class Benchmark(BenchmarkInfo):
         if not exists(join(presets_dir, filename)):
             return None
 
-        return Preset(
-            name[:-5] if name.endswith(".json") else name,
-            PresetInfo.from_file(join(presets_dir, filename)),
-        )
+        return Preset.from_definition_file(join(presets_dir, filename))
 
     def run(self, presets: "List[Preset]") -> "BenchmarkRun":
         """Create a `BenchmarkRun` for this benchmark."""
         return BenchmarkRun(self, presets)
 
 
-class Preset:  # noqa: SIM119
-    def __init__(self, name: str, definition: PresetInfo) -> None:
+class Preset(PresetDefinition):
+    def __init__(
+        self,
+        name: str,
+        args: "Optional[Union[List[str], str]]",
+        init_commands: "Optional[List[CommandInfo]]" = None,
+        env: "Dict[str, str]" = {},
+        post_commands: "Optional[List[CommandInfo]]" = None,
+    ) -> None:
+        super().__init__(args, init_commands, env, post_commands)
         self.name = name
-        self.definition = definition
+
+    @classmethod
+    def from_definition(
+        self_class, definition: PresetDefinition, name: str
+    ) -> "Preset":
+        return self_class(name, **definition.__dict__)
+
+    @classmethod
+    def from_definition_file(self_class, path: str) -> "Preset":
+        from os.path import basename
+
+        filename = basename(path)
+
+        name = filename[:-5] if filename.endswith(".json") else filename
+        return self_class.from_definition(PresetDefinition.from_file(path), name)
 
 
 class BenchmarkRun:
@@ -107,7 +130,7 @@ class BenchmarkRun:
     def __init__(self, benchmark: "Benchmark", presets: "List[Preset]") -> None:
         self.benchmark = benchmark
         self.presets = presets
-        self.virtualenv: "Optional[str]" = None
+        self._virtualenv: "Optional[str]" = None
 
     def setup(self) -> "Iterator[Runnable]":
         """Get tasks for this benchmark run setup commands."""
@@ -115,7 +138,7 @@ class BenchmarkRun:
 
         if self.benchmark.virtualenv:
             yield self._add_context(Runnable(["python3", "-m", "venv", ".venv"]))
-            self.virtualenv = join(self.benchmark.dir, ".venv")
+            self._virtualenv = join(self.benchmark.dir, ".venv")
 
         if self.benchmark.setup_commands is not None:
             for command in self.benchmark.setup_commands:
@@ -181,31 +204,30 @@ class BenchmarkRun:
 
     def _run_preset(self, preset: "Preset") -> "Iterator[Runnable]":
         """Get tasks for the selected preset."""
-        definition = preset.definition
-        if definition.init_commands is not None:
-            for command in definition.init_commands:
+        if preset.init_commands is not None:
+            for command in preset.init_commands:
                 yield self._add_context(command.into_runnable())
 
         for command in self.benchmark.run_commands:
             yield self._add_context(
                 (
-                    command.extend(definition.args, definition.env)
-                    if definition.args is not None
+                    command.extend(preset.args, preset.env)
+                    if preset.args is not None
                     else command
                 ).into_runnable()
             )
 
-        if definition.post_commands is not None:
-            for command in definition.post_commands:
+        if preset.post_commands is not None:
+            for command in preset.post_commands:
                 yield self._add_context(command.into_runnable())
 
     def _add_context(self, runnable: Runnable) -> Runnable:
         from os.path import isabs, join
 
         run_env = runnable.env.copy() if runnable.env is not None else None
-        if self.virtualenv is not None:
+        if self._virtualenv is not None:
             new_env = {
-                "VIRTUALENV": self.virtualenv,
+                "VIRTUALENV": self._virtualenv,
             }
 
             if run_env is not None:
@@ -227,5 +249,5 @@ class BenchmarkRun:
             runnable.args,
             cwd,
             run_env,
-            [join(self.virtualenv, "bin")] if self.virtualenv is not None else [],
+            [join(self._virtualenv, "bin")] if self._virtualenv is not None else [],
         )
