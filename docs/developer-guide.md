@@ -73,7 +73,7 @@ Here's an example of a benchmark definition:
 ```
 
 | Field             | Type              | Required |
-|-------------------|-------------------|----------|
+| ----------------- | ----------------- | -------- |
 | `name`            | `string`          | x        |
 | `description`     | `string`          | x        |
 | `setup_command`   | *commands*        |          |
@@ -98,7 +98,7 @@ The `command` type can be a *string* (the path of the executable to be run) or
 an object with the following fields:
 
 | Field     | Type     | Required |
-|-----------|----------|----------|
+| --------- | -------- | -------- |
 | `path`    | `string` | x        |
 | `env`     | `object` |          |
 | `workdir` | `string` |          |
@@ -156,7 +156,7 @@ Here's an example of a valid benchmark preset JSON file:
 The object schema is:
 
 | Field          | Type                    | Required |
-|----------------|-------------------------|----------|
+| -------------- | ----------------------- | -------- |
 | `args`         | `string\|Array<string>` | x        |
 | `init_command` | *commands*              | x        |
 | `post_command` | *commands*              |          |
@@ -182,6 +182,57 @@ additional doc/ folder and place there additional files.
 
 Please consider adding tests for your benchmark in bin/, and also if appropriate
 add them to CI or test_PR.sh 
+
+
+## Adding a benchmark suite
+
+Following is the hierarchy of the suites folder.
+
+```
+.
++-- suites
+    |-- suite1.json
+    +-- suite2.json
+```
+
+### Benchmark suite
+
+The suite definition is a JSON file validated against the [benchmark suite
+definition
+schema](../openforbc_benchmark/jsonschema/benchmark_suite.schema.json) which is
+stored in the `openforbc_benchmark/jsonschema` folder in this repository.
+
+#### Benchmark suite definition schema
+
+Here's an example of a benchmark suite definition:
+
+```json
+{
+  "name": "Sample suite",
+  "description": "A sample benchmark suite",
+  "benchmark_runs": [ {
+    "benchmark_folder": "dummy_bench",
+    "presets": [ "preset1", "preset2" ]
+  } ]
+}
+```
+
+| Field            | Type                   | Required |
+| ---------------- | ---------------------- | -------- |
+| `name`           | `string`               | x        |
+| `description`    | `string`               | x        |
+| `benchmark_runs` | `Array<benchmark_run>` | x        |
+
+All the fields are __required__.
+
+##### Benchmark runs
+
+The `benchmark_runs` field is an array of `benchmark_run` objects.
+
+Each `benchmark_run` is an object with two __required__ fields:
+
+- `benchmark_folder`: the folder containing the benchmark
+- `presets`: a single or an array of preset names (`string`)
 
 ## How the tool works
 

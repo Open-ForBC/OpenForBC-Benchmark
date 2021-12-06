@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/openforbc.benchmark_suite.schema.json",
+  "title": "Open-ForBC benchmark suite schema",
+  "description": "A benchmark suite JSON definition schema",
+  "$defs": {
+    "benchmark_run": {
+      "benchmark_folder": {
+        "description": "The folder containing the benchmark",
+        "type": "string"
+      },
+      "presets": {
+        "description": "The presets (or a single preset) to be run",
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "type": "object",
+  "properties": {
+    "name": {
+      "description": "The name of the benchmark suite",
+      "type": "string"
+    },
+    "description": {
+      "description": "A brief description of the benchmark suite",
+      "type": "string"
+    },
+    "benchmark_runs": {
+      "description": "A list of the benchmark runs in this suite",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/benchmark_run"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "name",
+    "description",
+    "benchmark_runs"
+  ]
+}
