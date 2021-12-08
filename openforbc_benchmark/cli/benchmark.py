@@ -2,15 +2,15 @@ from typing import TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from typing import Any, Dict, Iterator, Optional, Tuple, Union
-    from openforbc_benchmark.benchmark import BenchmarkRun
+    from typing import Any, Dict, Tuple, Union
+    from openforbc_benchmark.benchmark import Benchmark, BenchmarkRun
     from openforbc_benchmark.utils import Runnable
 
 from typer import Context, echo, Exit, Typer, Option  # noqa: TC002
 from typing import List  # noqa: TC002
 from yaspin.core import Yaspin
 
-from openforbc_benchmark.benchmark import Benchmark
+from openforbc_benchmark.benchmark import find_benchmark, get_benchmarks
 from openforbc_benchmark.cli.state import state
 from openforbc_benchmark.utils import argv_join
 
@@ -185,28 +185,7 @@ class CliBenchmarkRun:
         return proc.returncode
 
 
-def search_benchmarks() -> "Iterator[Benchmark]":
-    """Search benchmarks in the search path."""
-    from os import listdir
-    from os.path import exists, join
-
-    for path in [join(x, "benchmarks") for x in state["search_path"].split(":")]:
-        try:
-            for dir in listdir(path):
-                if exists(join(path, dir, "benchmark.json")):
-                    yield Benchmark.from_definition_file(
-                        join(path, dir, "benchmark.json")
-                    )
-        except (FileNotFoundError, NotADirectoryError):
-            echo(f'ERROR: Path "{path}" in search path is not a directory', err=True)
-
-
-def find_benchmark(id: str) -> "Optional[Benchmark]":
-    """Find a benchmark by ID in the search path."""
-    return next((x for x in search_benchmarks() if x.get_id() == id), None)
-
-
-def get_benchmark_log_dir(benchmark: Benchmark) -> str:
+def get_benchmark_log_dir(benchmark: "Benchmark") -> str:
     """Get log directory for a benchmark."""
     from os import getcwd
     from os.path import exists, join
@@ -244,7 +223,7 @@ def list_benchmarks(table: bool = Option(False, "--table", "-t")) -> None:
     from tabulate import tabulate
     from textwrap import shorten
 
-    benchmarks = search_benchmarks()
+    benchmarks = get_benchmarks(state["search_path"])
 
     echo(
         tabulate(
@@ -266,7 +245,7 @@ def list_benchmarks(table: bool = Option(False, "--table", "-t")) -> None:
 
 @app.command("presets")
 def list_presets(benchmark_id: str) -> None:
-    benchmark = find_benchmark(benchmark_id)
+    benchmark = find_benchmark(benchmark_id, state["search_path"])
     if benchmark is None:
         echo(f'ERROR: Benchmark "{benchmark_id}" not found in search path')
         raise Exit(1)
@@ -283,7 +262,7 @@ def run_benchmark(
 ) -> None:
     preset_names = list(preset_names)  # https://github.com/tiangolo/typer/issues/127
 
-    benchmark = find_benchmark(benchmark_id)
+    benchmark = find_benchmark(benchmark_id, state["search_path"])
     if benchmark is None:
         echo(f'ERROR: Benchmark "{benchmark_id}" not found in search path')
         raise Exit(1)

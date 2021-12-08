@@ -1,10 +1,8 @@
 from typer import Context, echo, Exit, Typer  # noqa: TC002
 
-from openforbc_benchmark.cli.benchmark import (
-    CliBenchmarkRun,
-    print_stats,
-    search_benchmarks,
-)
+from openforbc_benchmark.benchmark import get_benchmarks
+from openforbc_benchmark.cli.benchmark import CliBenchmarkRun, print_stats
+from openforbc_benchmark.cli.state import state
 
 app = Typer()
 
@@ -19,7 +17,7 @@ def callback(ctx: Context) -> None:
 def interactive_prompt() -> None:
     from inquirer import checkbox, list_input
 
-    benchmarks = list(search_benchmarks())
+    benchmarks = list(get_benchmarks(state["search_path"]))
 
     answer = list_input(
         "Chose a benchmark",

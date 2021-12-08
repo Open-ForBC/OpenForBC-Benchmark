@@ -251,3 +251,24 @@ class BenchmarkRun:
             run_env,
             [join(self._virtualenv, "bin")] if self._virtualenv is not None else [],
         )
+
+
+def get_benchmarks(search_path: str) -> "Iterator[Benchmark]":
+    """Get all the benchmarks in the search path."""
+    from os import listdir
+    from os.path import exists, join
+
+    for path in [join(x, "benchmarks") for x in search_path.split(":")]:
+        try:
+            for dir in listdir(path):
+                if exists(join(path, dir, "benchmark.json")):
+                    yield Benchmark.from_definition_file(
+                        join(path, dir, "benchmark.json")
+                    )
+        except (FileNotFoundError, NotADirectoryError):
+            continue
+
+
+def find_benchmark(id: str, search_path: str) -> "Optional[Benchmark]":
+    """Find a benchmark by ID in the search path."""
+    return next((x for x in get_benchmarks(search_path) if x.get_id() == id), None)
