@@ -1,4 +1,9 @@
-from openforbc_benchmark.json import BenchmarkDefinition, CommandInfo, PresetDefinition
+from openforbc_benchmark.json import (
+    BenchmarkDefinition,
+    BenchmarkSuiteDefinition,
+    CommandInfo,
+    PresetDefinition,
+)
 
 
 def test_benchmark_serialization() -> None:
@@ -67,6 +72,28 @@ def test_benchmark_preset_deserialization() -> None:
     """
     preset = PresetDefinition.deserialize(loads(json))
     assert isinstance(preset, PresetDefinition)
+
+
+def test_benchmark_suite_deserialization() -> None:
+    from json import loads
+
+    json = r"""
+    {
+    "name": "Sample suite",
+    "description": "A sample benchmark suite",
+    "benchmark_runs": [ {
+        "benchmark_folder": "dummy_bench",
+        "presets": [ "preset1", "preset2" ]
+    } ]
+    }
+    """
+    benchmark_suite = BenchmarkSuiteDefinition.deserialize(loads(json))
+    assert isinstance(benchmark_suite, BenchmarkSuiteDefinition)
+    assert benchmark_suite.name == "Sample suite"
+    assert benchmark_suite.description == "A sample benchmark suite"
+    assert benchmark_suite.benchmark_runs
+    assert benchmark_suite.benchmark_runs[0].benchmark_id == "dummy_bench"
+    assert benchmark_suite.benchmark_runs[0].presets == ["preset1", "preset2"]
 
 
 def test_command() -> None:

@@ -3,17 +3,29 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from typing import Dict, Iterator, List, Optional, Tuple, Union
-    from openforbc_benchmark.json import StatMatchInfo
+    from openforbc_benchmark.json import (
+        StatMatchInfo,
+        BenchmarkRunDefinition,
+    )
 
 from typing import TextIO
 
 from openforbc_benchmark.json import (
     BenchmarkDefinition,
     BenchmarkStats,
+    BenchmarkSuiteDefinition,
     CommandInfo,
     PresetDefinition,
 )
 from openforbc_benchmark.utils import Runnable
+
+
+class BenchmarkNotFound(Exception):
+    pass
+
+
+class PresetNotFound(Exception):
+    pass
 
 
 class Benchmark(BenchmarkDefinition):
@@ -120,6 +132,38 @@ class Preset(PresetDefinition):
         return self_class.from_definition(PresetDefinition.from_file(path), name)
 
 
+class BenchmarkSuite:
+    """A suite of benchmarks, each with their own presets."""
+
+    def __init__(
+        self, name: str, description: str, benchmark_runs: "List[BenchmarkRun]"
+    ) -> None:
+        self.name = name
+        self.description = description
+        self.benchmark_runs = benchmark_runs
+
+    @classmethod
+    def from_definition(
+        self_class, definition: BenchmarkSuiteDefinition, search_path: str
+    ) -> "BenchmarkSuite":
+        return self_class(
+            definition.name,
+            definition.description,
+            [
+                BenchmarkRun.from_definition(bench_run_def, search_path)
+                for bench_run_def in definition.benchmark_runs
+            ],
+        )
+
+    @classmethod
+    def from_definition_file(
+        self_class, path: str, search_path: str
+    ) -> "BenchmarkSuite":
+        return self_class.from_definition(
+            BenchmarkSuiteDefinition.from_file(path), search_path
+        )
+
+
 class BenchmarkRun:
     """
     A single Benchmark run session.
@@ -131,6 +175,33 @@ class BenchmarkRun:
         self.benchmark = benchmark
         self.presets = presets
         self._virtualenv: "Optional[str]" = None
+
+    @classmethod
+    def from_definition(
+        self_class, definition: "BenchmarkRunDefinition", search_path: str
+    ) -> "BenchmarkRun":
+        benchmark = find_benchmark(definition.benchmark_id, search_path)
+        if benchmark is None:
+            raise BenchmarkNotFound(
+                f'Benchmark "{definition.benchmark_id}" not found in search path '
+                f'"{search_path}"'
+            )
+
+        selected_presets = []
+        presets = benchmark.get_presets()
+        for name in definition.presets:
+            if name.endswith(".json"):
+                name = name[:-5]
+            try:
+                selected_presets.append(
+                    next(preset for preset in presets if preset.name == name)
+                )
+            except StopIteration:
+                raise PresetNotFound(
+                    f'Preset "{name}" not found for benchmark "{benchmark.name}"'
+                ) from None
+
+        return self_class(benchmark, selected_presets)
 
     def setup(self) -> "Iterator[Runnable]":
         """Get tasks for this benchmark run setup commands."""
@@ -168,7 +239,7 @@ class BenchmarkRun:
                     self.benchmark.stats.into_runnable()
                 ).into_popen_args(),
                 stderr=PIPE,
-                stdout=PIPE
+                stdout=PIPE,
             )
             json = loads(p.stdout.decode())
             schema_path = join(dirname(__file__), "jsonschema", "benchmark.schema.json")

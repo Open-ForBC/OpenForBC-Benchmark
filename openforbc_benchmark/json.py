@@ -181,6 +181,42 @@ class PresetDefinition(Serializable["PresetDefinition"]):
             validate(json, schema)
 
 
+class BenchmarkSuiteDefinition(Serializable["BenchmarkSuiteDefinition"]):
+    """A suite of benchmarks, each with selected presets."""
+
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        benchmark_runs: "List[BenchmarkRunDefinition]",
+    ) -> None:
+        self.name = name
+        self.description = description
+        self.benchmark_runs = benchmark_runs
+
+    @classmethod
+    def deserialize(self_class, json: "Any") -> "BenchmarkSuiteDefinition":
+        self_class.validate(json)
+
+        assert isinstance(json["benchmark_runs"], list)
+        assert json["benchmark_runs"]
+
+        benchmark_runs = [
+            BenchmarkRunDefinition.deserialize(run) for run in json["benchmark_runs"]
+        ]
+
+        return self_class(json["name"], json["description"], benchmark_runs)
+
+    @classmethod
+    def validate(self_class, json: "Any") -> None:
+        """Validate a benchmark suite definition json object."""
+        with open(
+            join(dirname(__file__), "jsonschema", "benchmark_suite.schema.json")
+        ) as file:
+            schema = load(file)
+            validate(json, schema)
+
+
 class CommandInfo(Serializable["CommandInfo"]):
     """
     A benchmark command which can be executed.
@@ -283,7 +319,26 @@ class BenchmarkStats(Serializable["BenchmarkStats"]):
     def validate(self_class, json: "Any") -> None:
         """Validate a benchmark stats output json object."""
         with open(
-            join(dirname(__file__), "jsonschema", "benchmark_preset.schema.json")
+            join(dirname(__file__), "jsonschema", "benchmark_stats.schema.json")
         ) as file:
             schema = load(file)
             validate(json, schema)
+
+
+class BenchmarkRunDefinition(Serializable["BenchmarkRunDefinition"]):
+    """A benchmark run, with associated presets."""
+
+    def __init__(self, benchmark_id: str, presets: "List[str]") -> None:
+        """Create a BenchmarkRunDefinition object."""
+        self.benchmark_id = benchmark_id
+        self.presets = presets
+
+    @classmethod
+    def deserialize(self_class, json: "Any") -> "BenchmarkRunDefinition":
+        assert isinstance(json["presets"], (list, str))
+        if isinstance(json["presets"], list):
+            presets = json["presets"]
+        else:
+            presets = [json["presets"]]
+
+        return self_class(json["benchmark_folder"], presets)
