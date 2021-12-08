@@ -187,14 +187,17 @@ class CliBenchmarkRun:
 
 def get_benchmark_log_dir(benchmark: "Benchmark") -> str:
     """Get log directory for a benchmark."""
-    from os import getcwd
+    from os import getcwd, mkdir
     from os.path import exists, join
 
     log_dir = join(getcwd(), "logs")
 
     if not exists(log_dir):
-        echo('ERROR: Log directory "logs" not found in current directory', err=True)
-        raise Exit(1)
+        mkdir(log_dir)
+        echo(
+            'WARNING: Log directory "logs" not found in current directory, creating it',
+            err=True,
+        )
 
     return join(getcwd(), "logs", benchmark.get_id())
 
