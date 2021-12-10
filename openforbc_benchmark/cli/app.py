@@ -2,6 +2,7 @@ from typer import Context, Option, Typer  # noqa: TC002
 
 from openforbc_benchmark.cli.benchmark import app as benchmark_app
 from openforbc_benchmark.cli.interactive import app as interactive_app
+from openforbc_benchmark.cli.suite import app as suite_app
 from openforbc_benchmark.cli.state import state
 
 app = Typer()
@@ -19,6 +20,7 @@ def callback(
 
 app.add_typer(benchmark_app, name="benchmark")
 app.add_typer(interactive_app, name="interactive")
+app.add_typer(suite_app, name="suite")
 
 
 def run() -> None:

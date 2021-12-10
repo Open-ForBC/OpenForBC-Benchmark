@@ -3,6 +3,7 @@ from typer import Context, echo, Exit, Typer  # noqa: TC002
 from openforbc_benchmark.benchmark import get_benchmarks
 from openforbc_benchmark.cli.benchmark import CliBenchmarkRun
 from openforbc_benchmark.cli.state import state
+from openforbc_benchmark.cli.suite import CliBenchmarkSuiteRun, get_suites
 
 app = Typer()
 
@@ -17,32 +18,51 @@ def callback(ctx: Context) -> None:
 def interactive_prompt() -> None:
     from inquirer import checkbox, list_input
 
-    benchmarks = list(get_benchmarks(state["search_path"]))
-
-    answer = list_input(
-        "Chose a benchmark",
-        choices=[benchmark.get_id() for benchmark in benchmarks],
+    command = list_input(
+        "Do you want to run a suite or a single benchmark?",
+        choices=["Suite", "Single benchmark"],
     )
 
-    benchmark = next(
-        benchmark for benchmark in benchmarks if benchmark.get_id() == answer
-    )
+    if command == "Suite":
+        suites = list(get_suites(state["search_path"]))
 
-    presets = benchmark.get_presets()
+        suite_name = list_input(
+            "Chose a suite", choices=[suite.name for suite in suites]
+        )
 
-    selected_preset_names = checkbox(
-        "Chose some presets", choices=[preset.name for preset in presets]
-    )
+        suite = next(suite for suite in suites if suite.name == suite_name)
 
-    selected_presets = [
-        preset for preset in presets if preset.name in selected_preset_names
-    ]
+        suite_run = CliBenchmarkSuiteRun(suite)
+        suite_run.start()
+        suite_run.print_stats()
 
-    if not selected_presets:
-        echo("ERROR: No preset selected", err=True)
-        raise Exit(1)
+    elif command == "Single benchmark":
+        benchmarks = list(get_benchmarks(state["search_path"]))
 
-    run = benchmark.run(selected_presets)
-    cli_run = CliBenchmarkRun(run)
-    cli_run.start()
-    cli_run.print_stats()
+        benchmark_id = list_input(
+            "Chose a benchmark",
+            choices=[benchmark.get_id() for benchmark in benchmarks],
+        )
+
+        benchmark = next(
+            benchmark for benchmark in benchmarks if benchmark.get_id() == benchmark_id
+        )
+
+        presets = benchmark.get_presets()
+
+        selected_preset_names = checkbox(
+            "Chose some presets", choices=[preset.name for preset in presets]
+        )
+
+        selected_presets = [
+            preset for preset in presets if preset.name in selected_preset_names
+        ]
+
+        if not selected_presets:
+            echo("ERROR: No preset selected", err=True)
+            raise Exit(1)
+
+        run = benchmark.run(selected_presets)
+        cli_run = CliBenchmarkRun(run)
+        cli_run.start()
+        cli_run.print_stats()
