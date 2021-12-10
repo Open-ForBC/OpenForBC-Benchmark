@@ -24,8 +24,14 @@ class BenchmarkNotFound(Exception):
     pass
 
 
-class PresetNotFound(Exception):
+class BenchmarkPresetNotFound(Exception):
     pass
+
+
+class BenchmarkStatsDecodeError(Exception):
+    def __init__(self, message: str, output: str) -> None:
+        super().__init__(message)
+        self.output = output
 
 
 class Benchmark(BenchmarkDefinition):
@@ -197,7 +203,7 @@ class BenchmarkRun:
                     next(preset for preset in presets if preset.name == name)
                 )
             except StopIteration:
-                raise PresetNotFound(
+                raise BenchmarkPresetNotFound(
                     f'Preset "{name}" not found for benchmark "{benchmark.name}"'
                 ) from None
 
@@ -228,24 +234,45 @@ class BenchmarkRun:
 
     def get_stats(self, stdout: "Union[str, TextIO]") -> "Dict[str, Union[int, float]]":
         from json import load, loads
-        from jsonschema import validate
-        from os.path import dirname, join
+        from json.decoder import JSONDecodeError
+        from jsonschema import validate, ValidationError
+        from os.path import abspath, dirname, join
         from re import compile
         from subprocess import PIPE, run
 
         if isinstance(self.benchmark.stats, CommandInfo):
             p = run(
                 **self._add_context(
-                    self.benchmark.stats.into_runnable()
+                    self.benchmark.stats.extend(
+                        [
+                            abspath(stdout)
+                            if isinstance(stdout, str)
+                            else abspath(stdout.name)
+                        ]
+                    ).into_runnable()
                 ).into_popen_args(),
                 stderr=PIPE,
                 stdout=PIPE,
             )
-            json = loads(p.stdout.decode())
-            schema_path = join(dirname(__file__), "jsonschema", "benchmark.schema.json")
+            stats_output = p.stdout.decode()
+            try:
+                json = loads(stats_output)
+            except JSONDecodeError as e:
+                raise BenchmarkStatsDecodeError(
+                    f"Failed to decode stats script json output: {e}", stats_output
+                ) from None
+            schema_path = join(
+                dirname(__file__), "jsonschema", "benchmark_stats.schema.json"
+            )
             with open(schema_path, "r") as schema_file:
                 schema = load(schema_file)
-                validate(json, schema)
+                try:
+                    validate(json, schema)
+                except ValidationError as e:
+                    raise BenchmarkStatsDecodeError(
+                        f"Decoded output from stats script is not valid: {e}",
+                        stats_output,
+                    )
             return BenchmarkStats.deserialize(json).stats
 
         stats: "Dict[str, Union[int, float]]" = {}

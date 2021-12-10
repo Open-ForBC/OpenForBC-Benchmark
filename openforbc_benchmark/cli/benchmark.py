@@ -11,8 +11,13 @@ from typing import List  # noqa: TC002
 from sys import stdout
 from yaspin.core import Yaspin
 
-from openforbc_benchmark.benchmark import find_benchmark, get_benchmarks
+from openforbc_benchmark.benchmark import (
+    BenchmarkStatsDecodeError,
+    find_benchmark,
+    get_benchmarks,
+)
 from openforbc_benchmark.cli.state import state
+from openforbc_benchmark.json import CommandInfo
 from openforbc_benchmark.utils import argv_join
 
 
@@ -32,7 +37,7 @@ class BenchmarkTaskFailed(BenchmarkRunException):
     pass
 
 
-class BenchmarkValidationError(BenchmarkRunException):
+class BenchmarkStatsError(BenchmarkRunException):
     """Stats decode failed."""
 
     pass
@@ -85,8 +90,6 @@ class CliBenchmarkRun:
 
     def _start(self) -> None:
         from os.path import join
-        from json.decoder import JSONDecodeError
-        from jsonschema import ValidationError
 
         benchmark_id = self.benchmark_run.benchmark.get_id()
 
@@ -114,23 +117,26 @@ class CliBenchmarkRun:
                 )
                 last_task_i = i
 
-            with open(
-                join(self.log_dir, f"run_{preset.name}.{last_task_i + 1}.out.log"), "r"
-            ) as output:
-                next(output)
+            out_filename = join(
+                self.log_dir, f"run_{preset.name}.{last_task_i + 1}.out.log"
+            )
 
-                try:
-                    self.stats[preset.name] = self.benchmark_run.get_stats(output)
-                except (JSONDecodeError, ValidationError) as e:
-                    self._log(
-                        f'Failed to decode stats for preset "{preset.name}"', err=True
-                    )
-                    self._fail(
-                        BenchmarkValidationError(
-                            f'"{benchmark_id}" preset "{preset.name}" stats decode '
-                            f"failed: {e}"
-                        ),
-                    )
+            try:
+                if isinstance(self.benchmark_run.benchmark.stats, CommandInfo):
+                    self.stats[preset.name] = self.benchmark_run.get_stats(out_filename)
+                else:
+                    with open(out_filename, "r") as output:
+                        next(output)
+                        self.stats[preset.name] = self.benchmark_run.get_stats(output)
+            except BenchmarkStatsDecodeError as e:
+                self._log("WARNING: stats script output:", err=True)
+                self._log(e.output.rstrip(), err=True)
+                self._fail(
+                    BenchmarkStatsError(
+                        f'"{benchmark_id}" preset "{preset.name}" stats decode '
+                        f"failed: {e}"
+                    ),
+                )
 
     def _fail(self, exception: BenchmarkRunException) -> None:
         self.spinner.stop()
