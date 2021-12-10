@@ -1,7 +1,7 @@
 from typer import Context, echo, Exit, Typer  # noqa: TC002
 
 from openforbc_benchmark.benchmark import get_benchmarks
-from openforbc_benchmark.cli.benchmark import CliBenchmarkRun, print_stats
+from openforbc_benchmark.cli.benchmark import CliBenchmarkRun
 from openforbc_benchmark.cli.state import state
 
 app = Typer()
@@ -43,6 +43,6 @@ def interactive_prompt() -> None:
         raise Exit(1)
 
     run = benchmark.run(selected_presets)
-    stats = CliBenchmarkRun(run).start()
-
-    print_stats(stats, False)
+    cli_run = CliBenchmarkRun(run)
+    cli_run.start()
+    cli_run.print_stats()

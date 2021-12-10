@@ -8,6 +8,7 @@ if TYPE_CHECKING:
 
 from typer import Context, echo, Exit, Typer, Option  # noqa: TC002
 from typing import List  # noqa: TC002
+from sys import stdout
 from yaspin.core import Yaspin
 
 from openforbc_benchmark.benchmark import find_benchmark, get_benchmarks
@@ -40,7 +41,9 @@ class BenchmarkValidationError(BenchmarkRunException):
 class CliBenchmarkRun:
     """A benchmark run in the CLI interface."""
 
-    def __init__(self, benchmark_run: "BenchmarkRun") -> None:
+    def __init__(
+        self, benchmark_run: "BenchmarkRun", log_to_stderr: bool = not stdout.isatty()
+    ) -> None:
         from datetime import datetime
         from os import mkdir
         from os.path import dirname, exists, join
@@ -51,6 +54,8 @@ class CliBenchmarkRun:
             get_benchmark_log_dir(benchmark_run.benchmark),
             datetime.now().strftime("%Y%m%d_%H%M%S"),
         )
+        self.stats: "Dict[str, Dict[str, Union[int, float]]]" = {}
+        self._log_to_stderr = log_to_stderr
 
         parent = dirname(self.log_dir)
         if not exists(parent):
@@ -58,18 +63,34 @@ class CliBenchmarkRun:
 
         mkdir(self.log_dir)
 
-    def start(self) -> "Dict[str, Dict[str, Union[int, float]]]":
-        with self.spinner:
-            return self._start()
+    def print_stats(self, json: bool = False) -> None:
+        from json import dumps
+        from tabulate import tabulate
 
-    def _start(self) -> "Dict[str, Dict[str, Union[int, float]]]":
+        if json:
+            return echo(dumps(self.stats))
+
+        table: "List[Tuple[str, str, Union[int, float]]]" = []
+        for preset, preset_stats in self.stats.items():
+            table.extend((preset, stat, value) for stat, value in preset_stats.items())
+
+        echo(tabulate(table, ["Preset", "Stat", "Value"]))
+
+    def start(self) -> None:
+        if self._log_to_stderr:
+            self._start()
+        else:
+            with self.spinner:
+                self._start()
+
+    def _start(self) -> None:
         from os.path import join
         from json.decoder import JSONDecodeError
         from jsonschema import ValidationError
 
         benchmark_id = self.benchmark_run.benchmark.get_id()
 
-        self.spinner.write(f'Running "{benchmark_id}" setup commands')
+        self._log(f'Running "{benchmark_id}" setup commands')
         for i, task in enumerate(self.benchmark_run.setup()):
             self.spinner.text = f"{benchmark_id}(setup): {argv_join(task.args)}"
             self._run_task_or_err(
@@ -79,9 +100,8 @@ class CliBenchmarkRun:
                 "failed",
             )
 
-        stats = {}
         for preset, tasks in self.benchmark_run.run():
-            self.spinner.write(f'Running "{benchmark_id}" preset "{preset.name}"')
+            self._log(f'Running "{benchmark_id}" preset "{preset.name}"')
             for i, task in enumerate(tasks):
                 self.spinner.text = (
                     f"{benchmark_id}(run:{preset.name}): {argv_join(task.args)}"
@@ -100,9 +120,9 @@ class CliBenchmarkRun:
                 next(output)
 
                 try:
-                    stats[preset.name] = self.benchmark_run.get_stats(output)
+                    self.stats[preset.name] = self.benchmark_run.get_stats(output)
                 except (JSONDecodeError, ValidationError) as e:
-                    self._print(
+                    self._log(
                         f'Failed to decode stats for preset "{preset.name}"', err=True
                     )
                     self._fail(
@@ -112,18 +132,19 @@ class CliBenchmarkRun:
                         ),
                     )
 
-        return stats
-
     def _fail(self, exception: BenchmarkRunException) -> None:
         self.spinner.stop()
 
-        echo(exception)
-        echo(f'ERROR: Benchmark "{self.benchmark_run.benchmark.get_id()}" failed')
+        echo(exception, err=True)
+        echo(
+            f'ERROR: Benchmark "{self.benchmark_run.benchmark.get_id()}" failed',
+            err=True,
+        )
         raise Exit(1)
 
-    def _print(self, message: "Any", err: bool = False) -> None:
+    def _log(self, message: "Any", err: bool = True) -> None:
         with self.spinner.hidden():
-            echo(message, err=err)
+            echo(message, err=(self._log_to_stderr or err))
 
     def _run_task_or_err(
         self, task: "Runnable", log_prefix: str, err_message: "Any"
@@ -131,11 +152,11 @@ class CliBenchmarkRun:
         try:
             ret = self._run_task(task, log_prefix)
         except Exception as e:
-            self._print(err_message, True)
+            self._log(err_message, err=True)
             self._fail(BenchmarkTaskError(f"Task {task} did not start because of {e}"))
 
         if ret != 0:
-            self._print(err_message, True)
+            self._log(err_message, err=True)
             self._fail(
                 BenchmarkTaskFailed(f"Task {task} failed with return code {ret}")
             )
@@ -146,7 +167,7 @@ class CliBenchmarkRun:
         from time import sleep
         from typing import cast, IO
 
-        self.spinner.write(f"$ {argv_join(task.args)}")
+        self._log(f"$ {argv_join(task.args)}")
 
         proc = Popen(**task.into_popen_args(), stderr=PIPE, stdout=PIPE)
         assert proc.stdout is not None
@@ -172,7 +193,7 @@ class CliBenchmarkRun:
                             reading = False
                         continue
 
-                    self.spinner.write(line.rstrip().decode())
+                    self._log(line.rstrip().decode())
 
                     log_file = err_log if k.fileobj is proc.stderr else out_log
                     log_file.write(
@@ -200,22 +221,6 @@ def get_benchmark_log_dir(benchmark: "Benchmark") -> str:
         )
 
     return join(getcwd(), "logs", benchmark.get_id())
-
-
-def print_stats(
-    stats: "Dict[str, Dict[str, Union[int, float]]]", json: bool = True
-) -> None:
-    from json import dumps
-    from tabulate import tabulate
-
-    if json:
-        return echo(dumps(stats))
-
-    table: "List[Tuple[str, str, Union[int, float]]]" = []
-    for preset, preset_stats in stats.items():
-        table.extend((preset, stat, value) for stat, value in preset_stats.items())
-
-    echo(tabulate(table, ["Preset", "Stat", "Value"]))
 
 
 app = Typer()
@@ -261,7 +266,7 @@ def list_presets(benchmark_id: str) -> None:
 def run_benchmark(
     benchmark_id: str,
     preset_names: "List[str]",  # noqa: TC201
-    table: bool = Option(False, "--table", "-t"),
+    json: bool = Option(False, "--json", "-j"),
 ) -> None:
     preset_names = list(preset_names)  # https://github.com/tiangolo/typer/issues/127
 
@@ -278,12 +283,12 @@ def run_benchmark(
         presets.append(preset)
     run = benchmark.run(presets)
 
-    stats = CliBenchmarkRun(run).start()
-
-    print_stats(stats, not table)
+    cli_run = CliBenchmarkRun(run)
+    cli_run.start()
+    cli_run.print_stats(json)
 
 
 @app.callback(invoke_without_command=True)
 def default(ctx: Context) -> None:
     if ctx.invoked_subcommand is None:
-        ctx.invoke(list_benchmarks, False)
+        ctx.invoke(list_benchmarks, True)
