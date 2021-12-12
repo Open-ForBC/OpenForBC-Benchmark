@@ -54,12 +54,20 @@ def interactive_prompt() -> None:
             "Chose some presets", choices=[preset.name for preset in presets]
         )
 
+        if not selected_preset_names:
+            echo("ERROR: No preset selected", err=True)
+            raise Exit(1)
+
         selected_presets = [
             preset for preset in presets if preset.name in selected_preset_names
         ]
 
         if not selected_presets:
-            echo("ERROR: No preset selected", err=True)
+            echo(
+                "ERROR: Couldn't find any of presets \""
+                f'{", ".join(selected_preset_names)}"',
+                err=True,
+            )
             raise Exit(1)
 
         run = benchmark.run(selected_presets)
