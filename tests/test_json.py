@@ -10,6 +10,7 @@ def test_benchmark_serialization() -> None:
     benchmark = BenchmarkDefinition(
         "name",
         "desc",
+        "preset",
         None,
         [CommandInfo("echo Hello world")],
         None,
@@ -26,6 +27,7 @@ def test_benchmark_deserialization() -> None:
     {
         "name": "Dummy Benchmark",
         "description": "Prints something to the output",
+        "default_preset": "preset",
         "run_command": "echo Hello world!",
         "setup_command": {
             "command": "echo",

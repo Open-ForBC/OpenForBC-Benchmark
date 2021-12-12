@@ -59,6 +59,7 @@ class BenchmarkDefinition(Serializable["BenchmarkDefinition"]):
         self,
         name: str,
         description: str,
+        default_preset: str,
         setup_commands: "Optional[List[CommandInfo]]",
         run_commands: "List[CommandInfo]",
         cleanup_commands: "Optional[List[CommandInfo]]",
@@ -68,6 +69,7 @@ class BenchmarkDefinition(Serializable["BenchmarkDefinition"]):
         """Create a BenchmarkDefinition object."""
         self.name = name
         self.description = description
+        self.default_preset = default_preset
         self.setup_commands = setup_commands
         self.run_commands = run_commands
         self.cleanup_commands = cleanup_commands
@@ -103,6 +105,7 @@ class BenchmarkDefinition(Serializable["BenchmarkDefinition"]):
         return self_class(
             json["name"],
             json["description"],
+            json["default_preset"],
             setup_commands,
             run_commands,
             cleanup_commands,

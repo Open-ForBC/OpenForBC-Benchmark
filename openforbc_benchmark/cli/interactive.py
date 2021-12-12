@@ -49,9 +49,12 @@ def interactive_prompt() -> None:
         )
 
         presets = benchmark.get_presets()
+        default_preset = benchmark.get_default_preset()
 
         selected_preset_names = checkbox(
-            "Chose some presets", choices=[preset.name for preset in presets]
+            "Chose some presets (select with <spacebar>)",
+            choices=[preset.name for preset in presets],
+            default=[default_preset.name],
         )
 
         if not selected_preset_names:

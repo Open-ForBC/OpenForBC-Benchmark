@@ -41,6 +41,7 @@ class Benchmark(BenchmarkDefinition):
         self,
         name: str,
         description: str,
+        default_preset: str,
         setup_commands: "Optional[List[CommandInfo]]",
         run_commands: "List[CommandInfo]",
         cleanup_commands: "Optional[List[CommandInfo]]",
@@ -52,6 +53,7 @@ class Benchmark(BenchmarkDefinition):
         super().__init__(
             name,
             description,
+            default_preset,
             setup_commands,
             run_commands,
             cleanup_commands,
@@ -92,6 +94,16 @@ class Benchmark(BenchmarkDefinition):
             for file in listdir(presets_dir)
             if file.endswith(".json")
         ]
+
+    def get_default_preset(self) -> "Preset":
+        """Retrieve the default preset."""
+        default = self.get_preset(self.default_preset)
+        if default is None:
+            raise BenchmarkPresetNotFound(
+                f'Default preset "{self.default_preset}" not found for benchmark '
+                f'"{self.name}"'
+            )
+        return default
 
     def get_preset(self, name: str) -> "Optional[Preset]":
         """Retrieve benchmark preset."""

@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING
 
+from typer.params import Argument
+
 
 if TYPE_CHECKING:
     from typing import Any, Dict, Tuple, Union
@@ -12,6 +14,7 @@ from sys import stdout
 from yaspin.core import Yaspin
 
 from openforbc_benchmark.benchmark import (
+    BenchmarkPresetNotFound,
     BenchmarkStatsDecodeError,
     find_benchmark,
     get_benchmarks,
@@ -244,12 +247,13 @@ def list_benchmarks(table: bool = Option(False, "--table", "-t")) -> None:
             map(
                 lambda benchmark: (
                     benchmark.get_id(),
-                    benchmark.name,
+                    shorten(benchmark.name, 20, placeholder="..."),
                     shorten(benchmark.description, 40, placeholder="..."),
+                    benchmark.default_preset,
                 ),
                 benchmarks,
             ),
-            headers=["ID", "Name", "Description"],
+            headers=["ID", "Name", "Description", "Default preset"],
             tablefmt="simple",
         )
         if table
@@ -271,22 +275,33 @@ def list_presets(benchmark_id: str) -> None:
 @app.command("run")
 def run_benchmark(
     benchmark_id: str,
-    preset_names: "List[str]",  # noqa: TC201
+    preset_names: "List[str]" = Argument(None),  # noqa: TC201
     json: bool = Option(False, "--json", "-j"),
 ) -> None:
-    preset_names = list(preset_names)  # https://github.com/tiangolo/typer/issues/127
+    # typer has a bug and arguments specified as lists get passed as tuples
+    # see: https://github.com/tiangolo/typer/issues/127
+    preset_names = list(preset_names)
 
     benchmark = find_benchmark(benchmark_id, state["search_path"])
     if benchmark is None:
         echo(f'ERROR: Benchmark "{benchmark_id}" not found in search path')
         raise Exit(1)
+
     presets = []
-    for name in preset_names:
-        preset = benchmark.get_preset(name)
-        if preset is None:
-            echo(f'ERROR: Preset "{name}" not found in benchmark "{benchmark_id}"')
-            raise Exit(1)
-        presets.append(preset)
+    if not preset_names:
+        try:
+            presets.append(benchmark.get_default_preset())
+        except BenchmarkPresetNotFound as e:
+            echo(f"ERROR: {e}")
+            raise Exit(1) from None
+    else:
+        for name in preset_names:
+            preset = benchmark.get_preset(name)
+            if preset is None:
+                echo(f'ERROR: Preset "{name}" not found in benchmark "{benchmark_id}"')
+                raise Exit(1)
+            presets.append(preset)
+
     run = benchmark.run(presets)
 
     cli_run = CliBenchmarkRun(run)
