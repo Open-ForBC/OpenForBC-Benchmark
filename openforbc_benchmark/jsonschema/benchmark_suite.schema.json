@@ -5,24 +5,31 @@
   "description": "A benchmark suite JSON definition schema",
   "$defs": {
     "benchmark_run": {
-      "benchmark_folder": {
-        "description": "The folder containing the benchmark",
-        "type": "string"
-      },
-      "presets": {
-        "description": "The presets (or a single preset) to be run",
-        "oneOf": [
-          {
-            "type": "string"
-          },
-          {
-            "type": "array",
-            "items": {
+      "properties": {
+        "benchmark_folder": {
+          "description": "The folder containing the benchmark",
+          "type": "string"
+        },
+        "presets": {
+          "description": "The presets (or a single preset) to be run",
+          "oneOf": [
+            {
               "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
-          }
-        ]
-      }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "benchmark_folder",
+        "presets"
+      ]
     }
   },
   "type": "object",
