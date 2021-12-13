@@ -1,0 +1,26 @@
+{
+  "name": "Dummy Python benchmark",
+  "description": "Does nothing (with virtualenv)",
+  "run_command": "echo data: 135246",
+  "default_preset": "preset1",
+  "setup_command": {
+    "command": "echo 'hello world'",
+    "env": {
+      "INSTALL": "1",
+      "ENVIRONMENT": "production"
+    },
+    "workdir": "presets"
+  },
+  "cleanup_command": {
+    "command": [
+      "echo",
+      "daw"
+    ]
+  },
+  "stats": {
+    "data_1": {
+      "regex": "data: (\\d+)"
+    }
+  },
+  "virtualenv": true
+}
