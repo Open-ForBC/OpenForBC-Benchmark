@@ -3,6 +3,7 @@ repos:
     rev: v4.0.1
     hooks:
       - id: trailing-whitespace
+      - id: mixed-line-ending
       - id: end-of-file-fixer
       - id: check-merge-conflict
       - id: check-case-conflict
@@ -34,3 +35,9 @@ repos:
         additional_dependencies:
           - types-jsonschema==3.2.1
           - types-tabulate==0.8.3
+
+  - repo: https://github.com/python-poetry/poetry
+    rev: 2fa6c17
+    hooks:
+     - id: poetry-export
+       files: poetry.lock

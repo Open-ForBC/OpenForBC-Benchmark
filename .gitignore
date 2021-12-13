@@ -36,3 +36,8 @@ MANIFEST
 
 # Notebooks
 *.ipynb
+
+# Testing
+.coverage
+coverage.xml
+.tox
