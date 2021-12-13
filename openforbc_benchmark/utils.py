@@ -5,6 +5,7 @@ if TYPE_CHECKING:
 
 
 from os import environ
+from shlex import quote
 from typing_extensions import TypedDict
 
 
@@ -28,6 +29,28 @@ class Runnable:
         self.cwd = cwd
         self.env = env
         self.path = path
+
+    def __repr__(self) -> str:
+        venv = False
+
+        if self.env and "VIRTUALENV" in self.env:
+            venv = True
+            virtualenv_path = self.env.pop("VIRTUALENV")
+            self.path.remove(f"{virtualenv_path}/bin")
+
+        env = (
+            None
+            if self.env is None
+            else " ".join(f"{quote(k)}={quote(v)}" for k, v in self.env.items())
+        )
+        path = None if not self.path else f"PATH+={quote(':'.join(self.path))}"
+        return (
+            f"{'(venv) ' if venv else ''}$ {path + ' ' if path else ''}"
+            f"{env + ' ' if env else ''}{self.command_str()}"
+        )
+
+    def command_str(self) -> str:
+        return argv_join(self.args)
 
     def into_popen_args(self, env: "Dict[str, str]" = environ.copy()) -> PopenArgs:
         """Transform into subprocess.Popen init args."""
@@ -53,6 +76,4 @@ class Runnable:
 
 
 def argv_join(argv: "Iterable[str]") -> str:
-    from shlex import quote
-
     return " ".join(quote(x) for x in argv)

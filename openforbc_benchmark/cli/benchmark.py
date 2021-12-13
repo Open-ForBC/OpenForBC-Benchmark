@@ -176,7 +176,7 @@ class CliBenchmarkRun:
         from time import sleep
         from typing import cast, IO
 
-        self._log(f"$ {argv_join(task.args)}")
+        self._log(task)
 
         proc = Popen(**task.into_popen_args(), stderr=PIPE, stdout=PIPE)
         assert proc.stdout is not None
@@ -189,8 +189,8 @@ class CliBenchmarkRun:
         with outsel, open(f"{log_prefix}.err.log", "w") as err_log, open(
             f"{log_prefix}.out.log", "w"
         ) as out_log:
-            err_log.write(f"$ {argv_join(task.args)}\n")
-            out_log.write(f"$ {argv_join(task.args)}\n")
+            err_log.write(f"{task}\n")
+            out_log.write(f"{task}\n")
 
             reading = True
             while reading:

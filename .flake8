@@ -7,5 +7,5 @@ extend-ignore =
     # ANN102 Missing type annotation for cls in classmethod
     ANN102,
     # D1xx Missing docstrings
-    D100, D101, D102, D103, D104, D107
+    D100, D101, D102, D103, D104, D105, D107
 max-line-length = 89
