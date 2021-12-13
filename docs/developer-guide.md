@@ -76,6 +76,7 @@ Here's an example of a benchmark definition:
 | ----------------- | ----------------- | -------- |
 | `name`            | `string`          | x        |
 | `description`     | `string`          | x        |
+| `default_preset`  | `string`          | x        |
 | `setup_command`   | *commands*        |          |
 | `run_command`     | *commands*        | x        |
 | `cleanup_command` | *commands*        |          |
@@ -84,6 +85,9 @@ Here's an example of a benchmark definition:
 
 All the metadata fields are __required__: you need to specify the benchmark's
 *name* and *description*.
+
+The `default_preset` field (**required**) is the name of the default preset: the
+referenced preset **must** be present in the `presets` folder.
 
 ##### Commands
 
@@ -138,8 +142,11 @@ represented by a JSON file (its
 [schema](../josnschema/benchmark_preset.schema.json) is stored in the
 *jsonschema* folder in this repository).
 
-You can define more than one preset and select the one you want to run the
+You can define more than one preset and select the ones you want to run the
 benchmark with later when running the benchmark. 
+
+The default preset is specified in the benchmark's definition (field
+`default_preset`)  and must be defined.
 
 #### Benchmark preset schema
 
