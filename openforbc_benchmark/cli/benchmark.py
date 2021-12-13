@@ -66,7 +66,12 @@ class CliBenchmarkRun:
         self._log_to_stderr = log_to_stderr
 
         parent = dirname(self.log_dir)
-        if not exists(parent):
+        if exists(self.log_dir):
+            i = 1
+            while exists(f"{self.log_dir}.{i}"):
+                i += 1
+            self.log_dir = f"{self.log_dir}.{i}"
+        elif not exists(parent):
             mkdir(parent)
 
         mkdir(self.log_dir)
