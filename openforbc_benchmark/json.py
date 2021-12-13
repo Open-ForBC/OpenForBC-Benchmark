@@ -267,7 +267,7 @@ class CommandInfo(Serializable["CommandInfo"]):
 
     @classmethod
     def deserialize(self_class, json: "Any") -> "CommandInfo":
-        if isinstance(json, str):
+        if isinstance(json, str):  # noqa: SIM114
             return self_class(json)
         elif isinstance(json, dict):
             return self_class(**json)
