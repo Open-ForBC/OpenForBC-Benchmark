@@ -170,6 +170,17 @@ class CliBenchmarkRun:
             self._fail(BenchmarkTaskError(f"Task {task} did not start because of {e}"))
 
         if ret != 0:
+            if ret == 1 and "venv" in task.args:
+                with open(f"{log_prefix}.err.log", "r") as output:
+                    if "Error: [Errno 2] No such file or directory:" in output.read():
+                        self._log(
+                            "WARNING: Possibly broken symbolic link in benchmark's "
+                            f"virtualenv ({self.benchmark_run.benchmark.dir}/.venv), "
+                            "delete it and try again",
+                            err=True
+                        )
+                pass
+
             self._log(err_message, err=True)
             self._fail(
                 BenchmarkTaskFailed(f"Task {task} failed with return code {ret}")
