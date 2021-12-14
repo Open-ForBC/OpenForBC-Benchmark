@@ -3,10 +3,8 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from typing import Dict, Iterator, List, Optional, Tuple, Union
-    from openforbc_benchmark.json import (
-        StatMatchInfo,
-        BenchmarkRunDefinition,
-    )
+    from openforbc_benchmark.json import BenchmarkRunDefinition, StatMatchInfo
+
 
 from typing import TextIO
 
@@ -198,10 +196,10 @@ class BenchmarkRun:
     def from_definition(
         self_class, definition: "BenchmarkRunDefinition", search_path: str
     ) -> "BenchmarkRun":
-        benchmark = find_benchmark(definition.benchmark_id, search_path)
+        benchmark = find_benchmark(definition.benchmark_folder, search_path)
         if benchmark is None:
             raise BenchmarkNotFound(
-                f'Benchmark "{definition.benchmark_id}" not found in search path '
+                f'Benchmark "{definition.benchmark_folder}" not found in search path '
                 f'"{search_path}"'
             )
 
