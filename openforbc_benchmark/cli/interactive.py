@@ -16,7 +16,7 @@ def callback(ctx: Context) -> None:
 
 @app.command()
 def interactive_prompt() -> None:
-    from inquirer import checkbox, list_input
+    from inquirer import list_input
 
     command = list_input(
         "Do you want to run a suite or a single benchmark?",
@@ -51,29 +51,22 @@ def interactive_prompt() -> None:
         presets = benchmark.get_presets()
         default_preset = benchmark.get_default_preset()
 
-        selected_preset_names = checkbox(
-            "Chose some presets (select with <spacebar>)",
+        preset_name = list_input(
+            "Chose a preset",
             choices=[preset.name for preset in presets],
             default=[default_preset.name],
         )
 
-        if not selected_preset_names:
-            echo("ERROR: No preset selected", err=True)
-            raise Exit(1)
+        preset = next(preset for preset in presets if preset.name == preset_name)
 
-        selected_presets = [
-            preset for preset in presets if preset.name in selected_preset_names
-        ]
-
-        if not selected_presets:
+        if not preset:
             echo(
-                "ERROR: Couldn't find any of presets \""
-                f'{", ".join(selected_preset_names)}"',
+                "ERROR: Couldn't find the selected preset (this is a bug).",
                 err=True,
             )
             raise Exit(1)
 
-        run = benchmark.run(selected_presets)
+        run = benchmark.run([preset])
         cli_run = CliBenchmarkRun(run)
         cli_run.start()
         cli_run.print_stats()
