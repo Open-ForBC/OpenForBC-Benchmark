@@ -76,6 +76,9 @@ jobs:
             [ -d $benchmark/.git ] || poetry run flake8 benchmarks/$benchmark
           done
 
+      - name: Run mypy type checker
+        run: poetry run mypy
+
       - name: Install pytest plugin
         run: poetry run pip install pytest-github-actions-annotate-failures
 
