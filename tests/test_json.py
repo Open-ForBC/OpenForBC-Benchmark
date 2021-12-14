@@ -90,7 +90,7 @@ def test_benchmark_suite_deserialization() -> None:
     assert benchmark_suite.name == "Sample suite"
     assert benchmark_suite.description == "A sample benchmark suite"
     assert benchmark_suite.benchmark_runs
-    assert benchmark_suite.benchmark_runs[0].benchmark_id == "dummy_bench"
+    assert benchmark_suite.benchmark_runs[0].benchmark_folder == "dummy_bench"
     assert benchmark_suite.benchmark_runs[0].presets == ["preset1", "preset2"]
 
 
@@ -175,5 +175,5 @@ def test_benchmark_run_definition() -> None:
     """
     run = BenchmarkRunDefinition.deserialize(loads(json))
     assert isinstance(run, BenchmarkRunDefinition)
-    assert run.benchmark_id == "dummy"
+    assert run.benchmark_folder == "dummy"
     assert run.presets == ["preset1", "preset2"]

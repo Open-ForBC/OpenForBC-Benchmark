@@ -333,7 +333,7 @@ class BenchmarkRunDefinition(Serializable["BenchmarkRunDefinition"]):
 
     def __init__(self, benchmark_id: str, presets: "List[str]") -> None:
         """Create a BenchmarkRunDefinition object."""
-        self.benchmark_id = benchmark_id
+        self.benchmark_folder = benchmark_id
         self.presets = presets
 
     @classmethod
