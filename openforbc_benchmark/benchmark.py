@@ -333,11 +333,12 @@ class BenchmarkRun:
             for command in preset.init_commands:
                 yield self._add_context(command.into_runnable())
 
-        for command in self.benchmark.run_commands:
+        last = len(self.benchmark.run_commands) - 1
+        for i, command in enumerate(self.benchmark.run_commands):
             yield self._add_context(
                 (
                     command.extend(preset.args, preset.env)
-                    if preset.args is not None
+                    if i == last and preset.args is not None
                     else command
                 ).into_runnable()
             )
