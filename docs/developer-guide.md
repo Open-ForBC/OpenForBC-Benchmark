@@ -3,14 +3,52 @@
 - To run benchmarks check the [user-guide.md](user-guide.md).
 - Installation [README](../README.md).
 
+## Tool development environment
+
+The packaging tool used by the _OpenForBC-Benchmark_ tool is
+[poetry](https://python-poetry.org). _Poetry_ allows for a easy development
+experience thanks to python's virtual environments.
+
+Poetry creates virtual environments a cache folder by default, if you prefer to
+keep the virtualenv inside the project's directory you can configure poetry to
+do so (`poetry config virtualenvs.in-project true`).
+
+> NOTE: When using out of project virtualenvs the prompt can become a little bit
+> too long because of the virtualenv folder name, but this can be fixed by
+> adding the `prompt = "venv"` line to the `pyvenv.cfg` file present in the
+> virtualenv folder (which can be obtained by running `poetry env list
+> --full-path`).
+
+To install all the dependencies in the virtualenv (eventually creating it if it
+doesn't exist already) run `poetry install`.
+
+After the dependencies are installed you can run commands inside the virtualenv
+by using `poetry run <command>` (e.g. `poetry run pytest`, `poetry run
+o4bc-bench`) or activate the virtual environment with `poetry shell`, which will
+get you into a shell where you can directly run commands inside the virtualenv.
+
+### Pre-commit for local commit checks
+
+If you want to run linter and type checks locally before every commit you can
+install [pre-commit](https://pre-commit.com/#install): this repo alreaady
+contains a `pre-commit-config.yaml` configuration.
+
+You can install and activate _pre-commit_ by running the following commands
+(outside of the project's virtual environment):
+
+```shell
+pip install pre-commit
+pre-commit
+```
+
 ## Before opening a PR
 
 Continuous integration is setup [here](../.github/workflows/CI.yml). It
-currently runs the CLI test and blender with one setting file.
+currently runs the library and CLI tests.
 
-Before opening a PR, please check that your changes do not break anything by
-executing ./test_PR.sh.  This executes full tests: CLI, blender with various
-settings, suites.
+Before opening a PR, please lint and type check your files by running `poetry
+run flake8` and `poetry run mypy`, then check that your changes do not break
+anything by executing `poetry run pytest`.
 
 ## Adding a benchmark
 
@@ -116,7 +154,8 @@ JSON *object* with values of type *string*) and its workdir.
 ##### Benchmark output
 
 The `stats` field is used to specify how to obtain resulting benchmark data, it
-can be a [`command`](#commands) which will output benchmark data to *stdout* when run, or a `match` type object.
+can be a [`command`](#commands) which will output benchmark data to *stdout*
+when run, or a `match` type object.
 
 Benchmark data written to *stdout* must be a JSON object (its
 [schema](../jsonschema/benchmark_stats.schema.json) is stored in the
@@ -144,7 +183,7 @@ represented by a JSON file (its
 *jsonschema* folder in this repository).
 
 You can define more than one preset and select the ones you want to run the
-benchmark with later when running the benchmark. 
+benchmark with later when running the benchmark.
 
 The default preset is specified in the benchmark's definition (field
 `default_preset`)  and must be defined.
@@ -190,12 +229,6 @@ specifies additional environment variables which will me merged with the
 As a bare minimum, add a README.md file that documents what the benchmark does
 and the settings. For more comprehensive documentation, you can create an
 additional doc/ folder and place there additional files.
-
-### Benchmark tests
-
-Please consider adding tests for your benchmark in bin/, and also if appropriate
-add them to CI or test_PR.sh
-
 
 ## Adding a benchmark suite
 
@@ -249,21 +282,13 @@ Each `benchmark_run` is an object with two __required__ fields:
 
 ## How the tool works
 
-Essentially, there are two modules at work, ie. Benchmark Suite and Benchmark
-Factory which extends the interface defined in Benchmark Wrapper.
+Essentially, there are two modules at work: the `openforbc_benchmark` library
+module and the cli interface module (`openforbc_benchmark.cli`).
 
-The Benchmark Factory is a factory method that takes in the benchmark name and
-optionally a settings file and returns the benchmark object.
+The library can deserialize JSON definitions and provide the tasks to be
+executed in each phase (_setup_, _run_ and _cleanup_), while the CLI provides
+the end user with an interface with the library that can run these commands and
+extract statistical data from the benchmark's output.
 
-The Benchmark Suite looks for a JSON configuration of benchmark to run as a
-combo in ```benchmark_info.json``` and runs all the benchmarks in a loop.
-
-To communicate the above to end-user, there are three outlets: GUI, CLI and
-daemon defined in the ```user_interfaces``` directory. Channeled by the
-interface skeleton which also uses the benchmark wrapper interface.
-
-Further, the benchmark implementations also adhere to the Benchmark Wrapper
-interface.
-
-The class diagram for the project can be found
-[here](../assets/class_diagram.svg).
+The command line app has two interfaces, a basic command interface or an
+interactive UI.
