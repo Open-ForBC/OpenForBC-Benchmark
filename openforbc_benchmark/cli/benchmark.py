@@ -1,14 +1,16 @@
 from typing import TYPE_CHECKING
 
-from typer.params import Argument
-
 
 if TYPE_CHECKING:
     from typing import Any, Dict, Tuple, Union
     from openforbc_benchmark.benchmark import Benchmark, BenchmarkRun
+    from openforbc_benchmark.json import StatMatchInfo
     from openforbc_benchmark.utils import Runnable
 
+from json import dumps
+from tabulate import tabulate
 from typer import Context, echo, Exit, Typer, Option  # noqa: TC002
+from typer.params import Argument
 from typing import List  # noqa: TC002
 from sys import stdout
 from yaspin.core import Yaspin
@@ -16,6 +18,7 @@ from yaspin.core import Yaspin
 from openforbc_benchmark.benchmark import (
     BenchmarkPresetNotFound,
     BenchmarkStatsDecodeError,
+    Preset,
     find_benchmark,
     get_benchmarks,
 )
@@ -77,9 +80,6 @@ class CliBenchmarkRun:
         mkdir(self.log_dir)
 
     def print_stats(self, json: bool = False) -> None:
-        from json import dumps
-        from tabulate import tabulate
-
         if json:
             return echo(dumps(self.stats))
 
@@ -177,7 +177,7 @@ class CliBenchmarkRun:
                             "WARNING: Possibly broken symbolic link in benchmark's "
                             f"virtualenv ({self.benchmark_run.benchmark.dir}/.venv), "
                             "delete it and try again",
-                            err=True
+                            err=True,
                         )
                 pass
 
@@ -231,6 +231,27 @@ class CliBenchmarkRun:
         return proc.returncode
 
 
+def find_benchmark_or_fail(benchmark_id: str) -> "Benchmark":
+    benchmark = find_benchmark(benchmark_id, state["search_path"])
+    if benchmark is None:
+        echo(f'ERROR: Benchmark "{benchmark_id}" not found in search path')
+        raise Exit(1)
+
+    return benchmark
+
+
+def get_preset_or_fail(benchmark: "Benchmark", preset_name: str) -> Preset:
+    preset = benchmark.get_preset(preset_name)
+    if preset is None:
+        echo(
+            f'ERROR: Preset "{preset_name}" not found in benchmark '
+            f'"{benchmark.get_id()}"'
+        )
+        raise Exit(1)
+
+    return preset
+
+
 def get_benchmark_log_dir(benchmark: "Benchmark") -> str:
     """Get log directory for a benchmark."""
     from os import getcwd, mkdir
@@ -248,13 +269,26 @@ def get_benchmark_log_dir(benchmark: "Benchmark") -> str:
     return join(getcwd(), "logs", benchmark.get_id())
 
 
-app = Typer()
+def pretty_commands(commands: List[CommandInfo]) -> str:
+    return "\n".join(f"\t{command.into_runnable()}" for command in commands)
+
+
+def pretty_stats(stats: "Union[CommandInfo, Dict[str, StatMatchInfo]]") -> str:
+    if isinstance(stats, dict):
+        return "\n".join(
+            f'\t{k}: /{v.regex}/ @ {v.file if v.file else "stdout"}'
+            for k, v in stats.items()
+        )
+
+    return pretty_commands([stats])
+
+
+app = Typer(help="List, inspect and run benchmark and presets")
 
 
 @app.command("list")
 def list_benchmarks(table: bool = Option(False, "--table", "-t")) -> None:
     """List benchmarks in the search path."""
-    from tabulate import tabulate
     from textwrap import shorten
 
     benchmarks = get_benchmarks(state["search_path"])
@@ -278,20 +312,95 @@ def list_benchmarks(table: bool = Option(False, "--table", "-t")) -> None:
     )
 
 
-@app.command("presets")
-def list_presets(benchmark_id: str) -> None:
-    benchmark = find_benchmark(benchmark_id, state["search_path"])
+@app.command("list-presets")
+def list_presets(
+    benchmark_folder: str, table: bool = Option(True, "--table/--no-table", "-t/-T")
+) -> None:
+    """List benchmark presets."""
+    benchmark = find_benchmark_or_fail(benchmark_folder)
     if benchmark is None:
-        echo(f'ERROR: Benchmark "{benchmark_id}" not found in search path')
+        echo(f'ERROR: Benchmark "{benchmark_folder}" not found in search path')
         raise Exit(1)
+
     presets = benchmark.get_presets()
 
-    echo("\n".join(preset.name for preset in presets))
+    echo(
+        tabulate(
+            [
+                (preset.name, argv_join(preset.args) if preset.args else None)
+                for preset in presets
+            ],
+            headers=["Name", "Args"],
+        )
+        if table
+        else "\n".join(preset.name for preset in presets)
+    )
+
+
+@app.command("get-preset")
+def preset_info(
+    benchmark_folder: str, preset_name: str, json: bool = Option(False, "--json", "-j")
+) -> None:
+    """Get information for a benchmark preset."""
+    benchmark = find_benchmark_or_fail(benchmark_folder)
+    preset = get_preset_or_fail(benchmark, preset_name)
+
+    if json:
+        definition = preset.into_definition()
+        return echo(dumps(definition, default=definition.serialize, indent=2))
+
+    echo(
+        f'Preset "{preset_name}" - "{benchmark.name}"\n'
+        "Final benchmark run command:\n"
+        f"\t{benchmark.run_commands[-1].extend(preset.args, preset.env).into_runnable()}"
+        "\n"
+        + (
+            f"Init commands:\n{pretty_commands(preset.init_commands)}\n"
+            if preset.init_commands
+            else ""
+        )
+        + (
+            f"Post commands:\n{pretty_commands(preset.post_commands)}\n"
+            if preset.post_commands
+            else ""
+        ),
+        nl=False,
+    )
+
+
+@app.command("get")
+def benchmark_info(
+    benchmark_folder: str, json: bool = Option(False, "--json", "-j")
+) -> None:
+    """Get benchmark information."""
+    benchmark = find_benchmark_or_fail(benchmark_folder)
+
+    if json:
+        definition = benchmark.into_definition()
+        return echo(dumps(definition, default=definition.serialize, indent=2))
+
+    echo(
+        f"{benchmark.name} - {benchmark.description}\n"
+        f"Default preset: {benchmark.default_preset}\n"
+        + (
+            f"Setup commands:\n{pretty_commands(benchmark.setup_commands)}\n"
+            if benchmark.setup_commands
+            else ""
+        )
+        + f"Run commands:\n{pretty_commands(benchmark.run_commands)}\n"
+        + (
+            f"Cleanup commands:\n{pretty_commands(benchmark.cleanup_commands)}\n"
+            if benchmark.cleanup_commands
+            else ""
+        )
+        + f"Stats:\n{pretty_stats(benchmark.stats)}\n"
+        + f"Virtualenv: {'enabled' if benchmark.virtualenv else 'disabled'}"
+    )
 
 
 @app.command("run")
 def run_benchmark(
-    benchmark_id: str,
+    benchmark_folder: str,
     preset_names: "List[str]" = Argument(None),  # noqa: TC201
     json: bool = Option(False, "--json", "-j"),
 ) -> None:
@@ -300,10 +409,7 @@ def run_benchmark(
     # see: https://github.com/tiangolo/typer/issues/127
     preset_names = list(preset_names)
 
-    benchmark = find_benchmark(benchmark_id, state["search_path"])
-    if benchmark is None:
-        echo(f'ERROR: Benchmark "{benchmark_id}" not found in search path')
-        raise Exit(1)
+    benchmark = find_benchmark_or_fail(benchmark_folder)
 
     presets = []
     if not preset_names:
@@ -314,10 +420,7 @@ def run_benchmark(
             raise Exit(1) from None
     else:
         for name in preset_names:
-            preset = benchmark.get_preset(name)
-            if preset is None:
-                echo(f'ERROR: Preset "{name}" not found in benchmark "{benchmark_id}"')
-                raise Exit(1)
+            preset = get_preset_or_fail(benchmark, name)
             presets.append(preset)
 
     run = benchmark.run(presets)
