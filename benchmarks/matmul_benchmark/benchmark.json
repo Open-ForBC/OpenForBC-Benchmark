@@ -1,0 +1,13 @@
+{
+    "name": "Matrix Multiplication Benchmark using Tensorflow",
+    "description": "Some test of matrices operations",
+    "default_preset": "matrix_20x30_GPU",
+    "setup_command": "./setup.sh",
+    "run_command": "./matmul_benchmark.py",
+    "stats": {
+        "matmul_time_s":{
+            "regex": "Matrix multiplcation time: [+-]?([0-9]+([.][0-9]*)?|[.][0-9]+) s"
+        }
+    },
+    "virtualenv": true   
+}
