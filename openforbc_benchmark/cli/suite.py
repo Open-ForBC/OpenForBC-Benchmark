@@ -67,11 +67,12 @@ def find_suite(search: str, search_path: str) -> "Optional[BenchmarkSuite]":
     )
 
 
-app = Typer()
+app = Typer(help="List, inspect and run benchmark suites")
 
 
 @app.command("list")
 def list_suites(table: bool = Option(False, "--table", "-t")) -> None:
+    """List available suites in the search path."""
     from tabulate import tabulate
     from textwrap import shorten
 
@@ -92,6 +93,7 @@ def list_suites(table: bool = Option(False, "--table", "-t")) -> None:
 
 @app.command("get")
 def get_suite_info(suite_name: str) -> None:
+    """Get suite information."""
     from tabulate import tabulate
 
     suite = find_suite(suite_name, state["search_path"])
@@ -116,6 +118,7 @@ def get_suite_info(suite_name: str) -> None:
 
 @app.command("run")
 def run_suite(suite_name: str, json: bool = Option(False, "--json", "-j")) -> None:
+    """Run the specified suite."""
     suite = find_suite(suite_name, state["search_path"])
     if suite is None:
         echo(f'ERROR: Suite "{suite_name}" not found in search path')

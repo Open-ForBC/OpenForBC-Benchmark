@@ -253,6 +253,7 @@ app = Typer()
 
 @app.command("list")
 def list_benchmarks(table: bool = Option(False, "--table", "-t")) -> None:
+    """List benchmarks in the search path."""
     from tabulate import tabulate
     from textwrap import shorten
 
@@ -294,6 +295,7 @@ def run_benchmark(
     preset_names: "List[str]" = Argument(None),  # noqa: TC201
     json: bool = Option(False, "--json", "-j"),
 ) -> None:
+    """Run specified benchmark with one or more presets."""
     # typer has a bug and arguments specified as lists get passed as tuples
     # see: https://github.com/tiangolo/typer/issues/127
     preset_names = list(preset_names)

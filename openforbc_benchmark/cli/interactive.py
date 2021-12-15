@@ -101,7 +101,7 @@ def suite_definition_tool() -> None:
             break
 
 
-app = Typer()
+app = Typer(help="Run interactive prompt")
 
 
 @app.callback(invoke_without_command=True)
