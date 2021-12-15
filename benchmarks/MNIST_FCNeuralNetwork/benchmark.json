@@ -1,0 +1,28 @@
+{
+    "name": "Fully Connected Neural Network training and inference over MNIST dataset ",
+    "description": "Training and inference with MNIST dataset",
+    "default_preset": "gpu_shallow_largebatch",
+    "setup_command": "./setup.sh",
+    "run_command": "./MNIST_FCNeuralNetwork_benchmark.py",
+    "stats": {
+        "training_time":{
+            "regex": "Training the model took [+-]?([0-9]+([.][0-9]*)?|[.][0-9]+) seconds"
+        },
+        "trainging_sample_processing_time":{
+            "regex": "Sample processing time during training: [+-]?([0-9]+([.][0-9]*)?|[.][0-9]+) sample/seconds"
+        },
+        "Inference_in_sample_time":{
+            "regex": "Testing the model in-sample took [+-]?([0-9]+([.][0-9]*)?|[.][0-9]+) seconds"
+        },
+        "Inference_in_sample_processing_time":{
+            "regex": "Sample processing time during inference in-sample: [+-]?([0-9]+([.][0-9]*)?|[.][0-9]+) sample/seconds"
+        },
+        "Inference_out_of_sample_time":{
+            "regex": "Testing the model out-of-sample took [+-]?([0-9]+([.][0-9]*)?|[.][0-9]+) seconds"
+        },
+        "Inference_out_of_sample_processing_time":{
+            "regex": "Sample processing time during inference out-of-sample: [+-]?([0-9]+([.][0-9]*)?|[.][0-9]+) sample/seconds"
+        }
+    },
+    "virtualenv": true   
+}   
