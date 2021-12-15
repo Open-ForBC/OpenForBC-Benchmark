@@ -66,6 +66,18 @@ class Benchmark(BenchmarkDefinition):
     ) -> "Benchmark":
         return self_class(**definition.__dict__, dir=dir)
 
+    def into_definition(self) -> BenchmarkDefinition:
+        return BenchmarkDefinition(
+            self.name,
+            self.description,
+            self.default_preset,
+            self.setup_commands,
+            self.run_commands,
+            self.cleanup_commands,
+            self.stats,
+            self.virtualenv,
+        )
+
     @classmethod
     def from_definition_file(self_class, path: str) -> "Benchmark":
         """Build a Benchmark object from the definiton path."""
@@ -137,6 +149,11 @@ class Preset(PresetDefinition):
         self_class, definition: PresetDefinition, name: str
     ) -> "Preset":
         return self_class(name, **definition.__dict__)
+
+    def into_definition(self) -> PresetDefinition:
+        return PresetDefinition(
+            self.args, self.init_commands, self.env, self.post_commands
+        )
 
     @classmethod
     def from_definition_file(self_class, path: str) -> "Preset":
