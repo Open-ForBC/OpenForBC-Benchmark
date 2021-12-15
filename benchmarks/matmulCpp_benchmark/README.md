@@ -11,7 +11,3 @@ Through the settings json file it's possible to choose the size of the two matri
 ## Devices supported:
 
 The computation is performed on the CPU
-
-## How to test the benchmark (Linux)
-
-To run the benchmark test type the command ./bin/test_matmulCpp.sh on a terminal . The test runs the benchmark with default setting defined in benchmark_info and it shows the logs list.

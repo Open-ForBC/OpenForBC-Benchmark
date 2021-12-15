@@ -1,0 +1,16 @@
+{
+    "name": "Matrix Multiplication Benchmark in C++",
+    "description": "Some test of matrices operations",
+    "default_preset": "matrix_20x30",
+    "setup_command": [
+        "./setup.sh",
+        "chmod +x bin/matmulCppExe"
+    ],
+    "run_command": "bin/matmulCppExe",
+    "stats": {
+        "matmul_time_s": {
+            "regex": "Matrix multiplication time: [+-]?([0-9]+([.][0-9]*)?|[.][0-9]+) s"
+        }
+    },
+    "virtualenv": true   
+}

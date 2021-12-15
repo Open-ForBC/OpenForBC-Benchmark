@@ -1,7 +1,0 @@
-{
-    "name" : "matrix multiplication benchmark in C++",
-    "description" : "Some test of matrices operations in C++",
-    "implementation_file" : "implementation.py",
-    "class_name" : "MatmulBenchmarkCpp",
-    "default_settings" : "Matrix_57x89.json"
-}

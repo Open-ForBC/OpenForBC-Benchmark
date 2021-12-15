@@ -92,7 +92,9 @@ int main(int argc, char *argv[]) {
   auto time_end = high_resolution_clock::now();
 
   duration<double> time = time_end - time_start;
-  cout << "Product computation time: " << time.count() << "s" << endl;
+
+  cout << "Matrix multiplication time: " << std::fixed << time.count() << " s"
+       << endl;
 
   // Free memory
   if (dim1) {
