@@ -12,10 +12,6 @@ Through the settings json file it's possible to choose the size of the two matri
 
 The device (GPU or CPU) is selected when the benchmark is started from settings.
 
-## How to test the benchmark (Linux)
-
-To run the benchmark test type the command ./bin/test_matmul.sh on a terminal . The test runs the benchmark with the default setting defined in benchmark_info and it shows the logs list.
-
 ## Dependencies installation
 
 The benchmark dependencies are automatically installed by the benchmark. 
