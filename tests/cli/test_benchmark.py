@@ -30,11 +30,36 @@ def test_benchmark_list() -> None:
     assert "preset1" in table_result.stdout
 
 
-def test_benchmark_presets() -> None:
-    result = runner.invoke(app, ["presets", "dummy_benchmark"])
+def test_benchmark_list_presets() -> None:
+    result_table = runner.invoke(app, ["list-presets", "dummy_benchmark"])
+    assert result_table.exit_code == 0
+    assert "---" in result_table.stdout
+    assert "preset1" in result_table.stdout
+    assert "preset2" in result_table.stdout
+
+    result_no_table = runner.invoke(app, ["list-presets", "-T", "dummy_benchmark"])
+    assert result_no_table.exit_code == 0
+    assert "---" not in result_no_table.stdout
+    assert "preset1" in result_no_table.stdout
+    assert "preset2" in result_no_table.stdout
+
+
+def test_benchmark_get_preset() -> None:
+    result = runner.invoke(app, ["get-preset", "dummy_benchmark", "preset1"])
     assert result.exit_code == 0
-    assert "preset1" in result.stdout
-    assert "preset2" in result.stdout
+    assert all(x in result.stdout for x in ("preset1", "Dummy Benchmark"))
+    assert all(x in result.stdout for x in ("echo data: 135246", "echo setup.sh"))
+
+
+def test_benchmark_get() -> None:
+    result = runner.invoke(app, ["get", "dummy_benchmark"])
+    assert result.exit_code == 0
+    assert all(x in result.stdout for x in ("Dummy Benchmark", "Does nothing"))
+    assert all(
+        x in result.stdout
+        for x in ("echo 'hello world'", "echo data: 135246", "echo daw")
+    )
+    assert "Virtualenv: disabled" in result.stdout
 
 
 def test_benchmark_run() -> None:
