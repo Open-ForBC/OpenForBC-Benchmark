@@ -1,106 +1,109 @@
-# Gettings Started 
+# Gettings Started
 
 - Guide to developer [docs](developer-guide.md).
 - Installation [README](../README.md).
 
 ## Usage
 
-Benchmarks can be run interactively using the following command.
+Benchmarks can be run interactively by simply launching the `o4bc-bench` command
+without any arguments.
+
+The Interactive interface is quite intuitive to navigate around, with
+informative prompts to guide you.
+
+
+For a textual CLI interface, a comprehensive list of arguments can be found
+using the following command:
 
 ```shell
- python3 user_interfaces/cli.py interactive
-```
-
-On supported systems (supporting symlinks) one can opt to replace `python3 user_interfaces/cli.py` with `o4bc-bench`.
-The following documentation will rely on the symlink. You might need to make the symlink executable:
-
-```shell
-chmod u+x o4bc-bench
-```
-
-The Interactive interface is quite intuitive to navigate around, with informative prompts to guide you. 
-
-
-For a textual CLI interface, a comprehensive list of arguments can be found using the following command:
-
-```shell
-./o4bc-bench --help
+o4bc-bench --help
 ```
 
 To get help for a particular command, use:
 
 ```shell
-./o4bc-bench <command:str> --help
+o4bc-bench <command:str> --help
 ```
 
 ## Sample commands for the functionality offered by the CLI:
 
-**1. List Benchmarks/Suites:**  
+**1. List Benchmarks/Suites:**
 
 ```shell
-./o4bc-bench list-benchmarks
-./o4bc-bench list-suites
+o4bc-bench benchmark list # or `o4bc-bench benchmark` alias
+o4bc-bench suite list # or `o4bc-bench suite` alias
 ```
 
-**2. Get settings from a particular benchmark:**
+Get information about a benchmark:
+
+```shell
+o4bc-bench benchmark get <benchmark_folder:str>
+```
+
+or about a suite:
+
+```shell
+o4bc-bench suite get <suite_name:str>
+
+**2. List and get preset information from a particular benchmark:**
 
 
 ```shell
-./o4bc-bench get-settings -b <benchmark-name:str> -s <benchmark-settings:str>
+o4bc-bench benchmark list-presets <benchmark_folder:str>
 ```
+
 for example:
 
 ```shell
-./o4bc-bench get-settings -b dummy_benchmark -s settings1.json
+o4bc-bench benchmark list-presets dummy_benchmark
 ```
-or if you'd like to list all settings for a benchmark, you can check them using the following command
+
+Then obtain information about the preset with:
 
 ```shell
-./o4bc-bench get-settings -b dummy_benchmark 
+o4bc-bench benchmark get-preset <benchmark_folder:str> <preset_name:str>
 ```
 
+for example:
+
+```shell
+o4bc-bench benchmark get-preset dummy_benchmark preset1
+```
 
 **3. Run a benchmark/Suite:**
 
 
-```shell 
-./o4bc-bench run-benchmark -b <benchmark-name:str> -s <settings:str> -v <verbosity:int> 
-./o4bc-bench run-suite <suite-name:str> 
+```shell
+o4bc-bench benchmark run <benchmark_folder:str> [<preset_name:str>]...
+o4bc-bench suite run <suite-name:str>
 ```
 for example:
 
 ```shell
-./o4bc-bench run-benchmark -b dummy_benchmark -s settings1.json -v 1 
+o4bc-bench benchmark run dummy_benchmark preset1
 ```
 
 **4. Build a suite:**
 ```shell
-./o4bc-bench make-suite --name <suite-name:str> -b <benchmark-name:str> -s <settings:str> -f <file-name:str> -d <description(optional):str>
+o4bc-bench suite create
 ```
-for example:
-
-```shell
-./o4bc-bench make-suite --name Mysuite -b dummy_benchmark -s settings1.json -f my_suite -d "This is demo description."  
-```
-
 
 ## Logs for benchmarks/suites
 
-Logs for each run can be found in ```/logs``` directory. Each run is saved by the following format:
+Logs for each benchmark run can be found in ```/logs``` directory. Each run is
+saved by the following format:
 
-- For stand-alone benchmarks:
 
-```<benchmark_name>/<settings>/<yyyymmdd_hhmmss>/output.log``` 
-- For suites:
+```<benchmark_name>/<yyyymmdd_hhmmss>/<phase>_<preset>.<command_number>.<out/err>.log```
 
-```<suite_name>/<yyyymmdd_hhmmss>/output.log ```
+Field `<preset>` is not present in setup and cleanup task phases and
+`<command_number>` is only preset if there are multiple commands in the phase.
+_stdout_ and _stderr_ are kept in separate files.
 
-Logs can be listed with the following command
-
-```shell
-./o4bc-bench list-logs
-```
 
 ## View format
 
-Commands like ```list-logs``` , ```list-benchmarks``` , ```list-suites``` and  ```get-settings``` support viewing in pretty table format by default. To view as a csv use --csv flags with the command.
+Many commands use a pretty table format by default, which can by disabled by
+passing the option `--no-table` or `-T`. Some commands, such as `benchmark run`,
+`benchmark get-preset`, `benchmark get` and `suite run` support output in json
+format, which can be enabled by passing `--json` or `-j`.
