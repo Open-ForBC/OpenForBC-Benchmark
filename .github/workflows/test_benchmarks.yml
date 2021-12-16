@@ -1,4 +1,4 @@
-name: Benchmarks run test
+name: Benchmarks tests
 
 on:
   pull_request:
@@ -6,7 +6,7 @@ on:
       - "benchmarks/**"
 
 jobs:
-  benchmarks_run_test:
+  benchmarks_tests:
     runs-on: ${{ matrix.image }}
 
     strategy:
@@ -65,7 +65,7 @@ jobs:
         with:
           files: ^benchmarks/
 
-      - name: Run modified benchmarks
+      - name: Run modified benchmarks' tests
         run: |
           benchmarks=""
 
@@ -75,6 +75,10 @@ jobs:
 
           for benchmark in $(printf $benchmarks | uniq); do
             echo "::group::$benchmark"
+            echo "Running benchmark tests"
+            poetry run o4bc-bench benchmark test $benchmark
+            echo
+            echo "Running benchmark"
             poetry run o4bc-bench benchmark run $benchmark
             echo "::endgroup"
           done
