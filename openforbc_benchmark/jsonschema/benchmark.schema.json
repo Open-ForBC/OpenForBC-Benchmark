@@ -97,6 +97,10 @@
       "description": "Command to be executed in order to do cleanup after running the benchmark",
       "$ref": "#/$defs/commands"
     },
+    "test_command": {
+      "description": "Command (or commands) to be executed in order to tests the benchmark",
+      "$ref": "#/$defs/commands"
+    },
     "stats": {
       "description": "Command to be executed in order to fetch stats or a set of stats",
       "oneOf": [
@@ -122,6 +126,7 @@
     "description",
     "default_preset",
     "run_command",
+    "test_command",
     "stats"
   ]
 }

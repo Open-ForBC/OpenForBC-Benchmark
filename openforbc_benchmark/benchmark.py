@@ -43,6 +43,7 @@ class Benchmark(BenchmarkDefinition):
         setup_commands: "Optional[List[CommandInfo]]",
         run_commands: "List[CommandInfo]",
         cleanup_commands: "Optional[List[CommandInfo]]",
+        test_commands: "List[CommandInfo]",
         stats: "Union[CommandInfo, Dict[str, StatMatchInfo]]",
         virtualenv: bool,
         dir: str,
@@ -55,6 +56,7 @@ class Benchmark(BenchmarkDefinition):
             setup_commands,
             run_commands,
             cleanup_commands,
+            test_commands,
             stats,
             virtualenv,
         )
@@ -74,6 +76,7 @@ class Benchmark(BenchmarkDefinition):
             self.setup_commands,
             self.run_commands,
             self.cleanup_commands,
+            self.test_commands,
             self.stats,
             self.virtualenv,
         )
@@ -258,6 +261,11 @@ class BenchmarkRun:
         """
         for preset in self.presets:
             yield preset, self._run_preset(preset)
+
+    def test(self) -> "Iterator[Runnable]":
+        """Get the tasks for this benchmark run's test commands."""
+        for command in self.benchmark.test_commands:
+            yield self._add_context(command.into_runnable())
 
     def get_stats(self, stdout: "Union[str, TextIO]") -> "Dict[str, Union[int, float]]":
         from json import load, loads

@@ -32,6 +32,7 @@ def test_benchmark_deserialization() -> None:
             "daw"
             ]
         },
+        "test_command": "true",
         "stats": {
             "data_1": {
             "regex": "data: (\\d+)",
@@ -50,6 +51,7 @@ def test_benchmark_deserialization() -> None:
     assert benchmark.setup_commands[0].env["INSTALL"] == "1"
     assert benchmark.setup_commands[0].env["ENVIRONMENT"] == "production"
     assert benchmark.setup_commands[0].workdir == "presets"
+    assert benchmark.test_commands[0].command == ["true"]
     assert benchmark.cleanup_commands is not None
     assert benchmark.cleanup_commands[0].command == ["echo", "daw"]
     assert isinstance(benchmark.stats, dict)
