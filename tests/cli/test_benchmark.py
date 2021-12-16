@@ -67,3 +67,9 @@ def test_benchmark_run() -> None:
     assert result.exit_code == 0
     assert "---" in result.stdout
     assert "135246" in result.stdout
+
+
+def test_benchmark_test() -> None:
+    result = runner.invoke(app, ["test", "dummy_benchmark"])
+    assert result.exit_code == 0
+    assert "true" in result.stdout
