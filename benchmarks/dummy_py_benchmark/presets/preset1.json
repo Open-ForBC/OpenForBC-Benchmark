@@ -1,0 +1,4 @@
+{
+  "args": "--config=preset1.conf",
+  "init_command": "echo setup.sh --config=preset1.conf"
+}

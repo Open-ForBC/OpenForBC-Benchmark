@@ -1,0 +1,14 @@
+{
+  "name": "Blender benchmark suite",
+  "description": "A preconfigured suite running the same benchmark with two different presets 2 times ",
+  "benchmark_runs": [
+    {
+      "benchmark_folder": "blender_benchmark",
+      "presets": "settings2.json"
+    },
+    {
+      "benchmark_folder": "blender_benchmark",
+      "presets": "settings1.json"
+    }
+  ]
+}

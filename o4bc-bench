@@ -1,1 +1,6 @@
-./user_interfaces/cli.py
+#!/usr/bin/env python3
+
+from openforbc_benchmark.cli.app import run
+
+if __name__ == "__main__":
+    run()

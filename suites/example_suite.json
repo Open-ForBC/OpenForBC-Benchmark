@@ -1,14 +1,20 @@
 {
-    "name": "Dummy benchmark suite",
-    "description": "A preconfigured collection of dummy benchmarks",
-    "benchmarks": [
-        {
-            "name": "dummy_benchmark",
-            "settings": "settings1.json"
-        },
-        {
-            "name": "dummy_benchmark",
-            "settings": "settings2.json"
-        }
-    ]
+  "name": "Dummy benchmark suite",
+  "description": "A preconfigured collection of dummy benchmarks",
+  "benchmark_runs": [
+    {
+      "benchmark_folder": "dummy_benchmark",
+      "presets": [
+        "preset1",
+        "preset2"
+      ]
+    },
+    {
+      "benchmark_folder": "dummy_benchmark",
+      "presets": [
+        "preset1",
+        "preset2"
+      ]
+    }
+  ]
 }

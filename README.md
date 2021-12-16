@@ -18,33 +18,21 @@ ___
 - Clone the repository
 
 ```bash
-
-git clone https://github.com/Open-ForBC/OpenForBC-Benchmark.git
-
+git clone --recursive https://github.com/Open-ForBC/OpenForBC-Benchmark.git
 ```
 
-- Install the required python libraries (python3) by running
+- Install the `o4bc-bench` tool
 
-```bash 
+```bash
 cd OpenForBC-Benchmark
-pip3 install -r requirements.txt
-
+pip3 install .
 ```
 
-- You can test the installation with:
-```bash 
-bin/test_cli.sh
-```
-- You can also test and run the prepackaged suites/benchmarks with (mind that it takes quite some time to run all tests):
-```bash 
-bin/test_benchmarks.sh
-bin/test_suites.sh
-```
 ___
 
 ## Documentation
 
-- Guide to developer [docs](docs/developer-guide.md).  
+- Guide to developer [docs](docs/developer-guide.md).
 
 - Guide to user [docs](docs/user-guide.md).
 
@@ -55,6 +43,6 @@ Currently, the following benchmarks are implemented:
 - [Dummy](benchmarks/dummy_benchmark).
 - [Blender](benchmarks/blender_benchmark).
 
-  
+
 
 ## [Licenses](LICENSE)
