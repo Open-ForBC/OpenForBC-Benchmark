@@ -99,14 +99,6 @@ jobs:
       - name: Run flake8 linter
         run: |
           poetry run flake8 openforbc_benchmark tests
-          for benchmark in $(ls benchmarks); do
-            # Ignore currently transitioning benchmarks
-            [ $benchmark = "blender_benchmark" ] \
-              || [ $benchmark = "matmul_benchmark" ] \
-              || [ $benchmark = "matmulCpp_benchmark" ] \
-              && continue
-            [ -d $benchmark/.git ] || poetry run flake8 benchmarks/$benchmark
-          done
 
       - name: Run mypy type checker
         run: poetry run mypy
