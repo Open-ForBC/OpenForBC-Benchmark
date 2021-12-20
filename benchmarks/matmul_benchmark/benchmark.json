@@ -2,6 +2,7 @@
     "name": "Matrix Multiplication Benchmark using Tensorflow",
     "description": "Some test of matrices operations",
     "default_preset": "matrix_20x30_GPU",
+    "test_command": ["pip install flake8", "flake8 --exclude .venv"],
     "setup_command": "./setup.sh",
     "run_command": "./matmul_benchmark.py",
     "stats": {
