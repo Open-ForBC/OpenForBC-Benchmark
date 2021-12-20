@@ -2,10 +2,12 @@
 
 currPath=$(dirname "$0")
 # python modules installation
-if ! pip install -r $currPath/requirements.txt
-then
-    echo "Required modules installed"
-fi
+# if ! pip install -r $currPath/requirements.txt
+# then
+#     echo "Required modules installed"
+# fi
+
+pip install -r $currPath/requirements.txt
 
 #LOOK AT CUDA VERSION AND INSTALL TORCH
 CUDA_VER=$(nvidia-smi | grep -oP  '(?<=CUDA Version: )[0-9]*')
