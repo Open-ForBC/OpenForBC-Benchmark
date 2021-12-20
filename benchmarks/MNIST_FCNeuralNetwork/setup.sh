@@ -2,10 +2,7 @@
 
 currPath=$(dirname "$0")
 ## PYTHON MODULES INSTALLATION ##
-if ! pip install -r $currPath/requirements.txt
-then
-    echo "Required modules installed"
-fi
+pip install -r $currPath/requirements.txt
 
 ## CHECK THE PRESENCE OF A CUDA VERSION ##
 CUDA_VER=$(nvidia-smi | grep -oP  '(?<=CUDA Version: )[0-9]*')
