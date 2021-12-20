@@ -361,7 +361,7 @@ class BenchmarkRun:
         run_env = runnable.env.copy() if runnable.env is not None else None
         if self._virtualenv is not None:
             new_env = {
-                "VIRTUALENV": self._virtualenv,
+                "VIRTUAL_ENV": self._virtualenv,
             }
 
             if run_env is not None:

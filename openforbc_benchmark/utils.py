@@ -33,17 +33,21 @@ class Runnable:
     def __repr__(self) -> str:
         venv = False
 
-        if self.env and "VIRTUALENV" in self.env:
+        if self.env and "VIRTUAL_ENV" in self.env:
             venv = True
-            virtualenv_path = self.env.pop("VIRTUALENV")
-            self.path.remove(f"{virtualenv_path}/bin")
+            virtualenv_path = self.env["VIRTUAL_ENV"]
 
         env = (
             None
             if self.env is None
-            else " ".join(f"{quote(k)}={quote(v)}" for k, v in self.env.items())
+            else " ".join(
+                f"{quote(k)}={quote(v)}"
+                for k, v in self.env.items()
+                if k != "VIRTUAL_ENV"
+            )
         )
-        path = None if not self.path else f"PATH+={quote(':'.join(self.path))}"
+        clean_path = [x for x in self.path if (not venv) or virtualenv_path not in x]
+        path = None if not clean_path else f"PATH+={quote(':'.join(clean_path))}"
         return (
             f"{'(venv) ' if venv else ''}$ {path + ' ' if path else ''}"
             f"{env + ' ' if env else ''}{self.command_str()}"
