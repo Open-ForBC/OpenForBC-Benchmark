@@ -17,6 +17,7 @@
       "daw"
     ]
   },
+  "test_command": "true",
   "stats": {
     "data_1": {
       "regex": "data: (\\d+)"

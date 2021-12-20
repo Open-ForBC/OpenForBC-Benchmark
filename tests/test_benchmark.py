@@ -52,6 +52,7 @@ def test_benchmark_from_definition() -> None:
             None,
             [CommandInfo("echo hello")],
             None,
+            [CommandInfo("true")],
             {"stat_1": StatMatchInfo("dummy_regex")},
             False,
         ),
@@ -62,6 +63,7 @@ def test_benchmark_from_definition() -> None:
     assert benchmark.description == "description"
     assert benchmark.default_preset == "preset"
     assert benchmark.run_commands[0].command == ["echo", "hello"]
+    assert benchmark.test_commands[0].command == ["true"]
     assert isinstance(benchmark.stats, dict)
     assert benchmark.stats["stat_1"].regex == "dummy_regex"
     assert not benchmark.virtualenv
@@ -153,6 +155,22 @@ def test_benchmark_run_cleanup() -> None:
     tasks = list(run.cleanup())
     assert all(task.env is None or "VIRTUALENV" not in task.env for task in tasks)
     assert tasks[0].args == ["echo", "daw"]
+
+
+def test_benchmark_run_test() -> None:
+    run = get_dummy_run()
+    assert list(run.setup())  # "run" setup tasks
+    tasks = list(run.test())
+    assert tasks[0].args == ["true"]
+
+
+def test_benchmark_run_py_test() -> None:
+    run = get_dummy_py_run()
+    assert list(run.setup())  # "run" setup tasks
+    tasks = list(run.test())
+    assert all(task.env is not None and "VIRTUALENV" in task.env for task in tasks)
+    print(tasks)
+    assert tasks[0].args == ["true"]
 
 
 def test_benchmark_run_py_cleanup() -> None:

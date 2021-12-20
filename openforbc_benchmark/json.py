@@ -63,6 +63,7 @@ class BenchmarkDefinition(Serializable["BenchmarkDefinition"]):
         setup_commands: "Optional[List[CommandInfo]]",
         run_commands: "List[CommandInfo]",
         cleanup_commands: "Optional[List[CommandInfo]]",
+        test_commands: "List[CommandInfo]",
         stats: "Union[CommandInfo, Dict[str, StatMatchInfo]]",
         virtualenv: bool,
     ) -> None:
@@ -73,6 +74,7 @@ class BenchmarkDefinition(Serializable["BenchmarkDefinition"]):
         self.setup_commands = setup_commands
         self.run_commands = run_commands
         self.cleanup_commands = cleanup_commands
+        self.test_commands = test_commands
         self.stats = stats
         self.virtualenv = virtualenv
 
@@ -80,36 +82,29 @@ class BenchmarkDefinition(Serializable["BenchmarkDefinition"]):
     def deserialize(self_class, json: "Any") -> "BenchmarkDefinition":
         self_class.validate(json)
 
-        setup_commands = (
-            CommandInfo.deserialize_commands(json["setup_command"])
-            if "setup_command" in json
-            else None
-        )
-
-        run_commands = CommandInfo.deserialize_commands(json["run_command"])
-
-        cleanup_commands = (
-            CommandInfo.deserialize_commands(json["cleanup_command"])
-            if "cleanup_command" in json
-            else None
-        )
-
-        stats: "Union[CommandInfo , Dict[str, StatMatchInfo]]" = (
-            CommandInfo.deserialize(json["stats"])
-            if isinstance(json["stats"], str) or "command" in json["stats"]
-            else {
-                str(k): StatMatchInfo.deserialize(v) for k, v in json["stats"].items()
-            }
-        )
-
         return self_class(
             json["name"],
             json["description"],
             json["default_preset"],
-            setup_commands,
-            run_commands,
-            cleanup_commands,
-            stats,
+            # setup_command
+            CommandInfo.deserialize_commands(json["setup_command"])
+            if "setup_command" in json
+            else None,
+            # run_command
+            CommandInfo.deserialize_commands(json["run_command"]),
+            # cleanup_command
+            CommandInfo.deserialize_commands(json["cleanup_command"])
+            if "cleanup_command" in json
+            else None,
+            # test_command
+            CommandInfo.deserialize_commands(json["test_command"]),
+            # stats
+            CommandInfo.deserialize(json["stats"])
+            if isinstance(json["stats"], str) or "command" in json["stats"]
+            else {
+                str(k): StatMatchInfo.deserialize(v) for k, v in json["stats"].items()
+            },
+            # virtualenv
             json.get("virtualenv", False),
         )
 

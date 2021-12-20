@@ -9,10 +9,11 @@ if TYPE_CHECKING:
 
 from json import dumps
 from tabulate import tabulate
+from os.path import join
+from sys import stdout
 from typer import Context, echo, Exit, Typer, Option  # noqa: TC002
 from typer.params import Argument
 from typing import List  # noqa: TC002
-from sys import stdout
 from yaspin.core import Yaspin
 
 from openforbc_benchmark.benchmark import (
@@ -57,7 +58,7 @@ class CliBenchmarkRun:
     ) -> None:
         from datetime import datetime
         from os import mkdir
-        from os.path import dirname, exists, join
+        from os.path import dirname, exists
 
         self.benchmark_run = benchmark_run
         self.spinner = Yaspin()
@@ -89,27 +90,17 @@ class CliBenchmarkRun:
 
         echo(tabulate(table, ["Preset", "Stat", "Value"]))
 
-    def start(self) -> None:
+    def start(self, test_only: bool = False) -> None:
         if self._log_to_stderr:
-            self._start()
+            self._run_setup()
+            self._run_test() if test_only else self._run()
         else:
             with self.spinner:
-                self._start()
+                self._run_setup()
+                self._run_test() if test_only else self._run()
 
-    def _start(self) -> None:
-        from os.path import join
-
+    def _run(self) -> None:
         benchmark_id = self.benchmark_run.benchmark.get_id()
-
-        self._log(f'Running "{benchmark_id}" setup commands')
-        for i, task in enumerate(self.benchmark_run.setup()):
-            self.spinner.text = f"{benchmark_id}(setup): {argv_join(task.args)}"
-            self._run_task_or_err(
-                task,
-                join(self.log_dir, f"setup.{i + 1}"),
-                f'Benchmark "{benchmark_id}" setup command "{argv_join(task.args)}" '
-                "failed",
-            )
 
         for preset, tasks in self.benchmark_run.run():
             self._log(f'Running "{benchmark_id}" preset "{preset.name}"')
@@ -145,6 +136,32 @@ class CliBenchmarkRun:
                         f"failed: {e}"
                     ),
                 )
+
+    def _run_setup(self) -> None:
+        benchmark_id = self.benchmark_run.benchmark.get_id()
+
+        self._log(f'Running "{benchmark_id}" setup commands')
+        for i, task in enumerate(self.benchmark_run.setup()):
+            self.spinner.text = f"{benchmark_id}(setup): {argv_join(task.args)}"
+            self._run_task_or_err(
+                task,
+                join(self.log_dir, f"setup.{i + 1}"),
+                f'Benchmark "{benchmark_id}" setup command "{argv_join(task.args)}" '
+                "failed",
+            )
+
+    def _run_test(self) -> None:
+        benchmark_id = self.benchmark_run.benchmark.get_id()
+
+        self._log(f'Running "{benchmark_id}" test commands')
+        for i, task in enumerate(self.benchmark_run.test()):
+            self.spinner.text = f"{benchmark_id}(test): {argv_join(task.args)}"
+            self._run_task_or_err(
+                task,
+                join(self.log_dir, f"setup.{i + 1}"),
+                f'Benchmark "{benchmark_id}" test command "{argv_join(task.args)}" '
+                "failed",
+            )
 
     def _fail(self, exception: BenchmarkRunException) -> None:
         self.spinner.stop()
@@ -255,7 +272,7 @@ def get_preset_or_fail(benchmark: "Benchmark", preset_name: str) -> Preset:
 def get_benchmark_log_dir(benchmark: "Benchmark") -> str:
     """Get log directory for a benchmark."""
     from os import getcwd, mkdir
-    from os.path import exists, join
+    from os.path import exists
 
     log_dir = join(getcwd(), "logs")
 
@@ -428,6 +445,14 @@ def run_benchmark(
     cli_run = CliBenchmarkRun(run)
     cli_run.start()
     cli_run.print_stats(json)
+
+
+@app.command("test")
+def test_benchmark(benchmark_folder: str) -> None:
+    """Run test commands for the specified benchmark."""
+    benchmark = find_benchmark_or_fail(benchmark_folder)
+
+    CliBenchmarkRun(benchmark.run([])).start(test_only=True)
 
 
 @app.callback(invoke_without_command=True)

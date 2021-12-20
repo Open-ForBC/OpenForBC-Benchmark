@@ -118,6 +118,7 @@ Here's an example of a benchmark definition:
 | `setup_command`   | *commands*           |          |
 | `run_command`     | *commands*           | x        |
 | `cleanup_command` | *commands*           |          |
+| `test_command`    | *commands*           | x        |
 | `stats`           | *command*`\|`*match* | x        |
 | `virtualenv`      | `boolean`            |          |
 
@@ -129,11 +130,13 @@ referenced preset **must** be present in the `presets` folder.
 
 ##### Commands
 
-There are three main commands used to interface with the benchmark: the
+There are four main commands used to interface with the benchmark: the
 `setup_command` is run before any other command and should be used, for
 instance, to install benchmark dependencies or build its binary, the
 `run_command` (__required__) is the actual benchmark command, and
 `cleanup_command` is used after the benchmark is no longer needed to cleanup.
+The `test_command` should be a list of commands (or a single one) which return
+zero exit code if the tests pass.
 
 Every *command* field can be a single instance or an array of `command` type.
 The `command` type can be a *string* (the path of the executable to be run) or
