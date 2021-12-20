@@ -122,7 +122,7 @@ def test_benchmark_run_py_setup() -> None:
     setup_tasks = list(run.setup())
     assert setup_tasks[0].args == ["python3", "-m", "venv", ".venv"]
     assert all(
-        task.env is not None and "VIRTUALENV" in task.env for task in setup_tasks[1:]
+        task.env is not None and "VIRTUAL_ENV" in task.env for task in setup_tasks[1:]
     )
     assert setup_tasks[1].args == ["echo", "hello world"]
 
@@ -133,7 +133,7 @@ def test_benchmark_run_run() -> None:
     presets = list(run.run())
     assert presets[0][0].name == "preset1"
     tasks = list(presets[0][1])
-    assert all(task.env is None or "VIRTUALENV" not in task.env for task in tasks)
+    assert all(task.env is None or "VIRTUAL_ENV" not in task.env for task in tasks)
     assert tasks[0].args == ["echo", "setup.sh", "--config=preset1.conf"]
     assert tasks[1].args == ["echo", "data:", "135246", "--config=preset1.conf"]
 
@@ -144,7 +144,7 @@ def test_benchmark_run_py_run() -> None:
     presets = list(run.run())
     assert presets[0][0].name == "preset1"
     tasks = list(presets[0][1])
-    assert all(task.env is not None and "VIRTUALENV" in task.env for task in tasks)
+    assert all(task.env is not None and "VIRTUAL_ENV" in task.env for task in tasks)
     assert tasks[0].args == ["echo", "setup.sh", "--config=preset1.conf"]
     assert tasks[1].args == ["echo", "data:", "135246", "--config=preset1.conf"]
 
@@ -153,7 +153,7 @@ def test_benchmark_run_cleanup() -> None:
     run = get_dummy_run()
     assert list(run.setup())  # "run" setup tasks
     tasks = list(run.cleanup())
-    assert all(task.env is None or "VIRTUALENV" not in task.env for task in tasks)
+    assert all(task.env is None or "VIRTUAL_ENV" not in task.env for task in tasks)
     assert tasks[0].args == ["echo", "daw"]
 
 
@@ -168,7 +168,7 @@ def test_benchmark_run_py_test() -> None:
     run = get_dummy_py_run()
     assert list(run.setup())  # "run" setup tasks
     tasks = list(run.test())
-    assert all(task.env is not None and "VIRTUALENV" in task.env for task in tasks)
+    assert all(task.env is not None and "VIRTUAL_ENV" in task.env for task in tasks)
     print(tasks)
     assert tasks[0].args == ["true"]
 
@@ -177,7 +177,7 @@ def test_benchmark_run_py_cleanup() -> None:
     run = get_dummy_py_run()
     assert list(run.setup())  # "run" setup tasks
     tasks = list(run.cleanup())
-    assert all(task.env is not None and "VIRTUALENV" in task.env for task in tasks)
+    assert all(task.env is not None and "VIRTUAL_ENV" in task.env for task in tasks)
     assert tasks[0].args == ["echo", "daw"]
 
 
