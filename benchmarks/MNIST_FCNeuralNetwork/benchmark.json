@@ -2,6 +2,7 @@
     "name": "Fully Connected Neural Network training and inference over MNIST dataset ",
     "description": "Training and inference with MNIST dataset",
     "default_preset": "gpu_shallow_largebatch",
+    "test_command": ["pip install flake8", "flake8 --exclude .venv"],
     "setup_command": "./setup.sh",
     "run_command": "./MNIST_FCNeuralNetwork_benchmark.py",
     "stats": {
