@@ -20,6 +20,6 @@ then
     fi
 
     #compiling the c++ code and move the executable in bin directory
-    g++ $currPath/matmulCpp.cpp -o matmulCppExe && mv matmulCppExe $FilePath
+    g++ $currPath/matmulCpp_benchmark.cpp -o matmulCppExe && mv matmulCppExe $FilePath
     # echo "script compiled"
 fi
