@@ -1,7 +1,0 @@
-{
-    "name" : "Matrix Multiplication Benchmark using Pytorch",
-    "description" : "Some test of matrices operations",
-    "implementation_file" : "implementation.py",
-    "class_name" : "MatmulBenchmark",
-    "default_settings" : "Matrix_57x89_GPU.json"
-}
