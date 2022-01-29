@@ -1,3 +1,7 @@
 tensorflow-gpu
 matplotlib
 sklearn
+gputil
+numpy==1.21
+numba
+nvidia-ml-py3

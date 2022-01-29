@@ -6,6 +6,24 @@
     "setup_command": "./setup.sh",
     "run_command": "./MNIST_FCNeuralNetwork_benchmark.py",
     "stats": {
+        "GPU_load_training":{
+            "regex": "Average GPU usage during training: [+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)"
+        },
+        "GPU_memory_training":{
+            "regex": "Average GPU memory usage during training: [+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)"
+        },
+        "GPU_load_inference_insample":{
+            "regex": "Average GPU usage during inference in-sample: [+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)"
+        },
+        "GPU_memory_inference_insample":{
+            "regex": "Average GPU memory usage during inference in-sample: [+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)"
+        },
+        "GPU_load_inference_outsample":{
+            "regex": "Average GPU usage during inference out-of-sample: [+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)"
+        },
+        "GPU_memory_inference_outsample":{
+            "regex": "Average GPU memory usage during inference out-of-sample: [+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)"
+        },
         "training_time":{
             "regex": "Training the model took [+-]?([0-9]+([.][0-9]*)?|[.][0-9]+) seconds"
         },

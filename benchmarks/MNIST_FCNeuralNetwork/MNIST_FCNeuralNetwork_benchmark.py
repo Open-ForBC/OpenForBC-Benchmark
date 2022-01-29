@@ -2,32 +2,49 @@
 
 import tensorflow as tf
 import tensorflow.keras as keras
-# import matplotlib.pyplot as plt
 import time
 import sys
-from timeit import default_timer as timer
+import GPUtil
+# from timeit import default_timer as timer
 from tensorflow.keras import Sequential
 from tensorflow.keras.layers import Dense
 from keras.utils.np_utils import to_categorical
 from functools import reduce
 from tensorflow.keras.datasets import mnist
 from sklearn.metrics import accuracy_score
+from threading import Thread
+from numba import cuda
+import nvidia_smi
+import numpy as np
+
+tf.keras.backend.clear_session()
+
+"""
+Say to GPU to use onky the needed amount of memory
+"""
+gpus = tf.config.list_physical_devices('GPU')
+if gpus:
+    for gpu in gpus:
+        tf.config.experimental.set_memory_growth(gpu, True)
 
 input_size = 28*28
 output_size = 10
-n_epochs = 10
+n_epochs = 100
+gpu_performance_sampling_time = 1
+gpu_performance_sampling_time_INFERENCE = 0.1
 
-
-# READ FROM COMMAND LINE DEVICE, NETWORK SIZE AND BATCH SIZE
-
-# CHECK GPU AVAILABILITY
-
+"""
+READ FROM COMMAND LINE DEVICE, NETWORK SIZE AND BATCH SIZE
+CHECK GPU AVAILABILITY
+"""
 if tf.config.list_physical_devices('GPU') == 0:
     print("GPU unavailable :(")
     sys.exit(0)
 
-# READ ARGS FROM COMMAND LINE
-# Raise error if correct arguments aren't given
+"""
+READ ARGS FROM COMMAND LINE
+Raise error if correct arguments aren't given
+"""
 if len(sys.argv) != 4:
     print("Matmul benchmark need 3 arguments:")
     print("- Device")
@@ -41,8 +58,9 @@ dev = sys.argv[1]
 hidden_layer_list.append(int(sys.argv[2]))
 batch_size = int(sys.argv[3])
 
-# SET DEVICE
-
+"""
+SET DEVICE
+"""
 if dev == 'cpu':
     d = '/cpu:0'
 elif dev == 'gpu':
@@ -51,8 +69,70 @@ elif dev == 'gpu':
         sys.exit(0)
     d = '/device:GPU:0'
 
+"""
+GPU USAGE MONITOR
+"""
 
-# Timing callback definition
+
+class Monitor(Thread):
+
+    def __init__(self, delay):
+        super(Monitor, self).__init__()
+        self.stopped = False
+        self.delay = delay
+        self.start()
+
+    def run(self):
+        while not self.stopped:
+            GPUtil.showUtilization()
+            time.sleep(self.delay)
+
+    def stop(self):
+        self.stopped = True
+
+
+"""
+Callback to get GPU usage statistics
+"""
+
+
+class GPUstatistics(keras.callbacks.Callback):
+    def on_train_begin(self, logs={}):
+        self.gpu_load = []
+        self.gpu_mem = []
+
+    def on_predict_begin(self, logs={}):
+        self.gpu_load = []
+        self.gpu_mem = []
+
+    def on_predict_batch_begin(self, batch, logs={}):
+        res = nvidia_smi.nvmlDeviceGetUtilizationRates(handle)
+        self.gpu_load.append(res.gpu)
+        self.gpu_mem.append(res.memory)
+
+    def on_predict_batch_end(self, batch, logs={}):
+        res = nvidia_smi.nvmlDeviceGetUtilizationRates(handle)
+        self.gpu_load.append(res.gpu)
+        self.gpu_mem.append(res.memory)
+        print(f'gpu: {res.gpu}%, gpu-mem: {res.memory}%')
+
+    def on_train_batch_begin(self, batch, logs={}):
+        res = nvidia_smi.nvmlDeviceGetUtilizationRates(handle)
+        self.gpu_load.append(res.gpu)
+        self.gpu_mem.append(res.memory)
+
+    def on_train_batch_end(self, batch, logs={}):
+        res = nvidia_smi.nvmlDeviceGetUtilizationRates(handle)
+        self.gpu_load.append(res.gpu)
+        self.gpu_mem.append(res.memory)
+
+
+
+"""
+Timing callback definition
+"""
+
+
 class TimeHistory(keras.callbacks.Callback):
     def on_train_begin(self, logs={}):
         self.batch_times = []
@@ -76,7 +156,11 @@ class TimeHistory(keras.callbacks.Callback):
         self.training_time.append(time.time() - self.training_time_start)
 
 
-# Data loading method
+"""
+Data loading method
+"""
+
+
 def data_loading(output):
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
     # Data preprocessing: I have to rescale and flatten all the images
@@ -90,7 +174,11 @@ def data_loading(output):
     return (x_train, y_train), (x_test, y_test)
 
 
-# Model defintion method
+"""
+Model definition method
+"""
+
+
 def model_def(hidden_layer, input, output):
     model = Sequential()
     for i in range(len(hidden_layer)+1):
@@ -113,90 +201,106 @@ def main():
     nn = model_def(hidden_layer_list, input_size, output_size)
     nn.summary()
 
-    # TRAINING
+    """
+    Training
+    """
 
     time_callback = TimeHistory()
-    print("Training...")
+    print("\nTraining...\n")
+    GPUstats = GPUstatistics()
     nn = model_def(hidden_layer_list, input_size, output_size)
-    begin = timer()  # Duration of the whole fit() method run
-    # history = nn.fit(X_train, Y_train, epochs=n_epochs, batch_size=batch_size,
-    #                  callbacks=[time_callback], validation_split=0.3, verbose=0)
+    # monitor = Monitor(gpu_performance_sampling_time)     # GPU MONITOR
+    # begin = timer()  # Duration of the whole fit() method run
     nn.fit(X_train, Y_train, epochs=n_epochs, batch_size=batch_size,
-           callbacks=[time_callback], validation_split=0.3, verbose=0)
-    training_time = timer() - begin  # Duration of the whole fit() method run
+           callbacks=[time_callback, GPUstats], validation_split=0.3, verbose=0)
+    # training_time = timer() - begin  # Duration of the whole fit() method run
+    # monitor.stop()                                       # GPU MONITOR
+    gpu_loads = GPUstats.gpu_load
+    gpu_mems = GPUstats.gpu_mem
     training_time_sum_over_batches = sum(time_callback.batch_times)
     time_per_sample = training_time_sum_over_batches/((len(X_train)//batch_size)
                                                       * batch_size)
     sample_per_second = 1./time_per_sample
+    # print(gpu_mems)
 
-    # TESTING IN-SAMPLE
+    """
+    Testing In-Sample
+    """
 
-    print("Testing in-sample...")
-    # Evaluate the model in-sample
-    begin = timer()  # Inference time on training set
-    pred = nn.predict(X_train).argmax(1)
-    testing_time_insample = timer() - begin  # Inference time on training set
-    # test_accuracy_in_sample = accuracy_score(Y_train.argmax(1),
-    #                                          pred, normalize=False)/len(X_train)
+    print("\nTesting in-sample...\n")
+    # monitor = Monitor(gpu_performance_sampling_time)     # GPU MONITOR
+    # begin = timer()  # Inference time on training set
+    GPUstats = GPUstatistics()
+    pred = nn.predict(X_train, batch_size=batch_size,
+                      callbacks=[time_callback, GPUstats]).argmax(1)
+    # testing_time_insample = timer() - begin  # Inference time on training set
+    # monitor.stop()                                       # GPU MONITOR
+    testing_time_insample = sum(time_callback.batch_times)
+    gpu_loads_testin = GPUstats.gpu_load
+    gpu_mems_testin = GPUstats.gpu_mem
     accuracy_score(Y_train.argmax(1),
-                   pred, normalize=False)/len(X_train)
+                    pred, normalize=False)/len(X_train)
     time_per_sample_test_insample = testing_time_insample/len(X_train)
     sample_per_second_test_insample = 1./time_per_sample_test_insample
 
-    # TESTING OUT-OF-SAMPLE
+    """
+    Testing Out-of-Sample
+    """
 
-    print("Testing out-of-sample...")
-    # Evaluate the model out-of-sample
-    begin = timer()  # Inference time on training set
-    pred = nn.predict(X_test).argmax(1)
-    testing_time_outofsample = timer() - begin  # Inference time on training set
-    # test_accuracy_out_of_sample = accuracy_score(Y_test.argmax(1),
-    #                                              pred, normalize=False)/len(X_test)
-    accuracy_score(Y_test.argmax(1),
+    print("\nTesting out-of-sample...\n")
+    # monitor = Monitor(gpu_performance_sampling_time)     # GPU MONITOR
+    # begin = timer()  # Inference time on training set
+    GPUstats = GPUstatistics()
+    pred = nn.predict(X_test, batch_size=batch_size,
+                      callbacks=[time_callback, GPUstats]).argmax(1)
+    # testing_time_outofsample = timer() - begin  # Inference time on training set
+    # monitor.stop()                                       # GPU MONITOR
+    testing_time_outofsample = sum(time_callback.batch_times)
+    gpu_loads_testout = GPUstats.gpu_load
+    gpu_mems_testout = GPUstats.gpu_mem
+    accuracy = accuracy_score(Y_test.argmax(1),
                    pred, normalize=False)/len(X_test)
     time_per_sample_test_outofsample = testing_time_outofsample/len(X_test)
     sample_per_second_test_outofsample = 1./time_per_sample_test_outofsample
 
-    # # DISPLAY RESULTS #
+    """
+    free gpu memory
+    """
 
-    # # Accuracy Report
-    # fig = plt.figure(facecolor='white')
-    # fig.set_figheight(6)
-    # fig.set_figwidth(6)
-    # plt.bar(-1, test_accuracy_in_sample, label='In-sample accuracy')
-    # plt.bar(1, test_accuracy_out_of_sample, label='Out-of-sample accuracy')
-    # plt.title('Model Accuracy')
-    # plt.ylabel('accuracy')
-    # plt.legend(loc='right', bbox_to_anchor=(1.15, 0.1),
-    #            fancybox=True, shadow=True, ncol=1)
+    device = cuda.get_current_device()
+    device.reset()
 
-    # # Learning curves
-    # fig = plt.figure(facecolor='white')
-    # fig.set_figheight(6)
-    # fig.set_figwidth(6)
-    # plt.plot(history.history['accuracy'])
-    # plt.plot(history.history['val_accuracy'])
-    # plt.title('Learning Curves')
-    # plt.ylabel('Accuracy')
-    # plt.xlabel('epoch')
-    # plt.legend(['In-sample accuracy', 'Validation accuracy'], loc='upper left')
+    print("\nAverage GPU usage during training: %s\n" % np.asarray(gpu_loads).mean())
+    print("\nAverage GPU memory usage during training: %s\n"
+          % np.asarray(gpu_mems).mean())
 
-    print("Training the model took %s seconds" % training_time)
+    print("\nAverage GPU usage during inference in-sample: %s\n"
+          % np.asarray(gpu_loads_testin).mean())
+    print("\nAverage GPU memory usage during inference in-sample: %s\n"
+          % np.asarray(gpu_mems_testin).mean())
 
-    print("Sample processing time during training: %s sample/seconds"
-          % sample_per_second)
+    print("\nAverage GPU usage during inference out-of-sample: %s\n"
+          % np.asarray(gpu_loads_testout).mean())
+    print("\nAverage GPU memory usage during inference out-of-sample: %s\n"
+          % np.asarray(gpu_mems_testout).mean())
 
-    print("Training duration summing batch processing time: %s seconds"
+    print("\nAccurcay over test set: %s\n" % accuracy)
+
+    print("\nTraining the model took %s seconds\n"
           % training_time_sum_over_batches)
 
-    print("Testing the model in-sample took %s seconds" % testing_time_insample)
+    print("\nSample processing time during training: %s sample/seconds\n"
+          % sample_per_second)
 
-    print("Sample processing time during inference in-sample: %s sample/seconds"
+    print("\nTesting the model in-sample took %s seconds\n" % testing_time_insample)
+
+    print("\nSample processing time during inference in-sample: %s sample/seconds\n"
           % sample_per_second_test_insample)
 
-    print("Testing the model out-of-sample took %s seconds" % testing_time_outofsample)
+    print("\nTesting the model out-of-sample took %s seconds\n"
+          % testing_time_outofsample)
 
-    print("Sample processing time during inference out-of-sample: %s sample/seconds"
+    print("\nSample processing time during inference out-of-sample: %s sample/seconds\n"
           % sample_per_second_test_outofsample)
 
     return 0
@@ -204,4 +308,6 @@ def main():
 
 if __name__ == "__main__":
     with tf.device(dev):
+        nvidia_smi.nvmlInit()
+        handle = nvidia_smi.nvmlDeviceGetHandleByIndex(0)
         main()
