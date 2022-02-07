@@ -50,6 +50,7 @@ def test_benchmark_from_definition() -> None:
             "description",
             "preset",
             None,
+            None,
             [CommandInfo("echo hello")],
             None,
             [CommandInfo("true")],

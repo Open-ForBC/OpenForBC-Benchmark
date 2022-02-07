@@ -60,6 +60,7 @@ class BenchmarkDefinition(Serializable["BenchmarkDefinition"]):
         name: str,
         description: str,
         default_preset: str,
+        test_preset: "Optional[str]",
         setup_commands: "Optional[List[CommandInfo]]",
         run_commands: "List[CommandInfo]",
         cleanup_commands: "Optional[List[CommandInfo]]",
@@ -71,6 +72,7 @@ class BenchmarkDefinition(Serializable["BenchmarkDefinition"]):
         self.name = name
         self.description = description
         self.default_preset = default_preset
+        self.test_preset = test_preset
         self.setup_commands = setup_commands
         self.run_commands = run_commands
         self.cleanup_commands = cleanup_commands
@@ -86,6 +88,7 @@ class BenchmarkDefinition(Serializable["BenchmarkDefinition"]):
             json["name"],
             json["description"],
             json["default_preset"],
+            json["test_preset"] if "test_preset" in json else None,
             # setup_command
             CommandInfo.deserialize_commands(json["setup_command"])
             if "setup_command" in json

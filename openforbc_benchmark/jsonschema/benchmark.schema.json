@@ -85,6 +85,10 @@
       "description": "The benchmark's default preset",
       "type": "string"
     },
+    "test_preset": {
+      "description": "The benchmark's preset used for testing",
+      "type": "string"
+    },
     "setup_command": {
       "description": "Command to be executed in order to setup the benchmark",
       "$ref": "#/$defs/commands"
