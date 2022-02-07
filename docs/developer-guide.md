@@ -93,6 +93,8 @@ Here's an example of a benchmark definition:
 {
   "name": "Sample Benchmark A",
   "description": "A sample benchmark",
+  "default_preset": "preset1",
+  "test_preset": "preset1",
   "setup_command": "setup.sh --prepare",
   "run_command": {
     "command": "example_bench --gpu",
@@ -126,7 +128,10 @@ All the metadata fields are __required__: you need to specify the benchmark's
 *name* and *description*.
 
 The `default_preset` field (**required**) is the name of the default preset: the
-referenced preset **must** be present in the `presets` folder.
+referenced preset **must** be present in the `presets` folder. The `test_preset`
+(optional) field may be specified to use a different preset when testing the
+benchmark: the testing profile should not use a GPU or perform heavy
+computations.
 
 ##### Commands
 
@@ -189,7 +194,8 @@ You can define more than one preset and select the ones you want to run the
 benchmark with later when running the benchmark.
 
 The default preset is specified in the benchmark's definition (field
-`default_preset`)  and must be defined.
+`default_preset`) and must be defined. A preset used when testing may be
+specified (`test_preset` field).
 
 #### Benchmark preset schema
 

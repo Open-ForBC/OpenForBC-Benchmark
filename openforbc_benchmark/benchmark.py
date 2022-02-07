@@ -40,6 +40,7 @@ class Benchmark(BenchmarkDefinition):
         name: str,
         description: str,
         default_preset: str,
+        test_preset: "Optional[str]",
         setup_commands: "Optional[List[CommandInfo]]",
         run_commands: "List[CommandInfo]",
         cleanup_commands: "Optional[List[CommandInfo]]",
@@ -53,6 +54,7 @@ class Benchmark(BenchmarkDefinition):
             name,
             description,
             default_preset,
+            test_preset,
             setup_commands,
             run_commands,
             cleanup_commands,
@@ -73,6 +75,7 @@ class Benchmark(BenchmarkDefinition):
             self.name,
             self.description,
             self.default_preset,
+            self.test_preset,
             self.setup_commands,
             self.run_commands,
             self.cleanup_commands,
@@ -117,6 +120,10 @@ class Benchmark(BenchmarkDefinition):
                 f'"{self.name}"'
             )
         return default
+
+    def get_test_preset(self) -> "Optional[Preset]":
+        """Retrieve the test preset."""
+        return self.get_preset(self.test_preset) if self.test_preset else None
 
     def get_preset(self, name: str) -> "Optional[Preset]":
         """Retrieve benchmark preset."""

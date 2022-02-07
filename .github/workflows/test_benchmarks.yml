@@ -78,7 +78,7 @@ jobs:
             echo "Running benchmark tests"
             poetry run o4bc-bench benchmark test $benchmark
             echo
-            echo "Running benchmark"
-            poetry run o4bc-bench benchmark run $benchmark
+            echo "Running benchmark's test preset"
+            poetry run o4bc-bench benchmark run -t $benchmark
             echo "::endgroup"
           done

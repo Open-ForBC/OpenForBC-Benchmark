@@ -419,6 +419,7 @@ def benchmark_info(
 def run_benchmark(
     benchmark_folder: str,
     preset_names: "List[str]" = Argument(None),  # noqa: TC201
+    use_test_preset: bool = Option(False, "--test-preset", "-t"),
     json: bool = Option(False, "--json", "-j"),
 ) -> None:
     """Run specified benchmark with one or more presets."""
@@ -429,7 +430,18 @@ def run_benchmark(
     benchmark = find_benchmark_or_fail(benchmark_folder)
 
     presets = []
-    if not preset_names:
+    if use_test_preset:
+        test_preset = benchmark.get_test_preset()
+        try:
+            presets.append(
+                test_preset if test_preset else benchmark.get_default_preset()
+            )
+        except BenchmarkPresetNotFound as e:
+            echo(f"ERROR: {e}")
+            raise Exit(1) from None
+        if test_preset:
+            presets.append(test_preset)
+    elif not preset_names:
         try:
             presets.append(benchmark.get_default_preset())
         except BenchmarkPresetNotFound as e:
