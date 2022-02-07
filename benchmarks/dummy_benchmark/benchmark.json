@@ -3,6 +3,7 @@
   "description": "Does nothing",
   "run_command": "echo data: 135246",
   "default_preset": "preset1",
+  "test_preset": "preset2",
   "setup_command": {
     "command": "echo 'hello world'",
     "env": {

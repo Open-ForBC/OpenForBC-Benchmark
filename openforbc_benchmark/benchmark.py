@@ -121,6 +121,10 @@ class Benchmark(BenchmarkDefinition):
             )
         return default
 
+    def get_test_preset(self) -> "Optional[Preset]":
+        """Retrieve the test preset."""
+        return self.get_preset(self.test_preset) if self.test_preset else None
+
     def get_preset(self, name: str) -> "Optional[Preset]":
         """Retrieve benchmark preset."""
         from os.path import exists, join

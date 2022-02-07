@@ -69,6 +69,14 @@ def test_benchmark_run() -> None:
     assert "135246" in result.stdout
 
 
+def test_benchmark_run_test_preset() -> None:
+    result = runner.invoke(app, ["run", "-t", "dummy_benchmark"])
+    assert result.exit_code == 0
+    assert "--config=preset2" in result.stdout
+    assert "---" in result.stdout
+    assert "135246" in result.stdout
+
+
 def test_benchmark_test() -> None:
     result = runner.invoke(app, ["test", "dummy_benchmark"])
     assert result.exit_code == 0
