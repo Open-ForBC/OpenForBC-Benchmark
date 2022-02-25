@@ -16,7 +16,12 @@ class PopenArgs(TypedDict):
 
 
 class Runnable:
-    """A process which can be run."""
+    """
+    A runnable command.
+
+    Contains command arguments and environment data, such as the current working
+    directory, environment variables and additional PATH entries.
+    """
 
     def __init__(
         self,
@@ -54,6 +59,7 @@ class Runnable:
         )
 
     def command_str(self) -> str:
+        """Return the contatenated args."""
         return argv_join(self.args)
 
     def into_popen_args(self, env: "Dict[str, str]" = environ.copy()) -> PopenArgs:
@@ -80,4 +86,9 @@ class Runnable:
 
 
 def argv_join(argv: "Iterable[str]") -> str:
+    """
+    Return a shell-escaped string from *argv*.
+
+    Backported for python3.6 from `shlex.join`.
+    """
     return " ".join(quote(x) for x in argv)
