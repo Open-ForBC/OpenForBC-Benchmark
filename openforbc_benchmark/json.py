@@ -16,7 +16,7 @@ T = TypeVar("T", bound="Serializable")
 
 class Serializable(AbstractClass, Generic[T]):
     """
-    A Serializable class can be serialized/deserialized into/from a JSON document.
+    A Serializable instance can be serialized/deserialized into/from a JSON document.
 
     This abstract class provides methods to read/write such objects from/into a file.
     """
@@ -53,7 +53,15 @@ class Serializable(AbstractClass, Generic[T]):
 
 
 class BenchmarkDefinition(Serializable["BenchmarkDefinition"]):
-    """A benchmark definition."""
+    """
+    A benchmark json definition.
+
+    This class represents a JSON benchmark definition, with all the fields
+    specified in its jsonschema.
+
+    It implements the Serializable abstract methods, which allows a definition
+    to be read/written from/into a file.
+    """
 
     def __init__(
         self,
@@ -125,7 +133,11 @@ class PresetDefinition(Serializable["PresetDefinition"]):
     """
     Benchmark settings preset.
 
-    Contains information on a single preset of benchmark settings.
+    This class represents a JSON benchmark preset definition, with all the
+    fields specified in its jsonschema.
+
+    It implements the Serializable abstract methods, which allows a definition
+    to be read/written from/into a file.
     """
 
     def __init__(
@@ -183,7 +195,15 @@ class PresetDefinition(Serializable["PresetDefinition"]):
 
 
 class BenchmarkSuiteDefinition(Serializable["BenchmarkSuiteDefinition"]):
-    """A suite of benchmarks, each with selected presets."""
+    """
+    A suite of benchmarks, each with associated presets.
+
+    This class represents a JSON benchmark suite definition, with all the fields
+    specified in its jsonschema.
+
+    It implements the Serializable abstract methods, which allows a definition
+    to be read/written from/into a file.
+    """
 
     def __init__(
         self,
@@ -280,7 +300,11 @@ class CommandInfo(Serializable["CommandInfo"]):
 
 
 class StatMatchInfo(Serializable["StatMatchInfo"]):
-    """Benchmark statistical data match info."""
+    """
+    Benchmark statistical data match info.
+
+    Contains information about a single stat row.
+    """
 
     def __init__(self, regex: str, file: "Optional[str]" = None) -> None:
         """Create a StatMatchInfo object."""
@@ -293,7 +317,12 @@ class StatMatchInfo(Serializable["StatMatchInfo"]):
 
 
 class BenchmarkStats(Serializable["BenchmarkStats"]):
-    """Benchmark statistical data."""
+    """
+    Benchmark statistical data.
+
+    This class represents JSON benchmark stats data, according to the defined
+    jsonschema.
+    """
 
     def __init__(self, stats: "Dict[str, Union[int, float]]") -> None:
         """Create a BenchmarkStats object."""
@@ -327,7 +356,12 @@ class BenchmarkStats(Serializable["BenchmarkStats"]):
 
 
 class BenchmarkRunDefinition(Serializable["BenchmarkRunDefinition"]):
-    """A benchmark run, with associated presets."""
+    """
+    A benchmark run, with associated presets.
+
+    This class represents a single instance of a benchmark in a suite, with
+    selected presets for the benchmark.
+    """
 
     def __init__(self, benchmark_id: str, presets: "List[str]") -> None:
         """Create a BenchmarkRunDefinition object."""
