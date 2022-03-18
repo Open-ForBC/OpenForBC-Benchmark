@@ -1,7 +1,7 @@
 {
-    "name": "Fully Connected Neural Network training and inference over MNIST dataset ",
-    "description": "Training and inference with MNIST dataset",
-    "default_preset": "training",
+    "name": "Realtime Teacher-Student benchmark",
+    "description": "Training and inference using Teacher-Student pattern",
+    "default_preset": "inference",
     "test_command": ["pip install flake8", "flake8 --exclude .venv"],
     "setup_command": "./setup.sh",
     "run_command": "./TeacherStudent_realtime.py",
