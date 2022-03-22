@@ -30,7 +30,7 @@ Global variables definition
 """
 batch_size = 1
 n_epochs = 6
-n_epochs_training = 6
+n_epochs_training = 50
 n_of_class = 10
 N = 150
 teacher_size = 8
