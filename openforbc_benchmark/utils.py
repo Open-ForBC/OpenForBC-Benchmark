@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 
 from os import environ
 from shlex import quote
-from typing_extensions import TypedDict
+from typing import TypedDict
 
 
 class PopenArgs(TypedDict):
