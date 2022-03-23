@@ -1,4 +1,4 @@
 {
-    "args": "cpu training"
+    "args": "cpu training --n_epochs_training 1"
 }
   

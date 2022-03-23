@@ -257,9 +257,10 @@ if __name__ == "__main__":
     parser.add_argument("mode",
                         choices=["training", "inference"],
                         default="inference")
-    parser.add_argument("gpu_index", default=0, nargs='?')
-    parser.add_argument("net_size", default=2000, nargs='?')
-    parser.add_argument("input_shape_X", default=20000, nargs='?')
+    parser.add_argument("-g", "--gpu_index", default=0, nargs='?')
+    parser.add_argument("-s", "--net_size", default=2000, nargs='?')
+    parser.add_argument("-n", "--n_epochs_training", default=200, nargs='?')
+    parser.add_argument("-i", "--input_shape_X", default=20000, nargs='?')
 
     args = parser.parse_args()
     dev = args.device_type
@@ -267,6 +268,7 @@ if __name__ == "__main__":
     gpu_index = args.gpu_index
     net_size = args.net_size
     input_shape_X = args.input_shape_X
+    n_epochs_training = args.n_epochs_training
 
     """
     SET DEVICE
