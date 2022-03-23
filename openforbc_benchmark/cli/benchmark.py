@@ -1,12 +1,3 @@
-from typing import TYPE_CHECKING
-
-
-if TYPE_CHECKING:
-    from typing import Any, Dict, Tuple, Union
-    from openforbc_benchmark.benchmark import Benchmark, BenchmarkRun
-    from openforbc_benchmark.json import StatMatchInfo
-    from openforbc_benchmark.utils import Runnable
-
 from json import dumps
 from tabulate import tabulate
 from os.path import join
@@ -14,19 +5,25 @@ from sys import stdout
 from typer import Context, echo, Exit, Typer, Option  # noqa: TC002
 from typer.params import Argument
 from typing import List  # noqa: TC002
+from typing import TYPE_CHECKING
 from yaspin.core import Yaspin
 
 from openforbc_benchmark.benchmark import (
     BenchmarkPresetNotFound,
     BenchmarkStatsDecodeError,
     BenchmarkStatsMatchError,
-    Preset,
     find_benchmark,
     get_benchmarks,
 )
 from openforbc_benchmark.cli.state import state
 from openforbc_benchmark.json import CommandInfo
 from openforbc_benchmark.utils import argv_join
+
+if TYPE_CHECKING:
+    from typing import Any, Dict, Tuple, Union
+    from openforbc_benchmark.benchmark import Benchmark, BenchmarkRun, Preset
+    from openforbc_benchmark.json import StatMatchInfo
+    from openforbc_benchmark.utils import Runnable
 
 
 class BenchmarkRunException(Exception):
@@ -265,7 +262,7 @@ def find_benchmark_or_fail(benchmark_id: str) -> "Benchmark":
     return benchmark
 
 
-def get_preset_or_fail(benchmark: "Benchmark", preset_name: str) -> Preset:
+def get_preset_or_fail(benchmark: "Benchmark", preset_name: str) -> "Preset":
     preset = benchmark.get_preset(preset_name)
     if preset is None:
         echo(
