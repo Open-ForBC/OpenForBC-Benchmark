@@ -45,7 +45,7 @@ Currently, the following benchmarks are implemented:
 - [Matmul](benchmarks/matmul_benchmark)
 - [MatmulC++](benchmarks/matmulCpp_benchmark)
 - [MNIST Real Time Benchmarking](benchmarks/MNIST_realtime_benchmark)
-- [CIFAR10 Real Time Benchmarking](benchmarks/CIFAR10_realtime_benchmark)
+- [CIFAR10 Real Time Benchmarking](benchmarks/CIFAR_realtime_benchmark)
 - [Teacher-Student Real Time Benchmarking](benchmarks/TeacherStudent_realtime_benchmark)
 - [MNIST FCNN](benchmarks/MNIST_FCNeuralNetwork)
 
