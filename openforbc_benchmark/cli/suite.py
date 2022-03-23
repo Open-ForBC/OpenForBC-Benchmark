@@ -1,15 +1,15 @@
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from typing import Dict, Iterator, List, Optional, Tuple, Union
-
 from sys import stdout
 from typer import Context, echo, Exit, Typer, Option  # noqa: TC002
+from typing import TYPE_CHECKING
 
-from openforbc_benchmark.benchmark import Benchmark, BenchmarkSuite, get_benchmarks
+from openforbc_benchmark.benchmark import BenchmarkSuite, get_benchmarks
 from openforbc_benchmark.json import BenchmarkRunDefinition, BenchmarkSuiteDefinition
 from openforbc_benchmark.cli.benchmark import CliBenchmarkRun
 from openforbc_benchmark.cli.state import state
+
+if TYPE_CHECKING:
+    from typing import Dict, Iterator, List, Optional, Tuple, Union
+    from openforbc_benchmark.benchmark import Benchmark
 
 
 class CliBenchmarkSuiteRun:
