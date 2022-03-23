@@ -18,7 +18,11 @@ import sys
 from datetime import datetime
 import argparse
 import signal
-import nvidia_smi
+try:
+    import nvidia_smi
+except ModuleNotFoundError:
+    print("nvidia-smi has not been found. GPU support is excluded.")
+    pass
 import GPUtil
 import tensorflow as tf
 import tensorflow_datasets as tfds
@@ -263,12 +267,15 @@ if __name__ == "__main__":
     parser.add_argument("mode",
                         choices=["training", "inference"],
                         default="inference")
-    parser.add_argument("gpu_index", default=0, nargs='?')
+    parser.add_argument("-g", "--gpu_index", default=0, nargs='?')
+    parser.add_argument("-n", "--n_epochs_training", default=50, nargs='?', type=int)
+    parser.add_argument("-t", "--test_mode", action='store_true')
 
     args = parser.parse_args()
     dev = args.device_type
     mode = args.mode
     gpu_index = args.gpu_index
+    n_epochs_training = args.n_epochs_training
 
     """
     SET DEVICE
@@ -302,10 +309,25 @@ if __name__ == "__main__":
         de = f'/device:GPU:{gpu_index}'
 
     with tf.device(de):
-        nvidia_smi.nvmlInit()
-        handle = nvidia_smi.nvmlDeviceGetHandleByIndex(gpu_index)
+        if dev == 'gpu':
+            nvidia_smi.nvmlInit()
+            handle = nvidia_smi.nvmlDeviceGetHandleByIndex(gpu_index)
 
         if mode == 'training':
             training_benchmark(batch_size)
         elif mode == 'inference':
             inference_benchmark()
+
+        if args.test_mode:
+            print("Training GPU usage: 0")
+            print("Training GPU memory usage: 0")
+            print("Training Time: 0")
+            print("Training sample processing speed: 0")
+            print("In-sample inference GPU usage: 0")
+            print("In-sample inference GPU memory usage: 0")
+            print("In-sample inference time: 0")
+            print("In-sample sample processing speed: 0")
+            print("Out-of-Sample inference GPU usage: 0")
+            print("Out-of-Sample inference GPU memory usage: 0")
+            print("Out-of-Sample inference time: 0")
+            print("Out-of-Sample sample processing speed: 0")

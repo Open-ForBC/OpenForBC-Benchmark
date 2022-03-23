@@ -1,8 +1,10 @@
 tensorflow-gpu
 sklearn
 gputil
-numpy==1.21
+numpy
 numba
 nvidia-ml-py3
+nvidia-smi
 parso
 tensorflow_datasets
+keras

@@ -19,7 +19,11 @@ import numpy as np
 from datetime import datetime
 import argparse
 import signal
-import nvidia_smi
+try:
+    import nvidia_smi
+except ModuleNotFoundError:
+    print("nvidia-smi has not been found. GPU support is excluded.")
+    pass
 import GPUtil
 import tensorflow as tf
 import tensorflow.keras as keras
@@ -253,9 +257,11 @@ if __name__ == "__main__":
     parser.add_argument("mode",
                         choices=["training", "inference"],
                         default="inference")
-    parser.add_argument("gpu_index", default=0, nargs='?')
-    parser.add_argument("net_size", default=2000, nargs='?')
-    parser.add_argument("input_shape_X", default=20000, nargs='?')
+    parser.add_argument("-g", "--gpu_index", default=0, nargs='?')
+    parser.add_argument("-s", "--net_size", default=2000, nargs='?')
+    parser.add_argument("-n", "--n_epochs_training", default=200, nargs='?', type=int)
+    parser.add_argument("-i", "--input_shape_X", default=20000, nargs='?')
+    parser.add_argument("-t", "--test_mode", action='store_true')
 
     args = parser.parse_args()
     dev = args.device_type
@@ -263,6 +269,7 @@ if __name__ == "__main__":
     gpu_index = args.gpu_index
     net_size = args.net_size
     input_shape_X = args.input_shape_X
+    n_epochs_training = args.n_epochs_training
 
     """
     SET DEVICE
@@ -296,10 +303,25 @@ if __name__ == "__main__":
         de = f'/device:GPU:{gpu_index}'
 
     with tf.device(de):
-        nvidia_smi.nvmlInit()
-        handle = nvidia_smi.nvmlDeviceGetHandleByIndex(gpu_index)
+        if dev == 'gpu':
+            nvidia_smi.nvmlInit()
+            handle = nvidia_smi.nvmlDeviceGetHandleByIndex(gpu_index)
 
         if mode == 'training':
             training_benchmark(input_shape_X, batch_size, net_size, n_of_class)
         elif mode == 'inference':
             inference_benchmark(input_shape_X, batch_size, net_size, n_of_class)
+
+        if args.test_mode:
+            print("Training GPU usage: 0")
+            print("Training GPU memory usage: 0")
+            print("Training Time: 0")
+            print("Training sample processing speed: 0")
+            print("In-sample inference GPU usage: 0")
+            print("In-sample inference GPU memory usage: 0")
+            print("In-sample inference time: 0")
+            print("In-sample sample processing speed: 0")
+            print("Out-of-Sample inference GPU usage: 0")
+            print("Out-of-Sample inference GPU memory usage: 0")
+            print("Out-of-Sample inference time: 0")
+            print("Out-of-Sample sample processing speed: 0")

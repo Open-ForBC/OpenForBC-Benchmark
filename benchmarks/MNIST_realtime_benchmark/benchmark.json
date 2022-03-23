@@ -6,6 +6,7 @@
     "pip install flake8",
     "flake8 --exclude .venv"
   ],
+  "test_preset": "test",
   "setup_command": "./setup.sh",
   "run_command": "./MNIST_realtime.py",
   "stats": {
