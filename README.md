@@ -13,6 +13,27 @@ This standalone tool was developed to benchmark performances of various partitio
 The framework is compatible with Windows, Linux, and macOS given the benchmark supports the tester operating system.
 ___
 
+## Requirements
+
+-   Python: >= 3.9
+-   pip: >= 10.0 (can be updated by running `pip3 install -U pip`)
+
+ML benchmarks depends on tensorflow, which requires NVIDIA CUDNN and some cuda
+libraries to be installed, specifically:
+
+-   cuda-cudart
+-   libcublas
+-   libcufft
+-   libcurand
+-   libcusolver
+-   libcusparse
+
+Please refer to [TensorFlow's guide for GPU
+support](https://www.tensorflow.org/install/gpu#linux_setup) if you are using
+ubuntu or to NVIDIA's documentation for [CUDNN
+installation](https://developer.nvidia.com/cudnn) and [CUDA toolkit
+installation](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html).
+
 ## Installation
 
 - Clone the repository
