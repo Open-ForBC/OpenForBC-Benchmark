@@ -274,6 +274,7 @@ if __name__ == "__main__":
     dev = args.device_type
     mode = args.mode
     gpu_index = args.gpu_index
+    n_epochs_training = args.n_epochs_training
 
     """
     SET DEVICE
