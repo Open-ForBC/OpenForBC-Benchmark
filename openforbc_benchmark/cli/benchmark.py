@@ -19,6 +19,7 @@ from yaspin.core import Yaspin
 from openforbc_benchmark.benchmark import (
     BenchmarkPresetNotFound,
     BenchmarkStatsDecodeError,
+    BenchmarkStatsMatchError,
     Preset,
     find_benchmark,
     get_benchmarks,
@@ -44,7 +45,7 @@ class BenchmarkTaskFailed(BenchmarkRunException):
     pass
 
 
-class BenchmarkStatsError(BenchmarkRunException):
+class BenchmarkRunStatsError(BenchmarkRunException):
     """Stats decode failed."""
 
     pass
@@ -128,13 +129,20 @@ class CliBenchmarkRun:
                         next(output)
                         self.stats[preset.name] = self.benchmark_run.get_stats(output)
             except BenchmarkStatsDecodeError as e:
-                self._log("WARNING: stats script output:", err=True)
+                self._log("ERROR: stats script output:", err=True)
                 self._log(e.output.rstrip(), err=True)
                 self._fail(
-                    BenchmarkStatsError(
+                    BenchmarkRunStatsError(
                         f'"{benchmark_id}" preset "{preset.name}" stats decode '
                         f"failed: {e}"
                     ),
+                )
+            except BenchmarkStatsMatchError as e:
+                self._fail(
+                    BenchmarkRunStatsError(
+                        f'"{benchmark_id}" preset "{preset.name}" stats match failed: '
+                        f"{e}"
+                    )
                 )
 
     def _run_setup(self) -> None:

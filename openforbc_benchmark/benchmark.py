@@ -26,10 +26,18 @@ class BenchmarkPresetNotFound(Exception):
     pass
 
 
-class BenchmarkStatsDecodeError(Exception):
+class BenchmarkStatsError(Exception):
+    pass
+
+
+class BenchmarkStatsDecodeError(BenchmarkStatsError):
     def __init__(self, message: str, output: str) -> None:
         super().__init__(message)
         self.output = output
+
+
+class BenchmarkStatsMatchError(BenchmarkStatsError):
+    pass
 
 
 class Benchmark(BenchmarkDefinition):
@@ -330,6 +338,11 @@ class BenchmarkRun:
                     number = m.group(1)
                     stats[name] = float(number) if "." in number else int(number)
                     break
+
+            if name not in stats:
+                raise BenchmarkStatsMatchError(
+                    f'No match for stat "{name}" in benchmark output'
+                )
 
             if match.file is not None and isinstance(file, TextIO):
                 file.close()
