@@ -2,7 +2,7 @@
 
 ## Introduction:
 
-This benchmark implements a fully connected neural network and perform training and inference over MNIST dataset. 
+This benchmark implements a fully connected neural network and perform training and inference over MNIST dataset. The benchmark record total time and sample processing time of training and inference.
 
 ## Presets:
 

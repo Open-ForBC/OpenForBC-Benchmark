@@ -19,7 +19,6 @@ import numpy as np
 from datetime import datetime
 import argparse
 import signal
-from parso import parse
 import nvidia_smi
 import GPUtil
 import tensorflow as tf
