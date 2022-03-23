@@ -19,7 +19,11 @@ import numpy as np
 from datetime import datetime
 import argparse
 import signal
-import nvidia_smi
+try:
+    import nvidia_smi
+except ModuleNotFoundError:
+    print("nvidia-smi has not been found. GPU support is excluded.")
+    pass
 import GPUtil
 import tensorflow as tf
 import tensorflow.keras as keras
@@ -296,8 +300,9 @@ if __name__ == "__main__":
         de = f'/device:GPU:{gpu_index}'
 
     with tf.device(de):
-        nvidia_smi.nvmlInit()
-        handle = nvidia_smi.nvmlDeviceGetHandleByIndex(gpu_index)
+        if dev == 'gpu':
+            nvidia_smi.nvmlInit()
+            handle = nvidia_smi.nvmlDeviceGetHandleByIndex(gpu_index)
 
         if mode == 'training':
             training_benchmark(input_shape_X, batch_size, net_size, n_of_class)
