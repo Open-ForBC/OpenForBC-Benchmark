@@ -249,7 +249,7 @@ if __name__ == "__main__":
                         choices=["training", "inference"],
                         default="inference")
     parser.add_argument("-g", "--gpu_index", default=0, nargs='?')
-    parser.add_argument("-n", "--n_epochs_training", default=50, nargs='?')
+    parser.add_argument("-n", "--n_epochs_training", default=50, nargs='?', type=int)
 
     args = parser.parse_args()
     dev = args.device_type
