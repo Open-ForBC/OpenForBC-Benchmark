@@ -13,7 +13,12 @@ This standalone tool was developed to benchmark performances of various partitio
 The framework is compatible with Windows, Linux, and macOS given the benchmark supports the tester operating system.
 ___
 
-## Installation
+## Requirements
+
+- Python 3.6 minimum
+- pip 10.0 minimum (can be updated by running `pip3 install -U pip`)
+
+## Installation 
 
 - Clone the repository
 
