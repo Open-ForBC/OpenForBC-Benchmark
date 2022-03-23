@@ -261,6 +261,7 @@ if __name__ == "__main__":
     parser.add_argument("-s", "--net_size", default=2000, nargs='?')
     parser.add_argument("-n", "--n_epochs_training", default=200, nargs='?', type=int)
     parser.add_argument("-i", "--input_shape_X", default=20000, nargs='?')
+    parser.add_argument("-t", "--test_mode", action='store_true')
 
     args = parser.parse_args()
     dev = args.device_type
@@ -310,3 +311,17 @@ if __name__ == "__main__":
             training_benchmark(input_shape_X, batch_size, net_size, n_of_class)
         elif mode == 'inference':
             inference_benchmark(input_shape_X, batch_size, net_size, n_of_class)
+
+        if args.test_mode:
+            print("Training GPU usage: 0")
+            print("Training GPU memory usage: 0")
+            print("Training Time: 0")
+            print("Training sample processing speed: 0")
+            print("In-sample inference GPU usage: 0")
+            print("In-sample inference GPU memory usage: 0")
+            print("In-sample inference time: 0")
+            print("In-sample sample processing speed: 0")
+            print("Out-of-Sample inference GPU usage: 0")
+            print("Out-of-Sample inference GPU memory usage: 0")
+            print("Out-of-Sample inference time: 0")
+            print("Out-of-Sample sample processing speed: 0")
