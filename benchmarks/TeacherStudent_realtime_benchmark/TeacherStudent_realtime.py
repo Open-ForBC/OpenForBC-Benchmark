@@ -259,7 +259,7 @@ if __name__ == "__main__":
                         default="inference")
     parser.add_argument("-g", "--gpu_index", default=0, nargs='?')
     parser.add_argument("-s", "--net_size", default=2000, nargs='?')
-    parser.add_argument("-n", "--n_epochs_training", default=200, nargs='?')
+    parser.add_argument("-n", "--n_epochs_training", default=200, nargs='?', type=int)
     parser.add_argument("-i", "--input_shape_X", default=20000, nargs='?')
 
     args = parser.parse_args()
