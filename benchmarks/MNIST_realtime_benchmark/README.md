@@ -14,9 +14,10 @@ On the other hands, when inference mode is selected the benchmark performs train
 
 ## Devices supported:
 
-The device (GPU or CPU) is selected when the benchmark is started from presets. By defalut every preset choses GPU.
+The device (GPU or CPU) is selected when the benchmark is started from presets. By default every preset choses GPU.
 
 ## Dependencies installation
 
 The benchmark dependencies are automatically installed by the benchmark. 
+
 Note that some CUDA libraries require [manual installation](../../README.md#requirements)
