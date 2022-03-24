@@ -251,7 +251,7 @@ if __name__ == "__main__":
                         choices=["training", "inference"],
                         default="inference")
     parser.add_argument("-g", "--gpu_index", default=0, nargs='?')
-    parser.add_argument("-n", "--n_epochs_training", default=50, nargs='?', type=int)
+    parser.add_argument("-n", "--n_epochs_training", default=10, nargs='?', type=int)
     parser.add_argument("-t", "--test_mode", action='store_true')
     parser.add_argument("-l", "--iteration_limit",
                         help="Maximum number of inference iterations", type=int)
