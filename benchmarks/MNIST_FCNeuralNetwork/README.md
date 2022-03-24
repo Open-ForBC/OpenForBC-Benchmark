@@ -15,3 +15,5 @@ The device (GPU or CPU) is selected through presets.
 ## Dependencies installation
 
 The benchmark dependencies are automatically installed by the benchmark. 
+
+Note that some CUDA libraries require [manual installation](../../README.md#requirements)
