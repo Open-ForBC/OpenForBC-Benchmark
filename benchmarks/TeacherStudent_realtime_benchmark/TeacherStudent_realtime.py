@@ -18,7 +18,6 @@ import sys
 import numpy as np
 from datetime import datetime
 import argparse
-import signal
 try:
     import nvidia_smi
 except ModuleNotFoundError:
@@ -172,7 +171,7 @@ def create_model(input_shape_X):
     return model
 
 
-def training_benchmark(input_shape_X, batch_size, net_size, n_of_class):
+def training_benchmark(input_shape_X, batch_size, n_of_class):
     """
     Training benchmark evaluating number of inputs processed per second
     """
@@ -202,7 +201,7 @@ def training_benchmark(input_shape_X, batch_size, net_size, n_of_class):
     stats_file.close()
 
 
-def inference_benchmark(input_shape_X, batch_size, net_size, n_of_class, iteration_limit=None):
+def inference_benchmark(input_shape_X, batch_size, n_of_class, iteration_limit=None):
     global keep_running
     dt_string = datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
     stats_file = open("stats_file_inference"+dt_string+".txt", 'w')
@@ -317,9 +316,9 @@ if __name__ == "__main__":
             handle = nvidia_smi.nvmlDeviceGetHandleByIndex(gpu_index)
 
         if mode == 'training':
-            training_benchmark(input_shape_X, batch_size, net_size, n_of_class)
+            training_benchmark(input_shape_X, batch_size, n_of_class)
         elif mode == 'inference':
-            inference_benchmark(input_shape_X, batch_size, net_size,
+            inference_benchmark(input_shape_X, batch_size,
                                 n_of_class, iteration_limit=args.iteration_limit)
 
         if args.test_mode:

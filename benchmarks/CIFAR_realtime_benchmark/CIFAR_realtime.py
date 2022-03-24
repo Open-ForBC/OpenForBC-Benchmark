@@ -17,7 +17,6 @@ import time
 import sys
 from datetime import datetime
 import argparse
-import signal
 try:
     import nvidia_smi
 except ModuleNotFoundError:
