@@ -172,6 +172,14 @@ class CliBenchmarkRun:
         self.spinner.stop()
 
         echo(exception, err=True)
+        if isinstance(exception, BenchmarkRunStatsError):
+            echo(
+                f"WARNING: Stats decode for benchmark "
+                f'"{self.benchmark_run.benchmark.get_id()}" failed',
+                err=True,
+            )
+            return
+
         echo(
             f'ERROR: Benchmark "{self.benchmark_run.benchmark.get_id()}" failed',
             err=True,
