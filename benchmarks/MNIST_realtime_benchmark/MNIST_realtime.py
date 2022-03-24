@@ -39,6 +39,7 @@ n_of_class = 10
 N = 150
 teacher_size = 8
 gpu_performance_sampling_time = 1
+keep_running = True
 
 
 class GPUstatistics(keras.callbacks.Callback):
@@ -204,10 +205,11 @@ def training_benchmark(batch_size):
     stats_file.close()
 
 
-def inference_benchmark():
+def inference_benchmark(iteration_limit=None):
     """
     Inference benchmark evaluating number of Out-of-Sample inputs processed per second
     """
+    global keep_running
     dt_string = datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
     stats_file = open("stats_file_inference"+dt_string+".txt", 'w')
 
@@ -227,33 +229,34 @@ def inference_benchmark():
     """
     sample_count = 0
     total_time = 0
-    keep_running = True
 
-    def handler(foo, bar):
-        """
-        An handler to catch Ctrl-C for graceful exit
-        """
-        global keep_running
-        keep_running = False
-
-    signal.signal(signal.SIGINT, handler)
+    n_iterations = 0
 
     while(keep_running):
+        print(f"Iteration {n_iterations}")
         L = []
         for batch in ds_test:  # online prediction (one sample at time)
-            for DS in batch[0]:
-                DS = np.expand_dims(DS, 0)
-                start_time = time.time()
-                _ = model(DS)
-                end_time = time.time() - start_time
-                total_time += end_time
-                sample_count += 1
-                latency = total_time/sample_count
-                throughput = sample_count/total_time
-                L = [str(end_time), ',', str(sample_count), ',', str(
-                    latency), ',', str(throughput), ',', str(total_time)]
-                stats_file.writelines(L)
-                stats_file.writelines('\n')
+            try:
+                for DS in batch[0]:
+                    DS = np.expand_dims(DS, 0)
+                    start_time = time.time()
+                    _ = model(DS)
+                    end_time = time.time() - start_time
+                    total_time += end_time
+                    sample_count += 1
+                    latency = total_time/sample_count
+                    throughput = sample_count/total_time
+                    L = [str(end_time), ',', str(sample_count), ',', str(
+                        latency), ',', str(throughput), ',', str(total_time)]
+                    stats_file.writelines(L)
+                    stats_file.writelines('\n')
+            except KeyboardInterrupt:
+                keep_running = False
+                break
+        n_iterations += 1
+        if iteration_limit:
+            if n_iterations+1 > iteration_limit:
+                break
 
     print('INFERENCE COMPLETED!')
     stats_file.close()
@@ -270,6 +273,8 @@ if __name__ == "__main__":
     parser.add_argument("-g", "--gpu_index", default=0, nargs='?')
     parser.add_argument("-n", "--n_epochs_training", default=50, nargs='?', type=int)
     parser.add_argument("-t", "--test_mode", action='store_true')
+    parser.add_argument("-l", "--iteration_limit",
+                        help="Maximum number of inference iterations", type=int)
 
     args = parser.parse_args()
     dev = args.device_type
@@ -316,7 +321,7 @@ if __name__ == "__main__":
         if mode == 'training':
             training_benchmark(batch_size)
         elif mode == 'inference':
-            inference_benchmark()
+            inference_benchmark(iteration_limit=args.iteration_limit)
 
         if args.test_mode:
             print("Training GPU usage: 0")
