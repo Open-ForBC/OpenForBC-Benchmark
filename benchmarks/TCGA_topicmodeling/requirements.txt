@@ -2,3 +2,5 @@ tensorflow>2
 sklearn
 pandas
 numpy
+nvidia-ml-py3
+nvidia-smi
