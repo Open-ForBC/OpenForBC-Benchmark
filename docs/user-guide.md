@@ -1,7 +1,17 @@
-# Gettings Started
+# User guide
 
-- Guide to developer [docs](developer-guide.md).
-- Installation [README](../README.md).
+## Installation
+
+-   Clone the repository
+    ```bash
+    git clone --recursive https://github.com/Open-ForBC/OpenForBC-Benchmark.git
+    ```
+
+-   Install the `o4bc-bench` tool
+    ```bash
+    cd OpenForBC-Benchmark
+    pip3 install .
+    ```
 
 ## Usage
 
