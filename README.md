@@ -34,23 +34,6 @@ ubuntu or to NVIDIA's documentation for [CUDNN
 installation](https://developer.nvidia.com/cudnn) and [CUDA toolkit
 installation](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html).
 
-## Installation
-
-- Clone the repository
-
-```bash
-git clone --recursive https://github.com/Open-ForBC/OpenForBC-Benchmark.git
-```
-
-- Install the `o4bc-bench` tool
-
-```bash
-cd OpenForBC-Benchmark
-pip3 install .
-```
-
-___
-
 ## Documentation
 
 - Guide to developer [docs](docs/developer-guide.md).
