@@ -62,7 +62,7 @@ ___
 
 | <center>User guide</center> | <center>Developer guide</center> |
 | -------- | -------- |
-| [<img src="https://svgshare.com/i/fxV.svg" alt="drawing" style="width:10vmin;"/>](docs/user-guide.md) | [<img src="https://svgshare.com/i/fy8.svg" alt="drawing" style="width:10vmin;"/>](docs/developer-guide.md) |
+| [<img src="https://svgshare.com/i/fy8.svg" alt="drawing" style="width:10vmin;"/>](docs/user-guide.md) | [<img src="https://svgshare.com/i/fxV.svg" alt="drawing" style="width:10vmin;"/>](docs/developer-guide.md) |
 
 </div>
 
