@@ -106,8 +106,14 @@ class CliBenchmarkRun:
         for preset, tasks in self.benchmark_run.run():
             self._log(f'Running "{benchmark_id}" preset "{preset.name}"')
             for i, task in enumerate(tasks):
-                self.spinner.text = (
-                    f"{benchmark_id}(run:{preset.name}): {argv_join(task.args)}"
+                from os import get_terminal_size
+                from textwrap import shorten
+
+                self.spinner.text = shorten(
+                    f"{benchmark_id}(run:{preset.name}): {argv_join(task.args)}",
+                    # spinner uses 2 chars
+                    (get_terminal_size().columns if stdout.isatty() else 80) - 2,
+                    placeholder="...",
                 )
                 self._run_task_or_err(
                     task,
