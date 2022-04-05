@@ -1,6 +1,6 @@
 <h1  align="center">
 
-<img  src="https://i.imgur.com/l4DGFEw.png"  width="224px"/><br/>
+<img  src="https://i.imgur.com/l4DGFEw.png"  style="width: 25vw"/><br/>
 
 <p>OpenForBC-Benchmark</p>
 
