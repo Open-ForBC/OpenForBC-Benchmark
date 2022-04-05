@@ -1,13 +1,5 @@
 from typing import TYPE_CHECKING
 
-
-if TYPE_CHECKING:
-    from typing import Dict, Iterator, List, Optional, Tuple, Union
-    from openforbc_benchmark.json import BenchmarkRunDefinition, StatMatchInfo
-
-
-from typing import TextIO
-
 from openforbc_benchmark.json import (
     BenchmarkDefinition,
     BenchmarkStats,
@@ -16,6 +8,10 @@ from openforbc_benchmark.json import (
     PresetDefinition,
 )
 from openforbc_benchmark.utils import Runnable
+
+if TYPE_CHECKING:
+    from typing import Dict, Iterator, List, Optional, TextIO, Tuple, Union
+    from openforbc_benchmark.json import BenchmarkRunDefinition, StatMatchInfo
 
 
 class BenchmarkNotFound(Exception):
@@ -41,7 +37,13 @@ class BenchmarkStatsMatchError(BenchmarkStatsError):
 
 
 class Benchmark(BenchmarkDefinition):
-    """A benchmark."""
+    """
+    A benchmark instance.
+
+    This class wraps a `BenchmarkDefinition` adding a `dir` (benchmark's
+    containing directory) field and provides additional methods to extract
+    information from the defintion.
+    """
 
     def __init__(
         self,
@@ -76,9 +78,11 @@ class Benchmark(BenchmarkDefinition):
     def from_definition(
         self_class, definition: BenchmarkDefinition, dir: str
     ) -> "Benchmark":
+        """Create a Benchmark from a definition and its containing directory path."""
         return self_class(**definition.__dict__, dir=dir)
 
     def into_definition(self) -> BenchmarkDefinition:
+        """Transform this Benchmark into a defintion."""
         return BenchmarkDefinition(
             self.name,
             self.description,
@@ -94,7 +98,7 @@ class Benchmark(BenchmarkDefinition):
 
     @classmethod
     def from_definition_file(self_class, path: str) -> "Benchmark":
-        """Build a Benchmark object from the definiton path."""
+        """Create a Benchmark object from its definiton file path."""
         from os.path import dirname
 
         return self_class.from_definition(
@@ -108,7 +112,7 @@ class Benchmark(BenchmarkDefinition):
         return basename(self.dir)
 
     def get_presets(self) -> "List[Preset]":
-        """Get benchmark preset names."""
+        """Get benchmark presets' names."""
         from os import listdir
         from os.path import join
 
@@ -120,7 +124,7 @@ class Benchmark(BenchmarkDefinition):
         ]
 
     def get_default_preset(self) -> "Preset":
-        """Retrieve the default preset."""
+        """Get benchmark's default preset."""
         default = self.get_preset(self.default_preset)
         if default is None:
             raise BenchmarkPresetNotFound(
@@ -130,11 +134,11 @@ class Benchmark(BenchmarkDefinition):
         return default
 
     def get_test_preset(self) -> "Optional[Preset]":
-        """Retrieve the test preset."""
+        """Get benchmark's test preset."""
         return self.get_preset(self.test_preset) if self.test_preset else None
 
     def get_preset(self, name: str) -> "Optional[Preset]":
-        """Retrieve benchmark preset."""
+        """Get (eventually) benchmark's preset by name."""
         from os.path import exists, join
 
         presets_dir = join(self.dir, "presets")
@@ -166,15 +170,18 @@ class Preset(PresetDefinition):
     def from_definition(
         self_class, definition: PresetDefinition, name: str
     ) -> "Preset":
+        """Create a Preset from a definition and a name."""
         return self_class(name, **definition.__dict__)
 
     def into_definition(self) -> PresetDefinition:
+        """Transform benchmark into a definition."""
         return PresetDefinition(
             self.args, self.init_commands, self.env, self.post_commands
         )
 
     @classmethod
     def from_definition_file(self_class, path: str) -> "Preset":
+        """Create a Preset from its definition file path."""
         from os.path import basename
 
         filename = basename(path)
@@ -184,11 +191,18 @@ class Preset(PresetDefinition):
 
 
 class BenchmarkSuite:
-    """A suite of benchmarks, each with their own presets."""
+    """
+    A suite of benchmarks, each with their own presets.
+
+    This class doesn't extend `BenchmarkSuiteDefinition`, while still having a
+    class method which allows to instantiate an instance from a definition by
+    providing a search path for the benchmarks.
+    """
 
     def __init__(
         self, name: str, description: str, benchmark_runs: "List[BenchmarkRun]"
     ) -> None:
+        """Create a BenchmarkSuite."""
         self.name = name
         self.description = description
         self.benchmark_runs = benchmark_runs
@@ -197,6 +211,7 @@ class BenchmarkSuite:
     def from_definition(
         self_class, definition: BenchmarkSuiteDefinition, search_path: str
     ) -> "BenchmarkSuite":
+        """Create a BenchmarkSuite from its definition and a benchmark search path."""
         return self_class(
             definition.name,
             definition.description,
@@ -210,6 +225,11 @@ class BenchmarkSuite:
     def from_definition_file(
         self_class, path: str, search_path: str
     ) -> "BenchmarkSuite":
+        """
+        Create a BenchmarkSuite from its definition file's path.
+
+        A benchmark search path must also be specified.
+        """
         return self_class.from_definition(
             BenchmarkSuiteDefinition.from_file(path), search_path
         )
@@ -219,10 +239,11 @@ class BenchmarkRun:
     """
     A single Benchmark run session.
 
-    Contains multiple presets.
+    Consists of a Benchmark with an associated list of `Preset`s.
     """
 
     def __init__(self, benchmark: "Benchmark", presets: "List[Preset]") -> None:
+        """Create a BenchmarkRun."""
         self.benchmark = benchmark
         self.presets = presets
         self._virtualenv: "Optional[str]" = None
@@ -231,6 +252,7 @@ class BenchmarkRun:
     def from_definition(
         self_class, definition: "BenchmarkRunDefinition", search_path: str
     ) -> "BenchmarkRun":
+        """Create a BenchmarkRun from its definition and a benchmarks search path."""
         benchmark = find_benchmark(definition.benchmark_folder, search_path)
         if benchmark is None:
             raise BenchmarkNotFound(
@@ -245,6 +267,8 @@ class BenchmarkRun:
                 name = name[:-5]
             try:
                 selected_presets.append(
+                    # Try to find preset with matching name (will raise `StopIteration`
+                    # if no match is found)
                     next(preset for preset in presets if preset.name == name)
                 )
             except StopIteration:
@@ -258,6 +282,7 @@ class BenchmarkRun:
         """Get tasks for this benchmark run setup commands."""
         from os.path import join
 
+        # (Eventually) create a virtualenv for the benchmark
         if self.benchmark.virtualenv:
             yield self._add_context(Runnable(["python3", "-m", "venv", ".venv"]))
             self._virtualenv = join(self.benchmark.dir, ".venv")
@@ -270,9 +295,9 @@ class BenchmarkRun:
         """
         Get tasks for each selected preset.
 
-        Returns an Iterator into tuples containing:
-        - a Preset: the current preset
-        - a Iterator into `Runnable`s: the preset's tasks
+        :returns: an Iterator into tuples containing:
+            - a Preset: the current preset
+            - a Iterator into `Runnable`s: the preset's tasks
         """
         for preset in self.presets:
             yield preset, self._run_preset(preset)
@@ -283,6 +308,16 @@ class BenchmarkRun:
             yield self._add_context(command.into_runnable())
 
     def get_stats(self, stdout: "Union[str, TextIO]") -> "Dict[str, Union[int, float]]":
+        """
+        Parse stats out of benchmark's standard output.
+
+        :param stdout: benchmark's output as a file or file path.
+        :returns: dictionary of stat name and stat value (int or float).
+        :raises BenchmarkStatsDecodeError: if the stats script's json output couldn't be
+            parsed correctly.
+        :raises BenchmarkStatsMatchError: if a stat's regex couldn't match any line in
+            the benchmark's output.
+        """
         from json import load, loads
         from json.decoder import JSONDecodeError
         from jsonschema import validate, ValidationError
@@ -291,6 +326,7 @@ class BenchmarkRun:
         from subprocess import PIPE, run
 
         if isinstance(self.benchmark.stats, CommandInfo):
+            # Run benchmark's stats script passing stdout file name as first argument
             p = run(
                 **self._add_context(
                     self.benchmark.stats.extend(
@@ -305,12 +341,16 @@ class BenchmarkRun:
                 stdout=PIPE,
             )
             stats_output = p.stdout.decode()
+
             try:
                 json = loads(stats_output)
             except JSONDecodeError as e:
                 raise BenchmarkStatsDecodeError(
                     f"Failed to decode stats script json output: {e}", stats_output
                 ) from None
+
+            # Validate stats script output against stats jsonschema (should prevent
+            # further errors when deserializing)
             schema_path = join(
                 dirname(__file__), "jsonschema", "benchmark_stats.schema.json"
             )
@@ -323,14 +363,20 @@ class BenchmarkRun:
                         f"Decoded output from stats script is not valid: {e}",
                         stats_output,
                     )
+
             return BenchmarkStats.deserialize(json).stats
 
         stats: "Dict[str, Union[int, float]]" = {}
         for name, match in self.benchmark.stats.items():
-            file = stdout
+
+            file = (
+                open(stdout, "r") if isinstance(stdout, str) else stdout  # noqa: SIM115
+            )
+
             if match.file is not None:
                 file = open(join(self.benchmark.dir, match.file), "r")  # noqa: SIM115
 
+            # (Try to) match regex agains every line in the file
             regex = compile(match.regex)
             for line in file if not isinstance(file, str) else file.splitlines():
                 m = regex.search(line)
@@ -344,7 +390,7 @@ class BenchmarkRun:
                     f'No match for stat "{name}" in benchmark output'
                 )
 
-            if match.file is not None and isinstance(file, TextIO):
+            if file is not stdout:
                 file.close()
 
         return stats
@@ -365,6 +411,7 @@ class BenchmarkRun:
         for i, command in enumerate(self.benchmark.run_commands):
             yield self._add_context(
                 (
+                    # Add preset arguments only to last run command
                     command.extend(preset.args, preset.env)
                     if i == last and preset.args is not None
                     else command
@@ -376,6 +423,12 @@ class BenchmarkRun:
                 yield self._add_context(command.into_runnable())
 
     def _add_context(self, runnable: Runnable) -> Runnable:
+        """
+        Populate command context with this run's environment.
+
+        Will add benchmark's directory as cwd and (eventually) set up a python virtualenv
+        to isolate this benchmark.
+        """
         from os.path import isabs, join
 
         run_env = runnable.env.copy() if runnable.env is not None else None
@@ -403,12 +456,18 @@ class BenchmarkRun:
             runnable.args,
             cwd,
             run_env,
+            # Add virtualenv's bin directory to PATH
             [join(self._virtualenv, "bin")] if self._virtualenv is not None else [],
         )
 
 
 def get_benchmarks(search_path: str) -> "Iterator[Benchmark]":
-    """Get all the benchmarks in the search path."""
+    """
+    Get all the benchmarks in the search path.
+
+    :param search_path: colon separated list of directories in which to search for
+        benchmarks.
+    """
     from os import listdir
     from os.path import exists, join
 
@@ -424,5 +483,11 @@ def get_benchmarks(search_path: str) -> "Iterator[Benchmark]":
 
 
 def find_benchmark(id: str, search_path: str) -> "Optional[Benchmark]":
-    """Find a benchmark by ID in the search path."""
+    """
+    Find a benchmark by ID in the search path.
+
+    :param id: id of the benchmark (directory name)
+    :param search_path: colon separated list of directories in which to search for
+        benchmarks.
+    """
     return next((x for x in get_benchmarks(search_path) if x.get_id() == id), None)
