@@ -1,7 +1,7 @@
 ansicon==1.89.0 ; platform_system == "Windows" and python_version >= "3.7" \
     --hash=sha256:f1def52d17f65c2c9682cf8370c03f541f410c1752d6a14029f97318e4b9dfec \
     --hash=sha256:e4d039def5768a47e4afec8e89e83ec3ae5a26bf00ad851f914d1240b444d2b1
-attrs==21.4.0 ; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" \
+attrs==21.4.0 ; python_version >= "3.7" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.7" \
     --hash=sha256:2d27e3784d7a565d36ab851fe94887c5eccd6a463168875832a1be79c82828b4 \
     --hash=sha256:626ba8234211db98e869df76230a137c4c40a12d72445c45d5f5b716f076e2fd
 blessed==1.19.1 ; python_version >= "3.7" \
@@ -19,9 +19,9 @@ inquirer==2.9.1 ; python_version >= "3.7" \
 jinxed==1.1.0 ; platform_system == "Windows" and python_version >= "3.7" \
     --hash=sha256:6a61ccf963c16aa885304f27e6e5693783676897cea0c7f223270c8b8e78baf8 \
     --hash=sha256:d8f1731f134e9e6b04d95095845ae6c10eb15cb223a5f0cabdea87d4a279c305
-jsonschema==3.2.0 \
-    --hash=sha256:4e5b3cf8216f577bee9ce139cbe72eca3ea4f292ec60928ff24758ce626cd163 \
-    --hash=sha256:c8a85b28d377cc7737e46e2d9f2b4f44ee3c0e1deac6bf46ddefc7187d30797a
+jsonschema==4.4.0 ; python_version >= "3.7" \
+    --hash=sha256:77281a1f71684953ee8b3d488371b162419767973789272434bbc3f29d9c8823 \
+    --hash=sha256:636694eb41b3535ed608fe04129f26542b59ed99808b4f688aa32dcf55317a83
 pyrsistent==0.18.1 ; python_version >= "3.7" \
     --hash=sha256:df46c854f490f81210870e509818b729db4488e1f30f2a1ce1698b2295a878d1 \
     --hash=sha256:5d45866ececf4a5fff8742c25722da6d4c9e180daa7b405dc0a2a2790d668c26 \
@@ -53,7 +53,7 @@ python-editor==1.0.4 ; python_version >= "3.7" \
 readchar==3.0.5 ; python_version >= "3.7" \
     --hash=sha256:4c31210edfdf3e706d042c58feba2e8b6d5768b7f37002c5579fc473552f8fbb \
     --hash=sha256:d1f5b71e98c37b7f3b695fba9db978ab84f4f8a0ed879653d83e1d90a4c482c0
-six==1.16.0 ; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.3.0" or python_version >= "3.7" and python_full_version < "3.0.0" or python_full_version >= "3.3.0" and python_version >= "3.7" \
+six==1.16.0 ; python_version >= "3.7" and python_full_version < "3.0.0" or python_full_version >= "3.3.0" and python_version >= "3.7" \
     --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926
 tabulate==0.8.9 \

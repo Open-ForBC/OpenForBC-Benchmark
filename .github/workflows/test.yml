@@ -39,7 +39,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [Linux]
-        python-version: ["3.9"]
+        python-version: ["3.9", "3.10"]
         include:
           - os: Linux
             image: ubuntu-latest
