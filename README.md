@@ -57,6 +57,18 @@ ___
 
 - Guide to user [docs](docs/user-guide.md).
 
+
+<div align="center">
+
+| <center>User guide</center> | <center>Developer guide</center> |
+| -------- | -------- |
+| [<img src="https://i.postimg.cc/SQnVBNhf/img-148847.png" alt="drawing" style="width:10vmin;"/>](docs/user-guide.md) | [<img src="https://i.postimg.cc/mhxPqSGJ/img-543655.png" alt="drawing" style="width:10vmin;"/>](docs/developer-guide.md) |
+
+</div>
+
+
+
+
 ## Benchmarks
 
 Currently, the following benchmarks are implemented:
