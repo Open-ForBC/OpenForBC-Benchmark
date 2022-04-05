@@ -62,7 +62,7 @@ ___
 
 | <center>User guide</center> | <center>Developer guide</center> |
 | -------- | -------- |
-| [<img src="https://www.ird.lk/wp-content/uploads/2018/11/kisspng-crowd-drawing-cartoon-community-5abe5e8dc735f1.335904791522425485816.png" alt="drawing" style="width:10vmin;"/>](docs/user-guide.md) | [<img src="https://i0.wp.com/www.qaiware.com/wp-content/uploads/2016/03/full-stack-developer-icon.png" alt="drawing" style="width:10vmin;"/>](docs/developer-guide.md) |
+| [<img src="https://i.ibb.co/HT8zDtt/kisspng-crowd-drawing-cartoon-community-5abe5e8dc735f1-335904791522425485816.png" alt="drawing" style="width:10vmin;"/>](docs/user-guide.md) | [<img src="https://i.ibb.co/ZNQx6nw/kisspng-computer-icons-computer-code-vector-graphics-compu-plist-2-json-macappstoreda-5d0f29f75636f9.png" alt="drawing" style="width:10vmin;"/>](docs/developer-guide.md) |
 
 </div>
 
