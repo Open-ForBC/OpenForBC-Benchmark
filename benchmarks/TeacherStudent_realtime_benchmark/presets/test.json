@@ -1,4 +1,3 @@
 {
-    "args": "cpu training --n_epochs_training 1 --test_mode"
+  "args": "cpu test --n_epochs_training 1"
 }
-  

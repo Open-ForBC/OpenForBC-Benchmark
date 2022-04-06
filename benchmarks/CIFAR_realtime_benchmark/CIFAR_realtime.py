@@ -198,7 +198,9 @@ def inference_benchmark(iteration_limit=None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="A ML CIFAR benchmark")
     parser.add_argument("device_type", choices=["gpu", "cpu"], default="gpu")
-    parser.add_argument("mode", choices=["training", "inference"], default="inference")
+    parser.add_argument(
+        "mode", choices=["training", "inference", "test"], default="inference"
+    )
     parser.add_argument("-g", "--gpu_index", default=0, nargs="?")
     parser.add_argument("-n", "--n_epochs_training", default=10, nargs="?", type=int)
     parser.add_argument("-t", "--test_mode", action="store_true")
@@ -244,5 +246,5 @@ if __name__ == "__main__":
             training_benchmark(batch_size)
         elif mode == "inference":
             inference_benchmark(iteration_limit=args.iteration_limit)
-        if args.test_mode:
+        elif mode == "test":
             print("total_time: 0.0\navg_time_per_sample: 0.0")

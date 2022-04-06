@@ -209,7 +209,9 @@ def inference_benchmark(input_shape_X, batch_size, n_of_class, iteration_limit=N
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="A ML Teacher-Student benchmark")
     parser.add_argument("device_type", choices=["gpu", "cpu"], default="gpu")
-    parser.add_argument("mode", choices=["training", "inference"], default="inference")
+    parser.add_argument(
+        "mode", choices=["training", "inference", "test"], default="inference"
+    )
     parser.add_argument("-g", "--gpu_index", default=0, nargs="?")
     parser.add_argument("-s", "--net_size", default=2000, nargs="?")
     parser.add_argument("-n", "--n_epochs_training", default=200, nargs="?", type=int)
