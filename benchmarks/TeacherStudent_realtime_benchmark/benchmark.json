@@ -1,48 +1,21 @@
 {
-    "name": "Realtime Teacher-Student benchmark",
-    "description": "Training and inference using Teacher-Student pattern",
-    "default_preset": "inference",
-    "test_command": ["pip install flake8", "flake8 --exclude .venv"],
-    "test_preset": "test",
-    "setup_command": "./setup.sh",
-    "run_command": "./TeacherStudent_realtime.py",
-    "stats": {
-        "training_GPU_load":{
-            "regex": "Training GPU usage: [+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)"
-        },
-        "training_GPU_memory":{
-            "regex": "Training GPU memory usage: [+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)"
-        },
-        "training_time":{
-            "regex": "Training Time: [+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)"
-        },
-        "training_sample_processing_speed":{
-            "regex": "Training sample processing speed: [+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)"
-        },
-        "insample_inference_GPU_load":{
-            "regex": "In-sample inference GPU usage: [+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)"
-        },
-        "insample_inference_GPU_memory":{
-            "regex": "In-sample inference GPU memory usage: [+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)"
-        },
-        "in_sample_inference_time":{
-            "regex": "In-sample inference time: [+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)"
-        },
-        "in_sample_inference_processing_speed":{
-            "regex": "In-sample sample processing speed: [+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)"
-        },
-        "out_of_sample_GPU_load":{
-            "regex": "Out-of-Sample inference GPU usage: [+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)"
-        },
-        "out_of_sample_GPU_memory":{
-            "regex": "Out-of-Sample inference GPU memory usage: [+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)"
-        },
-        "out_of_sample_inference_time":{
-            "regex": "Out-of-Sample inference time: [+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)"
-        },
-        "out_of_sample_inference_processing_speed":{
-            "regex": "Out-of-Sample sample processing speed: [+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)"
-        }
+  "name": "Realtime Teacher-Student benchmark",
+  "description": "Training and inference using Teacher-Student pattern",
+  "default_preset": "inference",
+  "test_command": [
+    "pip install flake8",
+    "flake8 --exclude .venv"
+  ],
+  "test_preset": "test",
+  "setup_command": "./setup.sh",
+  "run_command": "./TeacherStudent_realtime.py",
+  "stats": {
+    "total_time": {
+      "regex": "total_time: (\\d+(?:\\.\\d+))"
     },
-    "virtualenv": true   
- }
+    "avg_time_per_sample": {
+      "regex": "avg_time_per_sample: (\\d+(?:\\.\\d+))"
+    }
+  },
+  "virtualenv": true
+}
