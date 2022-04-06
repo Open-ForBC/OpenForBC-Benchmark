@@ -60,16 +60,10 @@ jobs:
       - name: Install dependencies
         run: poetry install
 
-      - name: Get changed files using defaults
-        id: changed-files
-        uses: tj-actions/changed-files@v12
-        with:
-          files: ^benchmarks/
-
       - name: Run benchmarks' tests
         run: |
           for benchmark in $(ls benchmarks); do
-            [ -d benchmarks/$benchmark ] || continue
+            [ -f benchmarks/$benchmark/benchmark.json ] || continue
 
             echo "::group::$benchmark"
             echo "Running benchmark's tests"
