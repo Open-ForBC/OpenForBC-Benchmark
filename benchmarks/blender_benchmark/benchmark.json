@@ -1,0 +1,17 @@
+{
+  "name": "Blender benchmark",
+  "description": "Runs one/many blender scene(s) and outputs stats",
+  "default_preset": "classroom_cpu",
+  "setup_command": [
+    "./setup.sh",
+    "./setup.py"
+  ],
+  "run_command": "bin/benchmark-launcher-cli benchmark --json",
+  "test_command": "true",
+  "stats": {
+    "samples_per_minute": {
+      "regex": "\"samples_per_minute\": (\\d+\\.\\d+),"
+    }
+  },
+  "virtualenv": true
+}
