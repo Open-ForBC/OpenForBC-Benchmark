@@ -10,14 +10,8 @@
 
 import time
 import sys
-from datetime import datetime
 import argparse
 
-try:
-    import nvidia_smi
-except ModuleNotFoundError:
-    print("nvidia-smi has not been found. GPU support is excluded.")
-    pass
 import pandas as pd
 import tensorflow as tf
 import tensorflow.keras as keras
@@ -30,51 +24,9 @@ from tensorflow.keras.utils import to_categorical
 from tensorflow.keras import backend as K
 import numpy as np
 
-"""
-Global variables definition
-"""
-gpu_performance_sampling_time = 1
-keep_running = True
-
-
-class GPUstatistics(keras.callbacks.Callback):
-    """
-    A set of custom Keras callbacks to monitor Nvidia GPUs load
-    """
-
-    def on_train_begin(self, logs={}):
-        self.gpu_load = []
-        self.gpu_mem = []
-
-    def on_predict_begin(self, logs={}):
-        self.gpu_load = []
-        self.gpu_mem = []
-
-    def on_predict_batch_begin(self, batch, logs={}):
-        res = nvidia_smi.nvmlDeviceGetUtilizationRates(handle)
-        self.gpu_load.append(res.gpu)
-        self.gpu_mem.append(res.memory)
-
-    def on_predict_batch_end(self, batch, logs={}):
-        res = nvidia_smi.nvmlDeviceGetUtilizationRates(handle)
-        self.gpu_load.append(res.gpu)
-        self.gpu_mem.append(res.memory)
-
-    def on_train_batch_begin(self, batch, logs={}):
-        res = nvidia_smi.nvmlDeviceGetUtilizationRates(handle)
-        self.gpu_load.append(res.gpu)
-        self.gpu_mem.append(res.memory)
-
-    def on_train_batch_end(self, batch, logs={}):
-        res = nvidia_smi.nvmlDeviceGetUtilizationRates(handle)
-        self.gpu_load.append(res.gpu)
-        self.gpu_mem.append(res.memory)
-
 
 class TimeHistory(keras.callbacks.Callback):
-    """
-    A set of custom Keras callbacks to monitor Nvidia GPUs compute time
-    """
+    """A set of custom Keras callbacks to monitor Nvidia GPUs compute time."""
 
     def on_train_begin(self, logs={}):
         self.batch_times = []
@@ -165,7 +117,8 @@ def preprocess_data(
 
 def recall_m(y_true, y_pred):
     """
-    Estimate recall
+    Estimate recall.
+
     recall = TP / (TP + FN)
     """
     true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
@@ -176,7 +129,8 @@ def recall_m(y_true, y_pred):
 
 def precision_m(y_true, y_pred):
     """
-    Estimate precision
+    Estimate precision.
+
     precision = TP / (TP + FP)
     """
     true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
@@ -187,8 +141,9 @@ def precision_m(y_true, y_pred):
 
 def f1(y_true, y_pred):
     """
-    F1 score in tensorflow
-     f1 is the harmonic average of precision and recall
+    F1 score in tensorflow.
+
+    f1 is the harmonic average of precision and recall
     """
     precision = precision_m(y_true, y_pred)
     recall = recall_m(y_true, y_pred)
@@ -206,9 +161,7 @@ def create_model(
     activation_func="softmax",
     verbose=True,
 ):
-    """
-    Creates a tf.keras.Sequential() model
-    """
+    """Create a tf.keras.Sequential() model."""
     K.clear_session()
 
     model = Sequential()
@@ -230,13 +183,19 @@ def create_model(
     return model
 
 
+def gen_stats_file_name(prefix):
+    """Generate stats file name with prefix."""
+    from time import strftime
+
+    return f'stats_file_{prefix}_{strftime("%Y-%m-%d_%H-%M-%S")}.txt'
+
+
 def training_benchmark(batch_size):
     """
-    Training benchmark evaluating number of training inputs processed per second
-    """
-    dt_string = datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
-    stats_file = open("stats_file_training" + dt_string + ".txt", "w")
+    Perform training benchmark.
 
+    Evaluates number of training inputs processed per second.
+    """
     X, Y = preprocess_data(True)
 
     # L=0 Lum
@@ -261,37 +220,25 @@ def training_benchmark(batch_size):
         callbacks=[time_callback],
     )
 
-    training_time = sum(time_callback.batch_times)  # total time
-    time_per_epoch = training_time / n_epochs_training
-    time_per_batch = time_per_epoch / (X.shape[0] / batch_size)  # time per batch
-    time_per_sample = time_per_epoch / X.shape[0]  # time per sample
-    training_sample_per_second = 1.0 / time_per_sample  # sample per seconds
-
-    L = [
-        str(training_time),
-        ",",
-        str(time_per_batch),
-        ",",
-        str(time_per_sample),
-        ",",
-        str(training_sample_per_second),
-    ]
-    stats_file.writelines(L)
+    with open(gen_stats_file_name("training"), "w") as stats_file:
+        for batch_time in time_callback.batch_times:
+            stats_file.write(f"{batch_time}\n")
 
     print("TRAINING COMPLETED!")
-    stats_file.close()
+
+    total_time = sum(time_callback.batch_times)
+
+    print(
+        f"total_time: {total_time}\n"
+        f"avg_time_per_sample: {total_time / n_epochs_training / X.shape[0]}"
+    )
 
 
 def inference_benchmark(iteration_limit=None):
     """
-    Inference benchmark evaluating number of Out-of-Sample inputs processed per second
-    """
-    global keep_running
-    dt_string = datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
-    stats_file = open("stats_file_inference" + dt_string + ".txt", "w")
+    Perform inference benchmark.
 
-    """
-    Training the model without measuring its performances to prepare for inference
+    Evaluates number of Out-of-Sample inputs processed per second.
     """
     X, Y = preprocess_data(True)
 
@@ -309,60 +256,45 @@ def inference_benchmark(iteration_limit=None):
     )
     print("TRAINING COMPLETED!")
 
-    """
-    Performing inference on Out-of-Sample multiple times to obtain average performance
-    """
-    sample_count = 0
-    total_time = 0
-
+    # Perform inference on Out-of-Sample multiple times to obtain average performance
     n_iterations = 0
-
-    while keep_running:
-        print(f"Iteration {n_iterations}")
-        L = []
-        for x_batch in X:  # online prediction (one sample at time)
+    total_time = 0.0
+    keep_running = True
+    with open(gen_stats_file_name("inference"), "w") as stats_file:
+        while keep_running:
+            print(f"Iteration {n_iterations}")
             try:
-                _xbatch = x_batch.reshape(1, -1)
-                start_time = time.time()
-                _ = model(_xbatch)
-                end_time = time.time() - start_time
-                total_time += end_time
-                sample_count += 1
-                latency = total_time / sample_count
-                throughput = sample_count / total_time
-                L = [
-                    str(end_time),
-                    ",",
-                    str(sample_count),
-                    ",",
-                    str(latency),
-                    ",",
-                    str(throughput),
-                    ",",
-                    str(total_time),
-                ]
-                stats_file.writelines(L)
-                stats_file.writelines("\n")
+                for x in X:
+                    x = x.reshape(1, -1)
+                    start_time = time.time()
+                    _ = model(x)
+                    sample_time = time.time() - start_time
+                    total_time += sample_time
+                    stats_file.write(f"{sample_time}\n")
+                    stats_file.flush()
             except KeyboardInterrupt:
                 keep_running = False
                 break
-        n_iterations += 1
-        if iteration_limit:
-            if n_iterations + 1 > iteration_limit:
+            n_iterations += 1
+            if iteration_limit and n_iterations + 1 > iteration_limit:
                 break
 
     print("INFERENCE COMPLETED!")
-    stats_file.close()
+    print(
+        f"total_time: {total_time}\n"
+        f"avg_time_per_sample: {total_time / (len(X) * n_iterations)}"
+    )
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="A ML MNIST benchmark")
     parser.add_argument("device_type", choices=["gpu", "cpu"], default="gpu")
-    parser.add_argument("mode", choices=["training", "inference"], default="inference")
+    parser.add_argument(
+        "mode", choices=["training", "inference", "test"], default="inference"
+    )
     parser.add_argument("-g", "--gpu_index", default=0, nargs="?")
     parser.add_argument("-n", "--n_epochs_training", default=50, nargs="?", type=int)
     parser.add_argument("-bs", "--batch_size", default=32, nargs="?", type=int)
-    parser.add_argument("-t", "--test_mode", action="store_true")
     parser.add_argument(
         "-l",
         "--iteration_limit",
@@ -377,26 +309,20 @@ if __name__ == "__main__":
     n_epochs_training = args.n_epochs_training
     batch_size = args.batch_size
 
-    """
-    SET DEVICE
-    """
+    # SET DEVICE
     if dev == "cpu":
         de = "/cpu:0"
     elif dev == "gpu":
-        """
-        Checking GPU availability
-        """
+        # Check GPU availability
         if tf.config.list_physical_devices("GPU") == 0:
             print("GPU unavailable. Aborting.")
             sys.exit(0)
 
-        """
-        Telling to the used GPU to automatically increase the amount of used memory
-        """
         gpus = tf.config.list_physical_devices("GPU")
 
         if gpus:
             if len(gpus) >= gpu_index + 1:
+                # Use dynamic GPU memory allocation
                 tf.config.experimental.set_memory_growth(gpus[gpu_index], True)
             else:
                 print(f"GPU {gpu_index} not found. Aborting.")
@@ -408,25 +334,9 @@ if __name__ == "__main__":
         de = f"/device:GPU:{gpu_index}"
 
     with tf.device(de):
-        if dev == "gpu":
-            nvidia_smi.nvmlInit()
-            handle = nvidia_smi.nvmlDeviceGetHandleByIndex(gpu_index)
-
         if mode == "training":
             training_benchmark(batch_size)
         elif mode == "inference":
             inference_benchmark(iteration_limit=args.iteration_limit)
-
-        if args.test_mode:
-            print("Training GPU usage: 0")
-            print("Training GPU memory usage: 0")
-            print("Training Time: 0")
-            print("Training sample processing speed: 0")
-            print("In-sample inference GPU usage: 0")
-            print("In-sample inference GPU memory usage: 0")
-            print("In-sample inference time: 0")
-            print("In-sample sample processing speed: 0")
-            print("Out-of-Sample inference GPU usage: 0")
-            print("Out-of-Sample inference GPU memory usage: 0")
-            print("Out-of-Sample inference time: 0")
-            print("Out-of-Sample sample processing speed: 0")
+        elif mode == "test":
+            print("total_time: 0.0\navg_time_per_sample: 0.0")
