@@ -1,10 +1,2 @@
 tensorflow-gpu
-sklearn
-gputil
 numpy
-numba
-nvidia-ml-py3
-nvidia-smi
-parso
-tensorflow_datasets
-keras
