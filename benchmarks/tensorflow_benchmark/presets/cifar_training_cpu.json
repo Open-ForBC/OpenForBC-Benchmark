@@ -1,0 +1,3 @@
+{
+    "args": "cifar.py cpu training --n_epochs_training 1"
+}
