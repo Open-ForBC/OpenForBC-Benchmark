@@ -127,6 +127,7 @@ class Benchmark:
 
         Evaluates number of Out-of-Sample inputs processed per second.
         """
+        from math import ceil
 
         # Perform inference on Out-of-Sample multiple times to obtain average performance
         n_iterations = 0
