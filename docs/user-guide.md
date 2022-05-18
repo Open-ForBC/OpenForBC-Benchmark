@@ -54,6 +54,7 @@ or about a suite:
 
 ```shell
 o4bc-bench suite get <suite_name:str>
+```
 
 **2. List and get preset information from a particular benchmark:**
 
