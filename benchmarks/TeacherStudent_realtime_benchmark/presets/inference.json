@@ -1,3 +1,0 @@
-{
-    "args": "gpu inference -l 10000"
-}

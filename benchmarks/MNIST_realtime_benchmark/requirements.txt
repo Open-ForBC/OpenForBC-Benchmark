@@ -1,3 +1,0 @@
-tensorflow-gpu
-numpy
-tensorflow_datasets
