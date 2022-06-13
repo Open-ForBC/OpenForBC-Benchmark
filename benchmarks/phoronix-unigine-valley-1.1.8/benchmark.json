@@ -1,0 +1,17 @@
+{
+    "name": "Unigine Valley",
+    "description": "This test calculates the average frame-rate within the Valley demo for the Unigine engine, released in February 2013. This engine is extremely demanding on the system's graphics card. Unigine Valley relies upon an OpenGL 3 core profile context.",
+    "default_preset": "preset-opengl",
+    "setup_command": [
+        "pip install progressbar requests",
+        "./phoronix_downloader.py",
+        "./install.sh",
+        "./setup.sh"
+    ],
+    "run_command": "./unigine-valley",
+    "test_command": ["pip install flake8", "flake8 --exclude .venv"],
+    "stats":
+        {"results": {"regex": "FPS:\\s+(\\d+(?:\\.\\d+))\nUnigine~# quit"}},
+    "virtualenv": true   
+}
+
