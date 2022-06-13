@@ -1,6 +1,6 @@
 {
-  "name": "TCGA benchmark topic modeling",
-  "description": "A benchmark on TCGA Breast cancer",
+  "name": "Tensorflow ML benchmark",
+  "description": "A collection of various tensorflow ML benchmarks",
   "default_preset": "cifar_inference",
   "run_command": {
     "command": "python"
