@@ -23,8 +23,8 @@ Tensorflow requires NVIDIA CUDNN and some CUDA libraries to run, specifically:
   
 ## Benchmark list
 
-- [MNIST Real Time Benchmarking](doc/MNIST)
-- [CIFAR10 Real Time Benchmarking](doc/CIFAR)
-- [Teacher-Student Real Time Benchmarking](doc/TeacherStudent)
-- [TCGA topic modeling benchmark](doc/TCGA)
+- [MNIST Real Time Benchmarking](doc/MNIST.md)
+- [CIFAR10 Real Time Benchmarking](doc/CIFAR.md)
+- [Teacher-Student Real Time Benchmarking](doc/TeacherStudent.md)
+- [TCGA topic modeling benchmark](doc/TCGA.md)
 
