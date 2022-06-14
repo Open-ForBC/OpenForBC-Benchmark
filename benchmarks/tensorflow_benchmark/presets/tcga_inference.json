@@ -1,0 +1,3 @@
+{
+  "args": "tcga.py gpu inference -l 100 -bs 64"
+}
