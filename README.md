@@ -1,6 +1,6 @@
 <h1  align="center">
 
-<img  src="https://i.imgur.com/l4DGFEw.png"  width="224px"/><br/>
+<img  src="https://i.imgur.com/l4DGFEw.png"  style="width: 25vw"/><br/>
 
 <p>OpenForBC-Benchmark</p>
 
@@ -35,10 +35,16 @@ installation](https://developer.nvidia.com/cudnn) and [CUDA toolkit
 installation](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html).
 
 ## Documentation
+<div align="center">
 
-- Guide to developer [docs](docs/developer-guide.md).
+| <center>User guide</center> | <center>Developer guide</center> |
+| -------- | -------- |
+| [<img src="https://i.ibb.co/HT8zDtt/kisspng-crowd-drawing-cartoon-community-5abe5e8dc735f1-335904791522425485816.png" alt="drawing" style="width:20vmin;"/>](docs/user-guide.md) | [<img src="https://i.ibb.co/ZNQx6nw/kisspng-computer-icons-computer-code-vector-graphics-compu-plist-2-json-macappstoreda-5d0f29f75636f9.png" alt="drawing" style="width:20vmin;"/>](docs/developer-guide.md) |
 
-- Guide to user [docs](docs/user-guide.md).
+</div>
+
+
+
 
 ## Benchmarks
 
