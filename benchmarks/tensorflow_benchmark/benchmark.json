@@ -1,0 +1,24 @@
+{
+  "name": "Tensorflow ML benchmark",
+  "description": "A collection of various tensorflow ML benchmarks",
+  "default_preset": "cifar_inference",
+  "run_command": {
+    "command": "python"
+  },
+  "cleanup_command": "setup.sh --clean",
+  "test_command": [
+    "pip install flake8",
+    "flake8 --exclude .venv"
+  ],
+  "test_preset": "test",
+  "setup_command": "./setup.sh",
+  "stats": {
+    "total_time": {
+      "regex": "total_time: (\\d+(?:\\.\\d+))"
+    },
+    "avg_time_per_sample": {
+      "regex": "avg_time_per_sample: (\\d+(?:\\.\\d+))"
+    }
+  },
+  "virtualenv": true
+}

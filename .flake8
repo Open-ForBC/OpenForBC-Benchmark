@@ -8,4 +8,6 @@ extend-ignore =
     ANN102,
     # D1xx Missing docstrings
     D100, D101, D102, D103, D104, D105, D107
+    # E203 whitespace before ':'
+    E203
 max-line-length = 89

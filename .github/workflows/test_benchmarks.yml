@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "benchmarks/**"
+      - "openforbc_benchmark/**"
 
 jobs:
   benchmarks_tests:
@@ -59,23 +60,13 @@ jobs:
       - name: Install dependencies
         run: poetry install
 
-      - name: Get changed files using defaults
-        id: changed-files
-        uses: tj-actions/changed-files@v12
-        with:
-          files: ^benchmarks/
-
-      - name: Run modified benchmarks' tests
+      - name: Run benchmarks' tests
         run: |
-          benchmarks=""
+          for benchmark in $(ls benchmarks); do
+            [ -f benchmarks/$benchmark/benchmark.json ] || continue
 
-          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
-            benchmarks+="$(echo $file | cut -d/ -f2)\n"
-          done
-
-          for benchmark in $(printf $benchmarks | uniq); do
             echo "::group::$benchmark"
-            echo "Running benchmark tests"
+            echo "Running benchmark's tests"
             poetry run o4bc-bench benchmark test $benchmark
             echo
             echo "Running benchmark's test preset"

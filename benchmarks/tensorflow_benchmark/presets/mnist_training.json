@@ -1,0 +1,3 @@
+{
+  "args": "mnist.py gpu training -n 5"
+}

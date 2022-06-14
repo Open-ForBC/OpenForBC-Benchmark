@@ -1,0 +1,3 @@
+{
+  "args": "cifar.py gpu training -n 5"
+}

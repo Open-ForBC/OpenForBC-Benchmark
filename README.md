@@ -34,23 +34,6 @@ ubuntu or to NVIDIA's documentation for [CUDNN
 installation](https://developer.nvidia.com/cudnn) and [CUDA toolkit
 installation](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html).
 
-## Installation
-
-- Clone the repository
-
-```bash
-git clone --recursive https://github.com/Open-ForBC/OpenForBC-Benchmark.git
-```
-
-- Install the `o4bc-bench` tool
-
-```bash
-cd OpenForBC-Benchmark
-pip3 install .
-```
-
-___
-
 ## Documentation
 <div align="center">
 
@@ -71,11 +54,7 @@ Currently, the following benchmarks are implemented:
 - [Blender](benchmarks/blender_benchmark).
 - [Matmul](benchmarks/matmul_benchmark)
 - [MatmulC++](benchmarks/matmulCpp_benchmark)
-- [MNIST Real Time Benchmarking](benchmarks/MNIST_realtime_benchmark)
-- [CIFAR10 Real Time Benchmarking](benchmarks/CIFAR_realtime_benchmark)
-- [Teacher-Student Real Time Benchmarking](benchmarks/TeacherStudent_realtime_benchmark)
+- [TensorFlow Real Time Benchmarks](benchmarks/tensorflow_benchmark)
 - [MNIST FCNN](benchmarks/MNIST_FCNeuralNetwork)
-
-
 
 ## [Licenses](LICENSE)

@@ -79,6 +79,7 @@ class CliBenchmarkRun:
         mkdir(self.log_dir)
 
     def print_stats(self, json: bool = False) -> None:
+        """Print benchmark stats to output."""
         if json:
             return echo(dumps(self.stats))
 
@@ -89,6 +90,7 @@ class CliBenchmarkRun:
         echo(tabulate(table, ["Preset", "Stat", "Value"]))
 
     def start(self, test_only: bool = False) -> None:
+        """Run the benchmark (interface method)."""
         if self._log_to_stderr:
             self._run_setup()
             self._run_test() if test_only else self._run()
@@ -98,13 +100,20 @@ class CliBenchmarkRun:
                 self._run_test() if test_only else self._run()
 
     def _run(self) -> None:
+        """Run the benchmark."""
         benchmark_id = self.benchmark_run.benchmark.get_id()
 
         for preset, tasks in self.benchmark_run.run():
             self._log(f'Running "{benchmark_id}" preset "{preset.name}"')
             for i, task in enumerate(tasks):
-                self.spinner.text = (
-                    f"{benchmark_id}(run:{preset.name}): {argv_join(task.args)}"
+                from os import get_terminal_size
+                from textwrap import shorten
+
+                self.spinner.text = shorten(
+                    f"{benchmark_id}(run:{preset.name}): {argv_join(task.args)}",
+                    # spinner uses 2 chars
+                    (get_terminal_size().columns if stdout.isatty() else 80) - 2,
+                    placeholder="...",
                 )
                 self._run_task_or_err(
                     task,
@@ -143,6 +152,7 @@ class CliBenchmarkRun:
                 )
 
     def _run_setup(self) -> None:
+        """Run benchmark's setup tasks."""
         benchmark_id = self.benchmark_run.benchmark.get_id()
 
         self._log(f'Running "{benchmark_id}" setup commands')
@@ -156,6 +166,7 @@ class CliBenchmarkRun:
             )
 
     def _run_test(self) -> None:
+        """Run benchmark's test tasks."""
         benchmark_id = self.benchmark_run.benchmark.get_id()
 
         self._log(f'Running "{benchmark_id}" test commands')
@@ -169,6 +180,11 @@ class CliBenchmarkRun:
             )
 
     def _fail(self, exception: BenchmarkRunException) -> None:
+        """
+        Terminate the execution printing an exception into stderr.
+
+        :param exception: exception that caused the failure.
+        """
         self.spinner.stop()
 
         echo(exception, err=True)
@@ -187,12 +203,25 @@ class CliBenchmarkRun:
         raise Exit(1)
 
     def _log(self, message: "Any", err: bool = True) -> None:
+        """
+        Log a message to stdout/err.
+
+        :param message: message to log.
+        :param err: `True` to use stderr, `False` for stdout.
+        """
         with self.spinner.hidden():
             echo(message, err=(self._log_to_stderr or err))
 
     def _run_task_or_err(
         self, task: "Runnable", log_prefix: str, err_message: "Any"
     ) -> None:
+        """
+        Run a task, eventually failing with an exception.
+
+        :param task: the task to run.
+        :param log_prefix: output filename prefix.
+        :param err_message: error message to be shown when the task fails.
+        """
         try:
             ret = self._run_task(task, log_prefix)
         except Exception as e:
@@ -217,6 +246,7 @@ class CliBenchmarkRun:
             )
 
     def _run_task(self, task: "Runnable", log_prefix: str) -> int:
+        """Run the task."""
         from selectors import DefaultSelector, EVENT_READ
         from subprocess import PIPE, Popen
         from time import sleep
@@ -228,6 +258,7 @@ class CliBenchmarkRun:
         assert proc.stdout is not None
         assert proc.stderr is not None
 
+        # Selector to read from both stdout and stderr
         outsel = DefaultSelector()
         outsel.register(proc.stdout, EVENT_READ)
         outsel.register(proc.stderr, EVENT_READ)
@@ -241,15 +272,18 @@ class CliBenchmarkRun:
             reading = True
             while reading:
                 for k, _ in outsel.select():
+                    # Try to read a line from either stdout or stderr
                     line = cast(IO[bytes], k.fileobj).readline()
                     if not line:
+                        # Unregister ended fileobj
                         outsel.unregister(k.fileobj)
-                        if not outsel.get_map():
+                        if not outsel.get_map():  # No more output
                             reading = False
                         continue
 
                     self._log(line.rstrip().decode())
 
+                    # Write line to err/out log file
                     log_file = err_log if k.fileobj is proc.stderr else out_log
                     log_file.write(
                         line.decode() if line.endswith(b"\n") else line.decode() + "\n"
@@ -262,6 +296,7 @@ class CliBenchmarkRun:
 
 
 def find_benchmark_or_fail(benchmark_id: str) -> "Benchmark":
+    """Search for a benchmark in the search path or fail with an error."""
     benchmark = find_benchmark(benchmark_id, state["search_path"])
     if benchmark is None:
         echo(f'ERROR: Benchmark "{benchmark_id}" not found in search path')
@@ -271,6 +306,7 @@ def find_benchmark_or_fail(benchmark_id: str) -> "Benchmark":
 
 
 def get_preset_or_fail(benchmark: "Benchmark", preset_name: str) -> "Preset":
+    """Get benchmark's preset by name or fail with an error message."""
     preset = benchmark.get_preset(preset_name)
     if preset is None:
         echo(
@@ -300,10 +336,12 @@ def get_benchmark_log_dir(benchmark: "Benchmark") -> str:
 
 
 def pretty_commands(commands: List[CommandInfo]) -> str:
+    """Prettify command representation."""
     return "\n".join(f"\t{command.into_runnable()}" for command in commands)
 
 
 def pretty_stats(stats: "Union[CommandInfo, Dict[str, StatMatchInfo]]") -> str:
+    """Prettify benchmark stats data."""
     if isinstance(stats, dict):
         return "\n".join(
             f'\t{k}: /{v.regex}/ @ {v.file if v.file else "stdout"}'
@@ -346,7 +384,7 @@ def list_benchmarks(table: bool = Option(False, "--table", "-t")) -> None:
 def list_presets(
     benchmark_folder: str, table: bool = Option(True, "--table/--no-table", "-t/-T")
 ) -> None:
-    """List benchmark presets."""
+    """List benchmark's presets."""
     benchmark = find_benchmark_or_fail(benchmark_folder)
     if benchmark is None:
         echo(f'ERROR: Benchmark "{benchmark_folder}" not found in search path')

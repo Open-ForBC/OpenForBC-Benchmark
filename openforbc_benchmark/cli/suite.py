@@ -18,11 +18,13 @@ class CliBenchmarkSuiteRun:
     def __init__(
         self, suite: BenchmarkSuite, log_to_stderr: bool = not stdout.isatty()
     ) -> None:
+        """Create a CliBenchmarkSuiteRun."""
         self.suite = suite
         self.stats: "List[Dict[str, Dict[str, Union[int, float]]]]" = []
         self._log_to_stderr = log_to_stderr
 
     def print_stats(self, json: bool = False) -> None:
+        """Print benchmark suite's stats."""
         from json import dumps
         from tabulate import tabulate
 
@@ -41,6 +43,7 @@ class CliBenchmarkSuiteRun:
             echo(tabulate(table, ["Preset", "Stat", "Value"]))
 
     def start(self) -> None:
+        """Run this benchmark suite."""
         for i, bench_run in enumerate(self.suite.benchmark_runs):
             echo(f"Running benchmark run #{i + 1}", err=self._log_to_stderr)
             run = CliBenchmarkRun(bench_run, self._log_to_stderr)
@@ -69,6 +72,7 @@ def find_suite(search: str, search_path: str) -> "Optional[BenchmarkSuite]":
 
 
 def prompt_benchmark_run(benchmarks: "List[Benchmark]") -> BenchmarkRunDefinition:
+    """Prompt the user to define a benchmark run."""
     from inquirer import checkbox, list_input
 
     benchmark_name = list_input(
@@ -107,6 +111,7 @@ def prompt_benchmark_run(benchmarks: "List[Benchmark]") -> BenchmarkRunDefinitio
 
 
 def suite_definition_tool() -> None:
+    """Interactively create a suite definition."""
     from inquirer import confirm, text
     from json import dumps
     from os.path import exists, join
