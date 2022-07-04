@@ -29,3 +29,15 @@ Blender scenes support for different blender versions:
 - The benchmark responds to **verbosity** in the range of 0-3 (integer value).
 
 Official Blender Benchmark CLI [docs](./README.txt).
+
+### Requirements
+
+Apart from cuda, **libxi** needs to be installed
+```
+sudo apt-get update -y
+sudo apt-get install -y libxi6
+```
+
+### Note
+
+- The metal preset runs only on macOS
