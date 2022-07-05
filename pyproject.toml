@@ -8,7 +8,8 @@ authors = [
 ]
 description = ""
 name = "openforbc-benchmark"
-version = "1.0.0-rc.3"
+license = "MIT"
+version = "2.1.0"
 
 [tool.poetry.dependencies]
 inquirer = "^2.8.0"

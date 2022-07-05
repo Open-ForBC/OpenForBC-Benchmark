@@ -1,3 +1,6 @@
+# Copyright (c) 2021-2022 Istituto Nazionale di Fisica Nucleare
+# SPDX-License-Identifier: MIT
+
 """JSON module contains classes used for JSON (de)serialization."""
 
 from typing import TYPE_CHECKING, Generic, TypeVar
