@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+# Copyright (c) 2021-2022 Istituto Nazionale di Fisica Nucleare
+# SPDX-License-Identifier: MIT
+
 
 import tensorflow as tf
 import tensorflow.keras as keras
