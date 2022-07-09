@@ -1,3 +1,6 @@
+# Copyright (c) 2021-2022 Istituto Nazionale di Fisica Nucleare
+# SPDX-License-Identifier: MIT
+
 from typer import Context, Option, Typer  # noqa: TC002
 
 from openforbc_benchmark.cli.benchmark import app as benchmark_app

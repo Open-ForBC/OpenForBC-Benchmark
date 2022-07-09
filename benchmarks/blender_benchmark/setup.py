@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+# Copyright (c) 2021-2022 Istituto Nazionale di Fisica Nucleare
+# SPDX-License-Identifier: MIT
+
 
 import os
 import platform
