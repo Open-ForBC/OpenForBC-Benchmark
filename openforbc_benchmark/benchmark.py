@@ -381,12 +381,11 @@ class BenchmarkRun:
 
             # (Try to) match regex agains every line in the file
             regex = compile(match.regex)
-            for line in file if not isinstance(file, str) else file.splitlines():
-                m = regex.search(line)
-                if m is not None:
-                    number = m.group(1)
-                    stats[name] = float(number) if "." in number else int(number)
-                    break
+            if (
+                m := regex.search(file if isinstance(file, str) else file.read())
+            ) is not None:
+                number = m.group(1)
+                stats[name] = float(number) if "." in number else int(number)
 
             if name not in stats:
                 raise BenchmarkStatsMatchError(
