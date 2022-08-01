@@ -50,11 +50,13 @@ installation](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.h
 
 Currently, the following benchmarks are implemented:
 
-- [Dummy](benchmarks/dummy_benchmark).
-- [Blender](benchmarks/blender_benchmark).
+- [Dummy](benchmarks/dummy_benchmark)
+- [Blender](benchmarks/blender_benchmark)
 - [Matmul](benchmarks/matmul_benchmark)
 - [MatmulC++](benchmarks/matmulCpp_benchmark)
 - [TensorFlow Real Time Benchmarks](benchmarks/tensorflow_benchmark)
 - [MNIST FCNN](benchmarks/MNIST_FCNeuralNetwork)
+- [Unigine Heaven](benchmarks/phoronix-unigine-heaven-1.6.5)
+- [Unigine Valley](benchmarks/phoronix-unigine-valley-1.1.8)
 
 ## [Licenses](LICENSE)
