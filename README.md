@@ -56,5 +56,7 @@ Currently, the following benchmarks are implemented:
 - [MatmulC++](benchmarks/matmulCpp_benchmark)
 - [TensorFlow Real Time Benchmarks](benchmarks/tensorflow_benchmark)
 - [MNIST FCNN](benchmarks/MNIST_FCNeuralNetwork)
+- [Unigine Heaven](benchmarks/phoronix-unigine-heaven-1.6.5)
+- [Unigine Valley](benchmarks/phoronix-unigine-valley-1.1.8)
 
 ## [Licenses](LICENSE)
