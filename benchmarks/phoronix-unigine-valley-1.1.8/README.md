@@ -8,6 +8,11 @@ Unigine engine, released in February 2013.
 This engine is extremely demanding on the system's graphics card. Unigine Valley
 relies upon an OpenGL 3 core profile context.
 
+NB:
+- version 1.1.8
+- does not run on MacOS
+
+
 ## Presets
 
 - `preset-d3d11`: runs using DirectX 11
