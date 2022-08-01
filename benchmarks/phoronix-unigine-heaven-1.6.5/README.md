@@ -7,6 +7,10 @@ Unigine engine.
 
 This engine is extremely demanding on the system's graphics card.
 
+NB:
+- version 1.6.5
+- does not run on MacOS
+
 ## Presets
 
 - `preset-d3d11`: runs using DirectX 11
