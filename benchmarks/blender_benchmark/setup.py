@@ -54,7 +54,26 @@ if __name__ == "__main__":
         filehandle, _ = urllib.urlretrieve(url, reporthook=MyProgressBar())
         if system == "linux":
             with tarfile.open(filehandle) as tar:
-                tar.extractall(filePath)
+                def is_within_directory(directory, target):
+                    
+                    abs_directory = os.path.abspath(directory)
+                    abs_target = os.path.abspath(target)
+                
+                    prefix = os.path.commonprefix([abs_directory, abs_target])
+                    
+                    return prefix == abs_directory
+                
+                def safe_extract(tar, path=".", members=None, *, numeric_owner=False):
+                
+                    for member in tar.getmembers():
+                        member_path = os.path.join(path, member.name)
+                        if not is_within_directory(path, member_path):
+                            raise Exception("Attempted Path Traversal in Tar File")
+                
+                    tar.extractall(path, members, numeric_owner=numeric_owner) 
+                    
+                
+                safe_extract(tar, filePath)
         else:
             with zipfile.ZipFile(filehandle, "r") as zip:
                 zip.extractall(filePath)
