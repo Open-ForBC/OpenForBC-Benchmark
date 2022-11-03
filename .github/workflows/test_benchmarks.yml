@@ -5,6 +5,8 @@ on:
     paths:
       - "benchmarks/**"
       - "openforbc_benchmark/**"
+  schedule:
+    - cron: '*/15 * * * *'
 
 jobs:
   benchmarks_tests:
