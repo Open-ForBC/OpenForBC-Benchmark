@@ -1,12 +1,12 @@
 name: Benchmarks tests
 
 on:
-  schedule:
-    - cron: '36 10 * * 4'
   pull_request:
     paths:
       - "benchmarks/**"
       - "openforbc_benchmark/**"
+  schedule:
+    - cron: '*/5 * * * *'
 
 jobs:
   benchmarks_tests:
