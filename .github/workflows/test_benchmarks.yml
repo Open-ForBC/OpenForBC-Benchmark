@@ -6,6 +6,7 @@ on:
     paths:
       - "benchmarks/**"
       - "openforbc_benchmark/**"
+      - ".github/workflows/test_benchmarks.yml"
   schedule:
     - cron: '0 1 * * 1'
 
