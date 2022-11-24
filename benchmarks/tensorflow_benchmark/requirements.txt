@@ -1,4 +1,4 @@
 tensorflow>2
-sklearn
+scikit-learn
 pandas
 numpy
