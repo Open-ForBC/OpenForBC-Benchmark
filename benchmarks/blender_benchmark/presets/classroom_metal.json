@@ -1,7 +1,7 @@
 {
-  "args": "-b 3.2.0 --device-type METAL classroom",
+  "args": "-b 3.3.0 --device-type METAL classroom",
   "init_command": [
-    "bin/benchmark-launcher-cli blender download 3.2.0",
-    "bin/benchmark-launcher-cli scenes download -b 3.2.0 classroom"
+    "bin/benchmark-launcher-cli blender download 3.3.0",
+    "bin/benchmark-launcher-cli scenes download -b 3.3.0 classroom"
   ]
 }
