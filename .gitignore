@@ -5,7 +5,6 @@ config/mlperf_config.json
 benchmarks/blender_benchmark/benchmark-launcher-cli
 logs/*
 common/phoronix-benchs/
-benchmarks/phoronix-*
 benchmarks/*/bin
 benchmarks/*/.venv
 

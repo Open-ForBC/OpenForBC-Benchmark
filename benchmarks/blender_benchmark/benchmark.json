@@ -4,7 +4,8 @@
   "default_preset": "classroom_cpu",
   "setup_command": [
     "./setup.sh",
-    "./setup.py"
+    "./setup.py",
+    "chmod +x bin/benchmark-launcher-cli"
   ],
   "run_command": "bin/benchmark-launcher-cli benchmark --json",
   "test_command": "true",

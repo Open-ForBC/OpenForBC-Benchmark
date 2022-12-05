@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+# Copyright (c) 2021-2022 Istituto Nazionale di Fisica Nucleare
+# SPDX-License-Identifier: MIT
+
 
 import os
 import platform
@@ -39,7 +42,7 @@ if __name__ == "__main__":
     filePath = os.path.join(os.path.dirname(__file__), "bin")
 
     system = platform.system().lower()
-    version = "3.0.0"
+    version = "3.1.0"
     extension = "tar.gz"
 
     if system == "darwin":

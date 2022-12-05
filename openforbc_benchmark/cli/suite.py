@@ -1,3 +1,6 @@
+# Copyright (c) 2021-2022 Istituto Nazionale di Fisica Nucleare
+# SPDX-License-Identifier: MIT
+
 from sys import stdout
 from typer import Context, echo, Exit, Typer, Option  # noqa: TC002
 from typing import TYPE_CHECKING

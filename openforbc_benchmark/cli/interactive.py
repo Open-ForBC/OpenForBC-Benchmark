@@ -1,3 +1,6 @@
+# Copyright (c) 2021-2022 Istituto Nazionale di Fisica Nucleare
+# SPDX-License-Identifier: MIT
+
 from inquirer import list_input
 from typer import Context, echo, Exit, Typer  # noqa: TC002
 

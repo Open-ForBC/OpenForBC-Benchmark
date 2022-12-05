@@ -6,6 +6,7 @@ on:
     paths:
       - "benchmarks/**"
       - "openforbc_benchmark/**"
+      - ".github/workflows/test_benchmarks.yml"
   schedule:
     - cron: '0 1 * * 1'
 
@@ -67,6 +68,8 @@ jobs:
         run: |
           for benchmark in $(ls benchmarks); do
             [ -f benchmarks/$benchmark/benchmark.json ] || continue
+            [[ "$benchmark" == phoronix* ]] && continue
+            [[ "$benchmark" == unigine* ]] && continue
 
             echo "::group::$benchmark"
             echo "Running benchmark's tests"
